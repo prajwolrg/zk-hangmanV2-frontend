@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import Script from "next/script";
-import dynamic from "next/dynamic";
 
 const providerOptions = {};
 
