@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import Script from "next/script";
+import { useRouter } from "next/router";
 
 const providerOptions = {};
 
@@ -126,6 +127,7 @@ function HomePage() {
   const [account, setAccount] = useState();
   const [network, setNetwork] = useState();
   const [chainId, setChainId] = useState();
+  const [waitForTx, setWaitForTx] = useState(false);
   const [gameAddress, setGameAddress] = useState('');
   const [hostAddress, setHostAddress] = useState('');
   const [playerAddress, setPlayerAddress] = useState('');
@@ -236,9 +238,12 @@ function HomePage() {
     setPlayerAddress(e.target.value);
   }
 
+  const router = useRouter();
+
   const gotoGame = (e) => {
     e.preventDefault();
-    alert(gameAddress);
+    let href = "/game/" + gameAddress;
+    router.push(href);
   }
 
   const createGame = async (e) => {
@@ -264,13 +269,18 @@ function HomePage() {
       guessVerifierAddress
     );
 
+    setWaitForTx(true);
+
     let txFinalized = await tx.wait();
 
     let filter = zkHangmanFactoryContract.filters.GameCreated(hostAddress, playerAddress);
     let filterResults = await zkHangmanFactoryContract.queryFilter(filter, -1000);
     let newGameAddress = filterResults[filterResults.length-1].args.gameAddress;
-    
-    alert(newGameAddress);
+
+    setWaitForTx(false);
+
+    let href = "/game/" + newGameAddress;
+    router.push(href);
   }
   
   return (
@@ -326,6 +336,9 @@ function HomePage() {
           </form>
           </div>
         )
+    }
+    {
+      waitForTx && <h1> PLEASE WAIT FOR TRANSACTION TO FINALIZE. DO NOT CLOSE THIS TAB </h1>
     }
     </>
   )

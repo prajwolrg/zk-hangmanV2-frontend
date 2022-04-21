@@ -3,6 +3,9 @@ import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import Script from "next/script";
 import { useRouter } from "next/router";
+import { groth16 } from "snarkjs";
+
+// input is gonna be like { secret: 69420, char: [5, 4, 4, 3, 2, 1] }
 
 const providerOptions = {};
 
@@ -326,6 +329,19 @@ function HomePage() {
   const [chainId, setChainId] = useState();
   const [hostAddress, setHostAddress] = useState('');
   const [playerAddress, setPlayerAddress] = useState('');
+  const [turn, setTurn] = useState();
+  const [lives, setLives] = useState();
+  const [contractConnected, setContractConnected] = useState(false);
+  const [correctGuesses, setCorrectGuesses] = useState(0);
+  const [revealedChars, setRevealedChars] = useState([]);
+  const [charDisplay, setCharDisplay] = useState(['_', '_', '_', '_', '_']);
+  const [secret, setSecret] = useState('');
+  const [char1, setChar1] = useState('');
+  const [char2, setChar2] = useState('');
+  const [char3, setChar3] = useState('');
+  const [char4, setChar4] = useState('');
+  const [char5, setChar5] = useState('');
+
 
   const router = useRouter();
   const { gameAddress } = router.query;
@@ -424,14 +440,6 @@ function HomePage() {
     }
   };
 
-  const hostAddressChange = (e) => {
-    setHostAddress(e.target.value);
-  }
-
-  const playerAddressChange = (e) => {
-    setPlayerAddress(e.target.value);
-  }
-
   const gotoGame = (e) => {
     e.preventDefault();
   }
@@ -445,9 +453,24 @@ function HomePage() {
 
     let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
     let turn = parseInt(await zkHangmanContract.turn(), 16);
+    let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses, 16);
+    let host = await zkHangmanContract.host();
+    let player = await zkHangmanContract.player();
 
-    console.log("player lives: ", playerLives);
-    console.log("turn: ", turn);
+    setLives(playerLives);
+    setTurn(turn);
+    setContractConnected(true);
+    setCorrectGuesses(_correctGuesses)
+    setHostAddress(host);
+    setPlayerAddress(player);
+
+    setRevealedChars([]);
+
+    for (let i = 0; i < 5; i++) {
+      let revealedChar = parseInt((await zkHangmanContract.revealedChars(i))._hex, 16);
+      revealedChars.push(revealedChar);
+    }
+    
   }
 
   const createGame = async (e) => {
@@ -481,12 +504,57 @@ function HomePage() {
     
     alert(newGameAddress);
   }
-  
+
+  const secretChange = (e) => {
+    e.preventDefault();
+    setSecret(e.target.value);
+  }
+
+  const char1Change = (e) => {
+    e.preventDefault();
+    setChar1(e.target.value);
+  }
+
+  const char2Change = (e) => {
+    e.preventDefault();
+    setChar2(e.target.value);
+  }
+
+  const char3Change = (e) => {
+    e.preventDefault();
+    setChar3(e.target.value);
+  }
+
+  const char4Change = (e) => {
+    e.preventDefault();
+    setChar4(e.target.value);
+  }
+
+  const char5Change = (e) => {
+    e.preventDefault();
+    setChar5(e.target.value);
+  }
+
+  const generateProof = async (e) => {
+    e.preventDefault();
+
+    console.log(secret, char1, char2, char3, char4, char5);
+    let inputObject = {
+      secret: secret,
+      char: [char1, char2, char3, char4, char5]
+    }
+
+    console.log(inputObject);
+
+    const { proof, publicSignals } =
+      await groth16.fullProve( inputObject, "/init.wasm", "/init_0001.zkey");
+
+    console.log(proof);
+    console.log(publicSignals);
+  }
+
   return (
     <>
-    <Script
-      src="/snarkjs.min.js"
-    />
     <h1>Welcome to zk-hangman (WIP)</h1>
     <div>
     {!account ? ( 
@@ -517,6 +585,54 @@ function HomePage() {
           </div>
         )
     }
+    { (contractConnected && chainId == 1666700000 && account ) &&
+      (
+      <div>
+      <h1> Player lives: { lives } </h1>
+      <h2> Turn: { turn } </h2>
+        { turn == 0 ? <h1> Waiting for host to choose a word and initialize game </h1>
+          : turn % 2 == 1 ? <h1> Player's turn! </h1> : <h1> Host's turn! </h1> } 
+      </div>
+      )
+    }
+    {
+      (contractConnected && chainId == 1666700000 && account == hostAddress) && 
+      (
+        <div>
+        <h1> yuh ur the host </h1>
+        <form onSubmit={generateProof}>
+          <label>
+            Secret:
+            <input type="number" value={secret} onChange={secretChange} />
+          </label>
+          <label>
+            char1:
+            <input type="number" value={char1} onChange={char1Change} />
+          </label>
+          <label>
+            char2:
+            <input type="number" value={char2} onChange={char2Change} />
+          </label>
+          <label>
+            char3:
+            <input type="number" value={char3} onChange={char3Change} />
+          </label>
+          <label>
+            char4:
+            <input type="number" value={char4} onChange={char4Change} />
+          </label>
+          <label>
+            char5:
+            <input type="number" value={char5} onChange={char5Change} />
+          </label>
+
+          <input type="submit" value="Submit" />
+
+        </form>
+        </div>
+      )
+    }
+
     </>
   )
 }
