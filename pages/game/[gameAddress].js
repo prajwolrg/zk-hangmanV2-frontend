@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import Script from "next/script";
+import { useRouter } from "next/router";
 
 const providerOptions = {};
 
@@ -27,48 +28,10 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const zkHangmanFactoryAddress = "0x901C35f4ACC62fA69c9E3e519F6524c07cFD38fC";
 const initVerifierAddress = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
 const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
 
-const zkHangmanFactoryAbi = [
-  {
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "host",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "gameAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "initVerifier",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "guessVerifier",
-				"type": "address"
-			}
-		],
-		"name": "GameCreated",
-		"type": "event"
-	},
+const zkHangmanAbi = [
 	{
 		"inputs": [
 			{
@@ -92,7 +55,216 @@ const zkHangmanFactoryAbi = [
 				"type": "address"
 			}
 		],
-		"name": "createGame",
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "nextTurn",
+				"type": "uint256"
+			}
+		],
+		"name": "NextTurn",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "characterHashes",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "correctGuesses",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "gameOver",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "guessVerifier",
+		"outputs": [
+			{
+				"internalType": "contract GuessVerifier",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "guesses",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "host",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "initVerifier",
+		"outputs": [
+			{
+				"internalType": "contract InitVerifier",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[2]",
+				"name": "_a",
+				"type": "uint256[2]"
+			},
+			{
+				"internalType": "uint256[2][2]",
+				"name": "_b",
+				"type": "uint256[2][2]"
+			},
+			{
+				"internalType": "uint256[2]",
+				"name": "_c",
+				"type": "uint256[2]"
+			},
+			{
+				"internalType": "uint256[6]",
+				"name": "_input",
+				"type": "uint256[6]"
+			}
+		],
+		"name": "initializeGame",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "player",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_guess",
+				"type": "uint256"
+			}
+		],
+		"name": "playerGuess",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "playerLives",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[2]",
+				"name": "_a",
+				"type": "uint256[2]"
+			},
+			{
+				"internalType": "uint256[2][2]",
+				"name": "_b",
+				"type": "uint256[2][2]"
+			},
+			{
+				"internalType": "uint256[2]",
+				"name": "_c",
+				"type": "uint256[2]"
+			},
+			{
+				"internalType": "uint256[3]",
+				"name": "_input",
+				"type": "uint256[3]"
+			}
+		],
+		"name": "processGuess",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -105,12 +277,38 @@ const zkHangmanFactoryAbi = [
 				"type": "uint256"
 			}
 		],
-		"name": "games",
+		"name": "revealedChars",
 		"outputs": [
 			{
-				"internalType": "address",
+				"internalType": "uint256",
 				"name": "",
-				"type": "address"
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "secretHash",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "turn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -126,9 +324,11 @@ function HomePage() {
   const [account, setAccount] = useState();
   const [network, setNetwork] = useState();
   const [chainId, setChainId] = useState();
-  const [gameAddress, setGameAddress] = useState('');
   const [hostAddress, setHostAddress] = useState('');
   const [playerAddress, setPlayerAddress] = useState('');
+
+  const router = useRouter();
+  const { gameAddress } = router.query;
 
   useEffect(() => {
     if (instance?.on) {
@@ -224,10 +424,6 @@ function HomePage() {
     }
   };
 
-  const gameAddressChange = (e) => {
-    setGameAddress(e.target.value);
-  }
-
   const hostAddressChange = (e) => {
     setHostAddress(e.target.value);
   }
@@ -238,7 +434,20 @@ function HomePage() {
 
   const gotoGame = (e) => {
     e.preventDefault();
-    alert(gameAddress);
+  }
+
+  const connectToContract = async (e) => {
+    const zkHangmanContract = new ethers.Contract(
+      gameAddress,
+      zkHangmanAbi,
+      signer
+    )
+
+    let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
+    let turn = parseInt(await zkHangmanContract.turn(), 16);
+
+    console.log("player lives: ", playerLives);
+    console.log("turn: ", turn);
   }
 
   const createGame = async (e) => {
@@ -276,7 +485,7 @@ function HomePage() {
   return (
     <>
     <Script
-      src="snarkjs.min.js"
+      src="/snarkjs.min.js"
     />
     <h1>Welcome to zk-hangman (WIP)</h1>
     <div>
@@ -303,27 +512,8 @@ function HomePage() {
     { (chainId == 1666700000 && account) &&
         (
           <div>
-          <h1> Goto existing game </h1>
-          <form onSubmit={gotoGame}>
-            <label>
-              Game address:
-              <input type="text" value={gameAddress} onChange={gameAddressChange} />
-            </label>
-          <input type="submit" value="Submit" />
-          </form>
-
-          <h1> Create new game </h1>
-          <form onSubmit={createGame}>
-            <label>
-              Host address:
-              <input type="text" value={hostAddress} onChange={hostAddressChange} />
-            </label>
-            <label>
-              Player address:
-              <input type="text" value={playerAddress} onChange={playerAddressChange} />
-            </label>
-          <input type="submit" value="Submit" />
-          </form>
+          <h2> Game address: { gameAddress } </h2>
+          <button onClick={ connectToContract }> Connect to contract </button>
           </div>
         )
     }
