@@ -27,6 +27,97 @@ if (typeof window !== 'undefined') {
   });
 }
 
+const zkHangmanFactoryAddress = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
+const initVerifierAddress = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
+const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
+
+const zkHangmanFactoryAbi = [
+  {
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "host",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "player",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "gameAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "initVerifier",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "guessVerifier",
+				"type": "address"
+			}
+		],
+		"name": "GameCreated",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_host",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_player",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_initVerifier",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_guessVerifier",
+				"type": "address"
+			}
+		],
+		"name": "createGame",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "games",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
 function HomePage() {
   const [error, setError] = useState();
   const [instance, setInstance] = useState();
@@ -35,6 +126,9 @@ function HomePage() {
   const [account, setAccount] = useState();
   const [network, setNetwork] = useState();
   const [chainId, setChainId] = useState();
+  const [gameAddress, setGameAddress] = useState('');
+  const [hostAddress, setHostAddress] = useState('');
+  const [playerAddress, setPlayerAddress] = useState('');
 
   useEffect(() => {
     if (instance?.on) {
@@ -129,6 +223,55 @@ function HomePage() {
       }
     }
   };
+
+  const gameAddressChange = (e) => {
+    setGameAddress(e.target.value);
+  }
+
+  const hostAddressChange = (e) => {
+    setHostAddress(e.target.value);
+  }
+
+  const playerAddressChange = (e) => {
+    setPlayerAddress(e.target.value);
+  }
+
+  const gotoGame = (e) => {
+    e.preventDefault();
+    alert(gameAddress);
+  }
+
+  const createGame = async (e) => {
+    e.preventDefault();
+    const zkHangmanFactoryContract = new ethers.Contract(
+      zkHangmanFactoryAddress,
+      zkHangmanFactoryAbi,
+      signer
+    )
+
+    console.log(zkHangmanFactoryContract);
+    
+    console.log("host address: ", hostAddress);
+    console.log("player address: ", playerAddress);
+    console.log("init verifier address: ", initVerifierAddress);
+    console.log("guess verifier address: ", guessVerifierAddress);
+    
+        
+    let tx = await zkHangmanFactoryContract.createGame(
+      hostAddress,
+      playerAddress,
+      initVerifierAddress,
+      guessVerifierAddress
+    );
+
+    let txFinalized = await tx.wait();
+
+    let filter = zkHangmanFactoryContract.filters.GameCreated(hostAddress, playerAddress);
+    let filterResults = await zkHangmanFactoryContract.queryFilter(filter, -1000);
+    let newGameAddress = filterResults[filterResults.length-1].args.gameAddress;
+    
+    alert(newGameAddress);
+  }
   
   return (
     <>
@@ -156,6 +299,33 @@ function HomePage() {
     </div>
     { (chainId != 1666700000 && account) &&
       <button onClick={switchNetwork}> Connect to harmony testnet </button> 
+    }
+    { (chainId == 1666700000 && account) &&
+        (
+          <div>
+          <h1> Goto existing game </h1>
+          <form onSubmit={gotoGame}>
+            <label>
+              Game address:
+              <input type="text" value={gameAddress} onChange={gameAddressChange} />
+            </label>
+          <input type="submit" value="Submit" />
+          </form>
+
+          <h1> Create new game </h1>
+          <form onSubmit={createGame}>
+            <label>
+              Host address:
+              <input type="text" value={hostAddress} onChange={hostAddressChange} />
+            </label>
+            <label>
+              Player address:
+              <input type="text" value={playerAddress} onChange={playerAddressChange} />
+            </label>
+          <input type="submit" value="Submit" />
+          </form>
+          </div>
+        )
     }
     </>
   )
