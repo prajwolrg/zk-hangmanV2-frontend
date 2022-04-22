@@ -43,15 +43,12 @@ function HomePage() {
   const [chainId, setChainId] = useState();
   const [hostAddress, setHostAddress] = useState('');
   const [playerAddress, setPlayerAddress] = useState('');
-  const [contract, setContract] = useState();
 
   const [turn, setTurn] = useState();
   const [lives, setLives] = useState();
   const [contractConnected, setContractConnected] = useState(false);
   const [correctGuesses, setCorrectGuesses] = useState(0);
   const [revealedChars, setRevealedChars] = useState([]);
-  const [revealedChars2, setRevealedChars2] = useState([]);
-  const [charDisplay, setCharDisplay] = useState(['_', '_', '_', '_', '_']);
   const [guess, setGuess] = useState('');
   const [latestGuess, setLatestGuess] = useState();
 
@@ -115,10 +112,6 @@ function HomePage() {
     
   }, [router.isReady])
 
-  useEffect(() => {
-    console.log(error);
-  })
-
   const connectWallet = async () => {
     try {
       const instance = await web3Modal.connect()
@@ -150,46 +143,13 @@ function HomePage() {
         let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
         setCorrectGuesses(_correctGuesses);
 
-        const revealed1 = await zkHangmanContract.revealedChars(0);
-        setRev1(revealed1);
-        console.log(revealed1);
-
-        const revealed2 = await zkHangmanContract.revealedChars(1);
-        setRev2(revealed2);
-
-        const revealed3 = await zkHangmanContract.revealedChars(2);
-        setRev3(revealed3);
-
-        const revealed4 = await zkHangmanContract.revealedChars(3);
-        setRev4(revealed4);
-
-        const revealed5 = await zkHangmanContract.revealedChars(4);
-        setRev5(revealed5);
-        let bruh = []
-
+        refreshRevealed();
+        
         let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
         setLives(playerLives);
-
-        /*
-
-        for (let i = 0; i < 5; i++) {
-          let revealedChar = BigInt(parseInt((await zkHangmanContract.revealedChars(i))._hex, 16));
-          bruh.push(revealedChar);
-          console.log("bruh: ", bruh, "bruh length: ", bruh.length);
-          if (bruh.length == 5) {
-            setRevealedChars(bruh)
-          }
-        };
-
-
-        console.log("revealed chars:", revealedChars);
-        */
-        
       });
 
       setContract(zkHangmanContract);
-
-      console.log(zkHangmanContract);
 
       let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
       let turn = parseInt(await zkHangmanContract.turn(), 16);
@@ -208,44 +168,29 @@ function HomePage() {
       setHostAddress(host);
       setPlayerAddress(player);
 
-
-      /*
-      let bruh = [];
-
-      for (let i = 0; i < 5; i++) {
-        let revealedChar = BigInt(parseInt((await zkHangmanContract.revealedChars(i))._hex, 16));
-        bruh.push(revealedChar);
-        console.log("bruh: ", bruh, "bruh length: ", bruh.length);
-        if (bruh.length == 5) {
-          console.log("PINGAS");
-          console.log("PINGAS BRUH: ", bruh);
-          setRevealedChars(bruh)
-        }
-      };
-      */
-      const revealed1 = await zkHangmanContract.revealedChars(0);
-      setRev1(revealed1);
-      console.log(revealed1);
-
-      const revealed2 = await zkHangmanContract.revealedChars(1);
-      setRev2(revealed2);
-
-      const revealed3 = await zkHangmanContract.revealedChars(2);
-      setRev3(revealed3);
-
-      const revealed4 = await zkHangmanContract.revealedChars(3);
-      setRev4(revealed4);
-
-      const revealed5 = await zkHangmanContract.revealedChars(4);
-      setRev5(revealed5);
-
-      
+      refreshRevealed();
 
     } catch (error) {
       setError(error);
     }
 
-    
+  }
+
+  const refreshRevealed = async () => {
+    const revealed1 = await zkHangmanContract.revealedChars(0);
+    setRev1(revealed1);
+
+    const revealed2 = await zkHangmanContract.revealedChars(1);
+    setRev2(revealed2);
+
+    const revealed3 = await zkHangmanContract.revealedChars(2);
+    setRev3(revealed3);
+
+    const revealed4 = await zkHangmanContract.revealedChars(3);
+    setRev4(revealed4);
+
+    const revealed5 = await zkHangmanContract.revealedChars(4);
+    setRev5(revealed5);
   }
 
   const clearState = () => {
@@ -285,46 +230,6 @@ function HomePage() {
 
   const gotoGame = (e) => {
     e.preventDefault();
-  }
-
-  const connectToContract = async (e) => {
-    const zkHangmanContract = new ethers.Contract(
-      gameContract,
-      zkHangmanAbi,
-      signer
-    )
-
-    setContract(zkHangmanContract);
-
-    zkHangmanContract.on("NextTurn", (nextTurn) => {
-      console.log("The turn is now: ", nextTurn);
-      setTurn(parseInt(nextTurn._hex, 16));
-    });
-
-    let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
-    let turn = parseInt(await zkHangmanContract.turn(), 16);
-    let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses, 16);
-    let host = await zkHangmanContract.host();
-    let player = await zkHangmanContract.player();
-
-    console.log("initVerifier: ", await zkHangmanContract.initVerifier());
-    console.log("guessVerifier: ", await zkHangmanContract.guessVerifier());
-
-    setLives(playerLives);
-    setTurn(turn);
-    setContractConnected(true);
-    setCorrectGuesses(_correctGuesses)
-    setHostAddress(host);
-    setPlayerAddress(player);
-
-    setRevealedChars([]);
-
-    for (let i = 0; i < 5; i++) {
-      let revealedChar = parseInt((await zkHangmanContract.revealedChars(i))._hex, 16);
-      revealedChars.push(revealedChar);
-      console.log(revealedChars);
-    }
-    
   }
 
   const createGame = async (e) => {
@@ -405,11 +310,6 @@ function HomePage() {
       signer
     )
 
-    /*
-
-    console.log("dec turn: ", turn);
-    console.log("hex dec output: ", toHex(Math.floor( (turn-1) / 2 ))); 
-    */
     let hexLatestGuess = await zkHangmanContract.guesses( toHex(Math.floor( (turn-1) / 2 )) );
     setLatestGuess(parseInt(hexLatestGuess, 16));
     console.log("latest guess: ", parseInt(hexLatestGuess, 16));
@@ -424,11 +324,6 @@ function HomePage() {
 
     const { proof, publicSignals } =
       await snarkjs.groth16.fullProve(inputObject, "/guess.wasm", "/guess_0001.zkey");
-
-    /*
-    const { proof, publicSignals } =
-      await groth16.prove("/init_0001.zkey", witness);
-      */
 
     const vkey = await fetch("/guess_verification_key.json").then( (res) => {
       return res.json();
@@ -457,9 +352,6 @@ function HomePage() {
 
 
     console.log(_a, _b, _c, _input);
-
-    //let tx = await contract.initializeGame([proof.pi_a[0], proof.pi_a[1]], [proof.pi_b[0], proof.pi_b[1]],
-    //  [proof.pi_c[0], proof.pi_c[1]], publicSignals);
 
     let tx = await zkHangmanContract.processGuess(_a, _b, _c, _input);
 
@@ -498,22 +390,8 @@ function HomePage() {
       signer
     )
 
-    /*
-    let witness = await generateWitness(inputObject).then().
-      catch( (e) => {
-        console.error(e);
-      });
-
-    console.log(witness);
-    */
-
     const { proof, publicSignals } =
       await snarkjs.groth16.fullProve(inputObject, "/init.wasm", "/init_0001.zkey");
-
-    /*
-    const { proof, publicSignals } =
-      await groth16.prove("/init_0001.zkey", witness);
-      */
 
     const vkey = await fetch("/init_verification_key.json").then( (res) => {
       return res.json();
@@ -540,11 +418,7 @@ function HomePage() {
 
     const _input = publicSignals.map(x => toHex(x));
 
-
     console.log(_a, _b, _c, _input);
-
-    //let tx = await contract.initializeGame([proof.pi_a[0], proof.pi_a[1]], [proof.pi_b[0], proof.pi_b[1]],
-    //  [proof.pi_c[0], proof.pi_c[1]], publicSignals);
 
     let tx = await zkHangmanContract.initializeGame(_a, _b, _c, _input);
 
