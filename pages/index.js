@@ -29,7 +29,7 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const zkHangmanFactoryAddress = "0x901C35f4ACC62fA69c9E3e519F6524c07cFD38fC";
+const zkHangmanFactoryAddress = "0x9dA7649434dA3A99e72224d37F3b7c69f6F3C8B0";
 const initVerifierAddress = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
 const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
 
