@@ -3,6 +3,7 @@ import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import Script from "next/script";
 import { useRouter } from "next/router";
+import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
 
 const providerOptions = {};
 
@@ -31,93 +32,6 @@ if (typeof window !== 'undefined') {
 const zkHangmanFactoryAddress = "0x901C35f4ACC62fA69c9E3e519F6524c07cFD38fC";
 const initVerifierAddress = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
 const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
-
-const zkHangmanFactoryAbi = [
-  {
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "host",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "gameAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "initVerifier",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "guessVerifier",
-				"type": "address"
-			}
-		],
-		"name": "GameCreated",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_host",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_player",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_initVerifier",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_guessVerifier",
-				"type": "address"
-			}
-		],
-		"name": "createGame",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "games",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-];
 
 function HomePage() {
   const [error, setError] = useState();
