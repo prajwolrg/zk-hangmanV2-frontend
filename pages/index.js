@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 import { useRouter } from "next/router";
 import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
+import { harmonyTestnetParams } from "../networkParams";
 
 const providerOptions = {};
 
@@ -11,15 +12,6 @@ const toHex = (num) => {
   const val = Number(num);
   return "0x" + val.toString(16);
 }
-
-const harmonyTestnetParams = {
-    chainId: toHex(1666700000),
-    rpcUrls: ["https://api.s0.b.hmny.io"],
-    chainName: "Harmony Testnet",
-    nativeCurrency: { name: "ONE", decimals: 18, symbol: "ONE" },
-    blockExplorerUrls: ["https://explorer.pops.one/"],
-    iconUrls: ["https://harmonynews.one/wp-content/uploads/2019/11/slfdjs.png"]
-  }
 
 let web3Modal;
 if (typeof window !== 'undefined') {
@@ -105,15 +97,12 @@ function HomePage() {
     }
   }
 
-  const clearState = () => {
+  const disconnect = async () => {
+    await web3Modal.clearCachedProvider();
     setAccount();
     setChainId();
     setNetwork("");
-  }
 
-  const disconnect = async () => {
-    await web3Modal.clearCachedProvider();
-    clearState();
   }
 
   const handleNetwork = (e) => {

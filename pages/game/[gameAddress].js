@@ -3,6 +3,7 @@ import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { zkHangmanAbi } from "../../abis/zkHangman";
+import { harmonyTestnetParams } from "../../networkParams";
 
 const snarkjs = require("snarkjs");
 
@@ -12,15 +13,6 @@ const toHex = (num) => {
   const val = BigInt(num);
   return "0x" + val.toString(16);
 }
-
-const harmonyTestnetParams = {
-    chainId: toHex(1666700000),
-    rpcUrls: ["https://api.s0.b.hmny.io"],
-    chainName: "Harmony Testnet",
-    nativeCurrency: { name: "ONE", decimals: 18, symbol: "ONE" },
-    blockExplorerUrls: ["https://explorer.pops.one/"],
-    iconUrls: ["https://harmonynews.one/wp-content/uploads/2019/11/slfdjs.png"]
-  }
 
 let web3Modal;
 if (typeof window !== 'undefined') {
@@ -149,8 +141,6 @@ function HomePage() {
         setLives(playerLives);
       });
 
-      setContract(zkHangmanContract);
-
       let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
       let turn = parseInt(await zkHangmanContract.turn(), 16);
       let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
@@ -193,15 +183,12 @@ function HomePage() {
     setRev5(revealed5);
   }
 
-  const clearState = () => {
+  const disconnect = async () => {
+    await web3Modal.clearCachedProvider();
     setAccount();
     setChainId();
     setNetwork("");
-  }
 
-  const disconnect = async () => {
-    await web3Modal.clearCachedProvider();
-    clearState();
   }
 
   const handleNetwork = (e) => {
@@ -228,41 +215,6 @@ function HomePage() {
     }
   };
 
-  const gotoGame = (e) => {
-    e.preventDefault();
-  }
-
-  const createGame = async (e) => {
-    e.preventDefault();
-    const zkHangmanFactoryContract = new ethers.Contract(
-      zkHangmanFactoryAddress,
-      zkHangmanFactoryAbi,
-      signer
-    )
-
-    console.log(zkHangmanFactoryContract);
-    
-    console.log("host address: ", hostAddress);
-    console.log("player address: ", playerAddress);
-    console.log("init verifier address: ", initVerifierAddress);
-    console.log("guess verifier address: ", guessVerifierAddress);
-    
-        
-    let tx = await zkHangmanFactoryContract.createGame(
-      hostAddress,
-      playerAddress,
-      initVerifierAddress,
-      guessVerifierAddress
-    );
-
-    let txFinalized = await tx.wait();
-
-    let filter = zkHangmanFactoryContract.filters.GameCreated(hostAddress, playerAddress);
-    let filterResults = await zkHangmanFactoryContract.queryFilter(filter, -1000);
-    let newGameAddress = filterResults[filterResults.length-1].args.gameAddress;
-    
-    alert(newGameAddress);
-  }
 
   const secretChange = (e) => {
     e.preventDefault();
@@ -438,7 +390,9 @@ function HomePage() {
       signer
     );
 
-    let guessNumba = (guess.toLowerCase()).charCodeAt(0) - 97;
+    let guessNumba = guess.trim().toLowerCase().charCodeAt(0) - 97;
+
+    console.log(`sending the number ${guessNumba} to the contract`);
 
     let tx = await zkHangmanContract.playerGuess(toHex(guessNumba));
 
