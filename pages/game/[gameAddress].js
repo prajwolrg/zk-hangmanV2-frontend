@@ -3,16 +3,11 @@ import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { zkHangmanAbi } from "../../abis/zkHangman";
-import { harmonyTestnetParams } from "../../networkParams";
+import { toHex, harmonyTestnetParams } from "../../utils";
 
 const snarkjs = require("snarkjs");
 
 const providerOptions = {};
-
-const toHex = (num) => {
-  const val = BigInt(num);
-  return "0x" + val.toString(16);
-}
 
 let web3Modal;
 if (typeof window !== 'undefined') {
@@ -135,7 +130,7 @@ function HomePage() {
         let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
         setCorrectGuesses(_correctGuesses);
 
-        refreshRevealed();
+        refreshRevealed(zkHangmanContract);
         
         let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
         setLives(playerLives);
@@ -158,7 +153,7 @@ function HomePage() {
       setHostAddress(host);
       setPlayerAddress(player);
 
-      refreshRevealed();
+      refreshRevealed(zkHangmanContract);
 
     } catch (error) {
       setError(error);
@@ -166,20 +161,20 @@ function HomePage() {
 
   }
 
-  const refreshRevealed = async () => {
-    const revealed1 = await zkHangmanContract.revealedChars(0);
+  const refreshRevealed = async (contract) => {
+    const revealed1 = await contract.revealedChars(0);
     setRev1(revealed1);
 
-    const revealed2 = await zkHangmanContract.revealedChars(1);
+    const revealed2 = await contract.revealedChars(1);
     setRev2(revealed2);
 
-    const revealed3 = await zkHangmanContract.revealedChars(2);
+    const revealed3 = await contract.revealedChars(2);
     setRev3(revealed3);
 
-    const revealed4 = await zkHangmanContract.revealedChars(3);
+    const revealed4 = await contract.revealedChars(3);
     setRev4(revealed4);
 
-    const revealed5 = await zkHangmanContract.revealedChars(4);
+    const revealed5 = await contract.revealedChars(4);
     setRev5(revealed5);
   }
 
@@ -263,12 +258,12 @@ function HomePage() {
     )
 
     let hexLatestGuess = await zkHangmanContract.guesses( toHex(Math.floor( (turn-1) / 2 )) );
-    setLatestGuess(parseInt(hexLatestGuess, 16));
-    console.log("latest guess: ", parseInt(hexLatestGuess, 16));
-
+    console.log("turn: ", turn);
+    console.log("index: ", Math.floor( (turn - 1) / 2 ) );
+    console.log("hex latest guess: ", hexLatestGuess._hex);
 
     let inputObject = {
-      char: BigInt(parseInt(hexLatestGuess, 16)),
+      char: BigInt(parseInt(hexLatestGuess._hex, 16)),
       secret: BigInt(secret)
     }
 
@@ -393,6 +388,7 @@ function HomePage() {
     let guessNumba = guess.trim().toLowerCase().charCodeAt(0) - 97;
 
     console.log(`sending the number ${guessNumba} to the contract`);
+    console.log("the guess from this number was: ", guess);
 
     let tx = await zkHangmanContract.playerGuess(toHex(guessNumba));
 
@@ -431,6 +427,11 @@ function HomePage() {
     </div>
     { (chainId != 1666700000 && account) &&
       <button onClick={switchNetwork}> Connect to harmony testnet </button> 
+    }
+    {
+      (correctGuesses == 5) && (
+          <h1> GAME OVER. PLAYER HAS WON! </h1>
+      )
     }
     {
       !contractConnected && (

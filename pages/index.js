@@ -4,14 +4,9 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 import { useRouter } from "next/router";
 import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
-import { harmonyTestnetParams } from "../networkParams";
+import { toHex, harmonyTestnetParams } from "../utils";
 
 const providerOptions = {};
-
-const toHex = (num) => {
-  const val = Number(num);
-  return "0x" + val.toString(16);
-}
 
 let web3Modal;
 if (typeof window !== 'undefined') {

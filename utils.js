@@ -1,3 +1,8 @@
+export const toHex = (num) => {
+  const val = BigInt(num);
+  return "0x" + val.toString(16);
+}
+
 export const harmonyTestnetParams = {
     chainId: toHex(1666700000),
     rpcUrls: ["https://api.s0.b.hmny.io"],
