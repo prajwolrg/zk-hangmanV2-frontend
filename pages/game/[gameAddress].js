@@ -37,7 +37,6 @@ function HomePage() {
   const [correctGuesses, setCorrectGuesses] = useState(0);
   const [revealedChars, setRevealedChars] = useState([]);
   const [guess, setGuess] = useState('');
-  const [latestGuess, setLatestGuess] = useState();
 
   const [secret, setSecret] = useState('');
   const [char1, setChar1] = useState('');
