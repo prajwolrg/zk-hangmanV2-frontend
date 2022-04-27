@@ -1,10 +1,20 @@
-import { ethers } from "ethers";
+import Head from "next/head";
 import Web3Modal from "web3modal";
+import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import Script from "next/script";
 import { useRouter } from "next/router";
 import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
 import { toHex, harmonyTestnetParams } from "../utils";
+import { HStack,
+         VStack,
+         Heading,
+         Box,
+         FormControl,
+         FormLabel,
+         FormErrorMessage,
+         FormHelperText,
+         Input,
+} from "@chakra-ui/react"
 
 const providerOptions = {};
 
@@ -182,11 +192,12 @@ function HomePage() {
   }
   
   return (
-    <>
-    <Script
-      src="snarkjs.min.js"
-    />
-    <h1>Welcome to zk-hangman (WIP)</h1>
+    <div>
+    <Head>
+      <title> zkHangman </title>
+    </Head>
+    <VStack h="100vh" mt={10}>
+    <Heading>zkHangman</Heading>
     <div>
     {!account ? ( 
       <button onClick={connectWallet}> connect ur wallet </button> 
@@ -210,35 +221,40 @@ function HomePage() {
     }
     { (chainId == 1666700000 && account) &&
         (
-          <div>
-          <h1> Goto existing game </h1>
-          <form onSubmit={gotoGame}>
-            <label>
-              Game address:
-              <input type="text" value={gameAddress} onChange={gameAddressChange} />
-            </label>
-          <input type="submit" value="Submit" />
-          </form>
-
-          <h1> Create new game </h1>
-          <form onSubmit={createGame}>
-            <label>
+        <VStack>
+          <Box my="30px" width={460}>
+          <Heading mb="10px"> Create new game </Heading>
+          <FormControl onSubmit={createGame}>
+            <FormLabel>
               Host address:
-              <input type="text" value={hostAddress} onChange={hostAddressChange} />
-            </label>
-            <label>
+            </FormLabel>
+              <Input mb="5px" type="text" value={hostAddress} onChange={hostAddressChange} />
+            <FormLabel>
               Player address:
-              <input type="text" value={playerAddress} onChange={playerAddressChange} />
-            </label>
-          <input type="submit" value="Submit" />
-          </form>
-          </div>
+            </FormLabel>
+              <Input mb="5px" type="text" value={playerAddress} onChange={playerAddressChange} />
+          <Input type="submit" value="Submit" />
+          </FormControl>
+          </Box>
+
+          <Box my="30px" width={460}>
+          <Heading mb="10px"> Goto existing game </Heading>
+          <FormControl onSubmit={gotoGame}>
+            <FormLabel>
+              Game address:
+            </FormLabel>
+              <Input mb="5px" type="text" value={gameAddress} onChange={gameAddressChange} />
+          <Input type="submit" value="Submit" />
+          </FormControl>
+          </Box>
+        </VStack>
         )
     }
     {
       waitForTx && <h1> PLEASE WAIT FOR TRANSACTION TO FINALIZE. DO NOT CLOSE THIS TAB </h1>
     }
-    </>
+    </VStack>
+    </div>
   )
 }
 
