@@ -224,7 +224,8 @@ function HomePage() {
         <VStack>
           <Box my="30px" width={460}>
           <Heading mb="10px"> Create new game </Heading>
-          <FormControl onSubmit={createGame}>
+          <form onSubmit={createGame}>
+          <FormControl>
             <FormLabel>
               Host address:
             </FormLabel>
@@ -235,17 +236,20 @@ function HomePage() {
               <Input mb="5px" type="text" value={playerAddress} onChange={playerAddressChange} />
           <Input type="submit" value="Submit" />
           </FormControl>
+          </form>
           </Box>
 
           <Box my="30px" width={460}>
           <Heading mb="10px"> Goto existing game </Heading>
-          <FormControl onSubmit={gotoGame}>
+          <form onSubmit={gotoGame}>
+          <FormControl>
             <FormLabel>
               Game address:
             </FormLabel>
               <Input mb="5px" type="text" value={gameAddress} onChange={gameAddressChange} />
           <Input type="submit" value="Submit" />
           </FormControl>
+          </form>
           </Box>
         </VStack>
         )
