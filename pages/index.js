@@ -8,12 +8,20 @@ import { toHex, harmonyTestnetParams } from "../utils";
 import { HStack,
          VStack,
          Heading,
+         Text,
          Box,
          FormControl,
          FormLabel,
          FormErrorMessage,
          FormHelperText,
          Input,
+         Button,
+         Spinner,
+         AlertDialog,
+         AlertDialogOverlay,
+         AlertDialogContent,
+         AlertDialogBody,
+         useDisclosure
 } from "@chakra-ui/react"
 
 const providerOptions = {};
@@ -42,6 +50,8 @@ function HomePage() {
   const [gameAddress, setGameAddress] = useState('');
   const [hostAddress, setHostAddress] = useState('');
   const [playerAddress, setPlayerAddress] = useState('');
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     if (instance?.on) {
@@ -178,6 +188,7 @@ function HomePage() {
     );
 
     setWaitForTx(true);
+    onOpen();
 
     let txFinalized = await tx.wait();
 
@@ -200,9 +211,9 @@ function HomePage() {
     <Heading>zkHangman</Heading>
     <div>
     {!account ? ( 
-      <button onClick={connectWallet}> connect ur wallet </button> 
+      <Button onClick={connectWallet}> connect </Button> 
     ) : (
-      <button onClick={disconnect}> disconnect </button>
+      <Button onClick={disconnect}> disconnect </Button>
     )
     }
     </div>
@@ -217,7 +228,7 @@ function HomePage() {
     <h2> chainID : {chainId} </h2>
     </div>
     { (chainId != 1666700000 && account) &&
-      <button onClick={switchNetwork}> Connect to harmony testnet </button> 
+      <Button onClick={switchNetwork}> Connect to harmony testnet </Button> 
     }
     { (chainId == 1666700000 && account) &&
         (
@@ -255,7 +266,20 @@ function HomePage() {
         )
     }
     {
-      waitForTx && <h1> PLEASE WAIT FOR TRANSACTION TO FINALIZE. DO NOT CLOSE THIS TAB </h1>
+      waitForTx && (
+        <>
+          <AlertDialog isOpen={isOpen} onClose={onClose}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogBody align="center" py={10}>
+                  <Text mb={7}> Please wait for your transaction to be confirmed </Text>
+                  <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> 
+                </AlertDialogBody>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </>
+      )
     }
     </VStack>
     </div>
