@@ -1,9 +1,30 @@
+import Head from "next/head";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { zkHangmanAbi } from "../../abis/zkHangman";
 import { toHex, harmonyTestnetParams } from "../../utils";
+import { HStack,
+         VStack,
+         Heading,
+         Text,
+         Box,
+         FormControl,
+         FormLabel,
+         FormErrorMessage,
+         FormHelperText,
+         Input,
+         Button,
+         Spinner,
+         AlertDialog,
+         AlertDialogOverlay,
+         AlertDialogContent,
+         AlertDialogBody,
+         useDisclosure,
+         PinInput,
+         PinInputField
+} from "@chakra-ui/react";
 
 const snarkjs = require("snarkjs");
 
@@ -22,6 +43,7 @@ const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
 
 function HomePage() {
   const [error, setError] = useState();
+  const [dialogMessage, setDialogMessage] = useState('');
   const [instance, setInstance] = useState();
   const [provider, setProvider] = useState();
   const [signer, setSigner] = useState();
@@ -54,6 +76,8 @@ function HomePage() {
   const router = useRouter();
   const { gameAddress } = router.query;
   const gameContract = gameAddress;
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   
   useEffect(() => {
@@ -250,6 +274,9 @@ function HomePage() {
 
     console.log("secret: ", secret);
 
+    setDialogMessage("Generating proof...");
+    onOpen();
+
     const zkHangmanContract = new ethers.Contract(
       gameContract,
       zkHangmanAbi,
@@ -299,20 +326,28 @@ function HomePage() {
 
     console.log(_a, _b, _c, _input);
 
+    setDialogMessage("Awaiting transaction confirmation...");
+
     let tx = await zkHangmanContract.processGuess(_a, _b, _c, _input);
+
+    setDialogMessage("Waiting for transaction to finalize...");
 
     console.log(tx);
 
     let txFinalized = await tx.wait();
 
-    console.log(txFinalized);
+    onClose();
 
+    console.log(txFinalized);
 
   }
 
   // generate proof for init and call initializeGame
   const generateProof = async (e) => {
     e.preventDefault();
+
+    setDialogMessage("Generating proof...");
+    onOpen();
 
     console.log(secret, char1, char2, char3, char4, char5);
     let parsedChar1 = (char1.toLowerCase()).charCodeAt(0) - 97
@@ -366,11 +401,16 @@ function HomePage() {
 
     console.log(_a, _b, _c, _input);
 
+    setDialogMessage("Awaiting transaction confirmation...");
+
     let tx = await zkHangmanContract.initializeGame(_a, _b, _c, _input);
 
     console.log(tx);
+    setDialogMessage("Waiting for transaction to finalize...");
 
     let txFinalized = await tx.wait();
+
+    onClose();
 
     console.log(txFinalized);
   }
@@ -389,9 +429,17 @@ function HomePage() {
     console.log(`sending the number ${guessNumba} to the contract`);
     console.log("the guess from this number was: ", guess);
 
+    onOpen();
+
+    setDialogMessage("Awaiting transaction confirmation...");
+
     let tx = await zkHangmanContract.playerGuess(toHex(guessNumba));
 
+    setDialogMessage("Waiting for transaction to finalize...");
+
     await tx.wait()
+
+    onClose();
   }
 
   const parseHex = (hex) => {
@@ -405,12 +453,16 @@ function HomePage() {
 
   return (
     <>
-    <h1>Welcome to zk-hangman (WIP)</h1>
+    <Head>
+      <title> zkHangman - {gameAddress} </title>
+    </Head>
+    <VStack mt={10}>
+    <Heading>zkHangman (WIP)</Heading>
     <div>
     {!account ? ( 
-      <button onClick={connectWallet}> connect ur wallet </button> 
+      <Button onClick={connectWallet}> connect </Button> 
     ) : (
-      <button onClick={disconnect}> disconnect </button>
+      <Button onClick={disconnect}> disconnect </Button>
     )
     }
     </div>
@@ -425,7 +477,7 @@ function HomePage() {
     <h2> chainID : {chainId} </h2>
     </div>
     { (chainId != 1666700000 && account) &&
-      <button onClick={switchNetwork}> Connect to harmony testnet </button> 
+      <Button onClick={switchNetwork}> Connect to harmony testnet </Button> 
     }
     {
       (correctGuesses == 5) && (
@@ -438,11 +490,13 @@ function HomePage() {
       )
     }
     <h1> Word characters revealed so far </h1>
-    <h2 style={{display:"inline"}}> { rev1 && parseHex(rev1._hex) } </h2>
-    <h2 style={{display:"inline"}}> { rev2 && parseHex(rev2._hex) } </h2>
-    <h2 style={{display:"inline"}}> { rev3 && parseHex(rev3._hex) } </h2>
-    <h2 style={{display:"inline"}}> { rev4 && parseHex(rev4._hex) } </h2>
-    <h2 style={{display:"inline"}}> { rev5 && parseHex(rev5._hex) } </h2>
+    <HStack>
+      <Text> { rev1 && parseHex(rev1._hex) } </Text>
+      <Text> { rev2 && parseHex(rev2._hex) } </Text>
+      <Text> { rev3 && parseHex(rev3._hex) } </Text>
+      <Text> { rev4 && parseHex(rev4._hex) } </Text>
+      <Text> { rev5 && parseHex(rev5._hex) } </Text>
+    </HStack>
 
     { (contractConnected && chainId == 1666700000 && account ) &&
       (
@@ -464,10 +518,10 @@ function HomePage() {
           <form onSubmit={submitGuess}>
           <label>
             Guess:
-            <input type="text" value={guess} onChange={guessChange} />
+            <Input type="text" value={guess} onChange={guessChange} />
           </label>
 
-          <input type="submit" value="Submit" />
+          <Input type="submit" value="Submit" />
 
         </form>
 
@@ -477,25 +531,69 @@ function HomePage() {
     {
       (contractConnected && chainId == 1666700000 && account == hostAddress && 
         turn != 0 && turn % 2 == 0 ) && (
-          <div>
+          <VStack width={500}>
           <h1> you are the host. process the guess. if the value of the secret field above
           is empty, enter the secret you set in the init process! otherwise feel free to
           click submit</h1>
          <label>
-            Secret:
-            <input type="number" value={secret} onChange={secretChange} />
+            Secret number:
+            <Input mb={3} type="number" value={secret} onChange={secretChange} />
           </label>
-          <button onClick={ processGuess }> PROCESS GUESS </button>
-          </div>
+          <Button onClick={ processGuess }> PROCESS GUESS </Button>
+          </VStack>
         )
     }
     {
       (contractConnected && chainId == 1666700000 && account == hostAddress && turn == 0) && 
       (
-        <div>
-        <h1> you're the host. initialize the game with a secret word of 5 characters </h1>
+        <VStack>
         <form onSubmit={generateProof}>
-          <label>
+          
+
+          <FormControl>
+            <FormLabel>
+              Secret:
+            </FormLabel>
+              <Input width={500} mb="5px" type="text" value={secret} onChange={secretChange} />
+            <FormLabel>
+              Enter characters from a-z that make up your five letter word
+            </FormLabel>
+            <HStack width={500} mb={5}>
+            <Input type="text" value={char1} onChange={char1Change} />
+            <Input type="text" value={char2} onChange={char2Change} />
+            <Input type="text" value={char3} onChange={char3Change} />
+            <Input type="text" value={char4} onChange={char4Change} />
+            <Input type="text" value={char5} onChange={char5Change} />
+            </HStack>
+          <Input width={500} type="submit" value="Submit" />
+          </FormControl>
+
+        </form>
+        </VStack>
+      )
+    }
+    <AlertDialog isOpen={isOpen} onClose={onClose}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogBody align="center" py={10}>
+                  <Text mb={7}> {dialogMessage} </Text>
+                  <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> 
+                </AlertDialogBody>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+    </AlertDialog>
+    </VStack>
+
+
+    </>
+  )
+}
+
+export default HomePage
+
+/*
+
+<label>
             Secret:
             <input type="text" value={secret} onChange={secretChange} />
           </label>
@@ -522,14 +620,4 @@ function HomePage() {
 
           <input type="submit" value="Submit" />
 
-        </form>
-        </div>
-      )
-    }
-
-
-    </>
-  )
-}
-
-export default HomePage
+*/
