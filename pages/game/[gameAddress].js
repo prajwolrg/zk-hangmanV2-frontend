@@ -21,11 +21,7 @@ import { HStack,
          AlertDialogOverlay,
          AlertDialogContent,
          AlertDialogBody,
-         useDisclosure,
-         PinInput,
-         PinInputField,
-         Flex,
-         Spacer
+         useDisclosure
 } from "@chakra-ui/react";
 
 const snarkjs = require("snarkjs");
