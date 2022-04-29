@@ -23,7 +23,9 @@ import { HStack,
          AlertDialogBody,
          useDisclosure,
          PinInput,
-         PinInputField
+         PinInputField,
+         Flex,
+         Spacer
 } from "@chakra-ui/react";
 
 const snarkjs = require("snarkjs");
@@ -160,7 +162,8 @@ function HomePage() {
       });
 
       let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
-      let turn = parseInt(await zkHangmanContract.turn(), 16);
+      let turn = parseInt((await zkHangmanContract.turn())._hex, 16);
+      console.log("turn: ", turn);
       let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
       console.log("correct guesses: ", _correctGuesses);
       let host = await zkHangmanContract.host();
@@ -489,64 +492,112 @@ function HomePage() {
         <h1> Connecting to contract... </h1>
       )
     }
-    <h1> Word characters revealed so far </h1>
-    <HStack>
-      <Text> { rev1 && parseHex(rev1._hex) } </Text>
-      <Text> { rev2 && parseHex(rev2._hex) } </Text>
-      <Text> { rev3 && parseHex(rev3._hex) } </Text>
-      <Text> { rev4 && parseHex(rev4._hex) } </Text>
-      <Text> { rev5 && parseHex(rev5._hex) } </Text>
-    </HStack>
 
+    //
+    // Characters revealed
+    //
+    {
+    (contractConnected && chainId == 1666700000) && ( 
+      <VStack width={500} pt="20px">
+      <Heading size="md"> Characters revealed so far </Heading>
+      <HStack>
+        <Text fontSize="xl"> { rev1 && parseHex(rev1._hex) } </Text>
+        <Text fontSize="xl"> { rev2 && parseHex(rev2._hex) } </Text>
+        <Text fontSize="xl"> { rev3 && parseHex(rev3._hex) } </Text>
+        <Text fontSize="xl"> { rev4 && parseHex(rev4._hex) } </Text>
+        <Text fontSize="xl"> { rev5 && parseHex(rev5._hex) } </Text>
+      </HStack>
+      </VStack>
+    )
+    }
+
+    //
+    // Game stats
+    //
     { (contractConnected && chainId == 1666700000 && account ) &&
       (
-      <div>
-      <h1> Player lives: { lives } </h1>
-      <h1> Correct guesses: { correctGuesses } </h1>
-      { account == hostAddress && <h2> Secret: { secret } </h2> }
-      <h2> Turn: { turn } </h2>
-        { turn == 0 ? <h1> Waiting for host to choose a word and initialize game </h1>
-          : turn % 2 == 1 ? <h1> Player's turn! </h1> : <h1> Host's turn! </h1> } 
-      </div>
+      <>
+
+      <HStack width={500} justify="space-evenly" py="15px">
+
+      <VStack>
+      <Heading size="md"> Correct Guesses </Heading>
+      <Text> { correctGuesses} </Text>
+      </VStack>
+
+
+      <VStack>
+      <Heading size="md"> Player lives </Heading>
+      <Text> { lives } </Text>
+      </VStack>
+
+
+      <VStack>
+      <Heading size="md"> Turn number</Heading>
+      <Text> { turn } </Text>
+      </VStack>
+
+      </HStack>
+
+      <VStack width={500}>
+        { turn == 0 ? <Heading size="lg"> Waiting for host to choose a word and initialize game </Heading>
+          : (turn % 2 == 1 && account != playerAddress) ? <Heading size="lg"> Player's turn! </Heading> :
+          (turn % 2 == 0 && account != hostAddress) ? <Heading size="lg"> Host's turn! </Heading> : <> </> } 
+      </VStack>
+      </>
       )
     }
+
+    //
+    // PLAYER SUBMIT GUESS
+    //
     {
       (contractConnected && chainId == 1666700000 && account == playerAddress && turn % 2 == 1 ) && 
       (
-        <div>
-        <h1> You're the player. Make a guess! </h1>
+        <VStack width={500}>
+        <Heading size="lg"> You're the player. Make a guess! </Heading>
           <form onSubmit={submitGuess}>
-          <label>
+          <FormLabel>
             Guess:
-            <Input type="text" value={guess} onChange={guessChange} />
-          </label>
+          </FormLabel>
+            <Input mb="5px" type="text" value={guess} onChange={guessChange} />
 
           <Input type="submit" value="Submit" />
 
         </form>
 
-        </div>
+        </VStack>
       )
     }
+
+    //
+    // HOST PROCESS GUESS
+    //
     {
       (contractConnected && chainId == 1666700000 && account == hostAddress && 
         turn != 0 && turn % 2 == 0 ) && (
           <VStack width={500}>
-          <h1> you are the host. process the guess. if the value of the secret field above
-          is empty, enter the secret you set in the init process! otherwise feel free to
-          click submit</h1>
-         <label>
+          <Heading size="md"> You are the host. Process the guess. If the value of the secret field below
+          is empty, enter the secret you set in the init process! </Heading>
+          <form onSubmit={processGuess}>
+
+         <FormLabel>
             Secret number:
-            <Input mb={3} type="number" value={secret} onChange={secretChange} />
-          </label>
-          <Button onClick={ processGuess }> PROCESS GUESS </Button>
+          </FormLabel>
+            <Input mb={3} width={500} type="number" value={secret} onChange={secretChange} />
+          <Input type="submit" onClick={ processGuess } value="Process guess" /> 
+          </form>
           </VStack>
         )
     }
+
+    //
+    // HOST INITIAL SETUP
+    //
     {
       (contractConnected && chainId == 1666700000 && account == hostAddress && turn == 0) && 
       (
-        <VStack>
+        <VStack width={500}>
         <form onSubmit={generateProof}>
           
 
@@ -590,34 +641,3 @@ function HomePage() {
 }
 
 export default HomePage
-
-/*
-
-<label>
-            Secret:
-            <input type="text" value={secret} onChange={secretChange} />
-          </label>
-          <label>
-            char1:
-            <input type="text" value={char1} onChange={char1Change} />
-          </label>
-          <label>
-            char2:
-            <input type="text" value={char2} onChange={char2Change} />
-          </label>
-          <label>
-            char3:
-            <input type="text" value={char3} onChange={char3Change} />
-          </label>
-          <label>
-            char4:
-            <input type="text" value={char4} onChange={char4Change} />
-          </label>
-          <label>
-            char5:
-            <input type="text" value={char5} onChange={char5Change} />
-          </label>
-
-          <input type="submit" value="Submit" />
-
-*/

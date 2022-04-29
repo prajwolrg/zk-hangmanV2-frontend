@@ -40,13 +40,13 @@ const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
 
 function HomePage() {
   const [error, setError] = useState();
+  const [dialogMessage, setDialogMessage] = useState();
   const [instance, setInstance] = useState();
   const [provider, setProvider] = useState();
   const [signer, setSigner] = useState();
   const [account, setAccount] = useState();
   const [network, setNetwork] = useState();
   const [chainId, setChainId] = useState();
-  const [waitForTx, setWaitForTx] = useState(false);
   const [gameAddress, setGameAddress] = useState('');
   const [hostAddress, setHostAddress] = useState('');
   const [playerAddress, setPlayerAddress] = useState('');
@@ -179,6 +179,8 @@ function HomePage() {
     console.log("init verifier address: ", initVerifierAddress);
     console.log("guess verifier address: ", guessVerifierAddress);
     
+    onOpen();
+    setDialogMessage("Awaiting transaction confirmation...");
         
     let tx = await zkHangmanFactoryContract.createGame(
       hostAddress,
@@ -187,16 +189,15 @@ function HomePage() {
       guessVerifierAddress
     );
 
-    setWaitForTx(true);
-    onOpen();
+    setDialogMessage("Waiting for transaction to finalize...");
 
     let txFinalized = await tx.wait();
+
+    onClose();
 
     let filter = zkHangmanFactoryContract.filters.GameCreated(hostAddress, playerAddress);
     let filterResults = await zkHangmanFactoryContract.queryFilter(filter, -1000);
     let newGameAddress = filterResults[filterResults.length-1].args.gameAddress;
-
-    setWaitForTx(false);
 
     let href = "/game/" + newGameAddress;
     router.push(href);
@@ -265,22 +266,18 @@ function HomePage() {
         </VStack>
         )
     }
-    {
-      waitForTx && (
-        <>
-          <AlertDialog isOpen={isOpen} onClose={onClose}>
-            <AlertDialogOverlay>
-              <AlertDialogContent>
-                <AlertDialogBody align="center" py={10}>
-                  <Text mb={7}> Please wait for your transaction to be confirmed </Text>
-                  <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> 
-                </AlertDialogBody>
-              </AlertDialogContent>
-            </AlertDialogOverlay>
-          </AlertDialog>
-        </>
-      )
-    }
+
+      <AlertDialog isOpen={isOpen} onClose={onClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogBody align="center" py={10}>
+              <Text mb={7}> {dialogMessage} </Text>
+              <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> 
+            </AlertDialogBody>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
     </VStack>
     </div>
   )
