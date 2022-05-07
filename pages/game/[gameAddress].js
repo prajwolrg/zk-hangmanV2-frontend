@@ -36,10 +36,11 @@ if (typeof window !== 'undefined') {
   });
 }
 
+// mainnet and testnet verifier addresses are the same so we don't need to store them both
 const initVerifierAddress = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
 const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
 
-function HomePage() {
+function GamePage() {
   const [error, setError] = useState();
   const [dialogMessage, setDialogMessage] = useState('');
   const [instance, setInstance] = useState();
@@ -76,7 +77,7 @@ function HomePage() {
   const gameContract = gameAddress;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
   
   useEffect(() => {
     if (instance?.on) {
@@ -212,24 +213,46 @@ function HomePage() {
     setChainId(Number(e.target.value));
   }
 
-  const switchNetwork = async () => {
-    try {
-      await provider.provider.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: toHex(1666700000) }]
-      });
-    } catch (switchError) {
-      if (switchError.code === 4902) {
-        try {
-          await provider.provider.request({
-            method: "wallet_addEthereumChain",
-            params: [harmonyTestnetParams]
-          });
-        } catch (error) {
-          setError(error);
+  const switchNetwork = async (toMainnet) => {
+    if (!toMainnet) { // testnet
+      try {
+        await provider.provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: toHex(1666700000) }]
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+            await provider.provider.request({
+              method: "wallet_addEthereumChain",
+              params: [harmonyTestnetParams]
+            });
+          } catch (error) {
+            setError(error);
+          }
+        }
+      }
+    } else { // mainnet 
+      try {
+        await provider.provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: toHex(1666600000) }]
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+             await provider.provider.request({
+              method: "wallet_addEthereumChain",
+              params: [harmonyMainnetParams]
+             });
+          } catch (error) {
+            setError(error);
+          }
         }
       }
     }
+
+    onSelectClose();
   };
 
 
@@ -456,15 +479,28 @@ function HomePage() {
       <title> zkHangman - {gameAddress} </title>
     </Head>
     <VStack mt={10}>
-    <Heading>zkHangman (WIP)</Heading>
+    <Heading mb={7}>zkHangman (WIP)</Heading>
+
     <div>
-    {!account ? ( 
-      <Button onClick={connectWallet}> connect </Button> 
-    ) : (
-      <Button onClick={disconnect}> disconnect </Button>
-    )
+   
+    {
+      (chainId == 1666700000 && account) ? (
+        <Button onClick={ () => switchNetwork(true)}> Switch to mainnet </Button> 
+      ) : (chainId == 1666600000 && account) ? (
+        <Button onClick={ () => switchNetwork(false)}> Switch to testnet </Button> 
+      ) : <Button onClick={() => {connectWallet(); onSelectOpen();}}> Connect to Harmony </Button> 
     }
     </div>
+
+    <div>
+      { (chainId == 1666700000 && account) ? (
+        <h2> You're connected to the Harmony testnet </h2>
+      ) : (chainId == 1666600000 && account) ? (
+        <h2> You're connected to the Harmony mainnet </h2>
+      ) : <h2> Please connect to Harmony </h2>
+      }
+    </div>
+
     <div>
       {account ? (
         <h2> Account {account} </h2>
@@ -472,12 +508,8 @@ function HomePage() {
         <h2> Account: account not connected </h2>
       )}
     </div>
-    <div>
-    <h2> chainID : {chainId} </h2>
-    </div>
-    { (chainId != 1666700000 && account) &&
-      <Button onClick={switchNetwork}> Connect to harmony testnet </Button> 
-    }
+
+    
     {
       (correctGuesses == 5) && (
           <h1> GAME OVER. PLAYER HAS WON! </h1>
@@ -493,7 +525,7 @@ function HomePage() {
     // Characters revealed
     //
     {
-    (contractConnected && chainId == 1666700000) && ( 
+    (contractConnected && (chainId == 1666700000 || chainId == 1666600000)) && ( 
       <VStack width={500} pt="20px">
       <Heading size="md"> Characters revealed so far </Heading>
       <HStack>
@@ -510,7 +542,7 @@ function HomePage() {
     //
     // Game stats
     //
-    { (contractConnected && chainId == 1666700000 && account ) &&
+    { (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account ) &&
       (
       <>
 
@@ -548,7 +580,7 @@ function HomePage() {
     // PLAYER SUBMIT GUESS
     //
     {
-      (contractConnected && chainId == 1666700000 && account == playerAddress && turn % 2 == 1 ) && 
+      (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account == playerAddress && turn % 2 == 1 ) && 
       (
         <VStack width={500}>
         <Heading size="lg"> You're the player. Make a guess! </Heading>
@@ -570,7 +602,7 @@ function HomePage() {
     // HOST PROCESS GUESS
     //
     {
-      (contractConnected && chainId == 1666700000 && account == hostAddress && 
+      (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account == hostAddress && 
         turn != 0 && turn % 2 == 0 ) && (
           <VStack width={500}>
           <Heading size="md"> You are the host. Process the guess. If the value of the secret field below
@@ -591,7 +623,7 @@ function HomePage() {
     // HOST INITIAL SETUP
     //
     {
-      (contractConnected && chainId == 1666700000 && account == hostAddress && turn == 0) && 
+      (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account == hostAddress && turn == 0) && 
       (
         <VStack width={500}>
         <form onSubmit={generateProof}>
@@ -631,9 +663,20 @@ function HomePage() {
     </AlertDialog>
     </VStack>
 
+    <AlertDialog isOpen={isSelectOpen} onClose={onSelectClose}>
+       <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogBody align="center" py={10}>
+              <Button mb={7} width={250} onClick={() => switchNetwork(true)}> Connect to harmony mainnet </Button> 
+              <Button width={250} onClick={() => switchNetwork(false)}> Connect to harmony testnet </Button> 
+            </AlertDialogBody>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+    </AlertDialog>
+
 
     </>
   )
 }
 
-export default HomePage
+export default GamePage

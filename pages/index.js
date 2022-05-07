@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
-import { toHex, harmonyTestnetParams } from "../utils";
+import { toHex, harmonyTestnetParams, harmonyMainnetParams } from "../utils";
 import { HStack,
          VStack,
          Heading,
@@ -21,7 +21,7 @@ import { HStack,
          AlertDialogOverlay,
          AlertDialogContent,
          AlertDialogBody,
-         useDisclosure
+         useDisclosure,
 } from "@chakra-ui/react"
 
 const providerOptions = {};
@@ -34,9 +34,15 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const zkHangmanFactoryAddress = "0x9dA7649434dA3A99e72224d37F3b7c69f6F3C8B0";
-const initVerifierAddress = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
-const guessVerifierAddress = "0x262201b73941709113Fb47E564C9026830476706";
+// harmony testnet contract addresses
+const testZkHangmanFactory= "0x9dA7649434dA3A99e72224d37F3b7c69f6F3C8B0";
+const testInitVerifier = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
+const testGuessVerifier = "0x262201b73941709113Fb47E564C9026830476706";
+
+// harmony mainnet contract addresses
+const mainZkHangmanFactory = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
+const mainInitVerifier= "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
+const mainGuessVerifier= "0x262201b73941709113Fb47E564C9026830476706";
 
 function HomePage() {
   const [error, setError] = useState();
@@ -52,6 +58,7 @@ function HomePage() {
   const [playerAddress, setPlayerAddress] = useState('');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
 
   useEffect(() => {
     if (instance?.on) {
@@ -124,24 +131,46 @@ function HomePage() {
     setChainId(Number(e.target.value));
   }
 
-  const switchNetwork = async () => {
-    try {
-      await provider.provider.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: toHex(1666700000) }]
-      });
-    } catch (switchError) {
-      if (switchError.code === 4902) {
-        try {
-          await provider.provider.request({
-            method: "wallet_addEthereumChain",
-            params: [harmonyTestnetParams]
-          });
-        } catch (error) {
-          setError(error);
+  const switchNetwork = async (toMainnet) => {
+    if (!toMainnet) { // testnet
+      try {
+        await provider.provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: toHex(1666700000) }]
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+            await provider.provider.request({
+              method: "wallet_addEthereumChain",
+              params: [harmonyTestnetParams]
+            });
+          } catch (error) {
+            setError(error);
+          }
+        }
+      }
+    } else { // mainnet 
+      try {
+        await provider.provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: toHex(1666600000) }]
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+             await provider.provider.request({
+              method: "wallet_addEthereumChain",
+              params: [harmonyMainnetParams]
+             });
+          } catch (error) {
+            setError(error);
+          }
         }
       }
     }
+
+    onSelectClose();
   };
 
   const gameAddressChange = (e) => {
@@ -166,6 +195,15 @@ function HomePage() {
 
   const createGame = async (e) => {
     e.preventDefault();
+    if (chainId == 1666700000) {
+      var zkHangmanFactoryAddress = testZkHangmanFactory;
+      var initVerifierAddress = testInitVerifier;
+      var guessVerifierAddress = testGuessVerifier;
+    } else if (chainId = 1666600000) {
+      var zkHangmanFactoryAddress = mainZkHangmanFactory;
+      var initVerifierAddress = mainInitVerifier;
+      var guessVerifierAddress = mainGuessVerifier;
+    }
     const zkHangmanFactoryContract = new ethers.Contract(
       zkHangmanFactoryAddress,
       zkHangmanFactoryAbi,
@@ -209,15 +247,27 @@ function HomePage() {
       <title> zkHangman </title>
     </Head>
     <VStack h="100vh" mt={10}>
-    <Heading>zkHangman</Heading>
+    <Heading mb={7}>zkHangman</Heading>
     <div>
-    {!account ? ( 
-      <Button onClick={connectWallet}> connect </Button> 
-    ) : (
-      <Button onClick={disconnect}> disconnect </Button>
-    )
+   
+    {
+      (chainId == 1666700000 && account) ? (
+        <Button onClick={ () => switchNetwork(true)}> Switch to mainnet </Button> 
+      ) : (chainId == 1666600000 && account) ? (
+        <Button onClick={ () => switchNetwork(false)}> Switch to testnet </Button> 
+      ) : <Button onClick={() => {connectWallet(); onSelectOpen();}}> Connect to Harmony </Button> 
     }
     </div>
+
+    <div>
+      { (chainId == 1666700000 && account) ? (
+        <h2> You're connected to the Harmony testnet </h2>
+      ) : (chainId == 1666600000 && account) ? (
+        <h2> You're connected to the Harmony mainnet </h2>
+      ) : <h2> Please connect to Harmony </h2>
+      }
+    </div>
+
     <div>
       {account ? (
         <h2> Account {account} </h2>
@@ -225,13 +275,9 @@ function HomePage() {
         <h2> Account: account not connected </h2>
       )}
     </div>
-    <div>
-    <h2> chainID : {chainId} </h2>
-    </div>
-    { (chainId != 1666700000 && account) &&
-      <Button onClick={switchNetwork}> Connect to harmony testnet </Button> 
-    }
-    { (chainId == 1666700000 && account) &&
+
+       
+    { ( (chainId == 1666700000 || chainId == 1666600000)  && account) &&
         (
         <VStack>
           <Box my="30px" width={460}>
@@ -277,6 +323,17 @@ function HomePage() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
+    <AlertDialog isOpen={isSelectOpen} onClose={onSelectClose}>
+       <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogBody align="center" py={10}>
+              <Button mb={7} width={250} onClick={() => switchNetwork(true)}> Connect to harmony mainnet </Button> 
+              <Button width={250} onClick={() => switchNetwork(false)}> Connect to harmony testnet </Button> 
+            </AlertDialogBody>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+    </AlertDialog>
 
     </VStack>
     </div>
