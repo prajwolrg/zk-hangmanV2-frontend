@@ -479,7 +479,7 @@ function GamePage() {
       <title> zkHangman - {gameAddress} </title>
     </Head>
     <VStack mt={10}>
-    <Heading mb={7}>zkHangman (WIP)</Heading>
+    <Heading mb={7}>zkHangman</Heading>
 
     <div>
    
