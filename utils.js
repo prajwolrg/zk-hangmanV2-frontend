@@ -20,3 +20,11 @@ export const harmonyMainnetParams = {
     blockExplorerUrls: ["https://explorer.harmony.one/"],
     iconUrls: ["https://harmonynews.one/wp-content/uploads/2019/11/slfdjs.png"]
 }
+
+export const hardhatNodeParams = {
+    chainId: toHex(31337),
+    rpcUrls: ["http://127.0.0.1:8545"],
+    chainName: "Hardhat Node",
+    nativeCurrency: { name: "ETH", decimals: 18, symbol: "ETH" },
+    blockExplorerUrls: [],
+}

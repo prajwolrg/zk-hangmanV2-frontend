@@ -327,6 +327,7 @@ function GamePage() {
     const res = await snarkjs.groth16.verify(vkey, publicSignals, proof);
     console.log("proof result: ", res);
 
+
     console.log(proof);
     console.log(publicSignals);
 
@@ -484,10 +485,12 @@ function GamePage() {
     <div>
    
     {
-      (chainId == 1666700000 && account) ? (
-        <Button onClick={ () => switchNetwork(true)}> Switch to mainnet </Button> 
+      (chainId == 31337 && account) ? (
+        <Button onClick={ () => switchNetwork('mainnet')}> Switch to mainnet </Button> 
       ) : (chainId == 1666600000 && account) ? (
-        <Button onClick={ () => switchNetwork(false)}> Switch to testnet </Button> 
+        <Button onClick={ () => switchNetwork('testnet')}> Switch to testnet </Button> 
+      ) : (chainId == 1666600000 && account) ? (
+        <Button onClick={ () => switchNetwork('mainnet')}> Switch to testnet </Button> 
       ) : <Button onClick={() => {connectWallet(); onSelectOpen();}}> Connect to Harmony </Button> 
     }
     </div>
@@ -497,6 +500,8 @@ function GamePage() {
         <h2> You're connected to the Harmony testnet </h2>
       ) : (chainId == 1666600000 && account) ? (
         <h2> You're connected to the Harmony mainnet </h2>
+      ) : (chainId == 31337 && account) ? (
+        <h2> You're connected to the Hardhat testnet </h2>
       ) : <h2> Please connect to Harmony </h2>
       }
     </div>
@@ -525,7 +530,7 @@ function GamePage() {
     // Characters revealed
     //
     {
-    (contractConnected && (chainId == 1666700000 || chainId == 1666600000)) && ( 
+    (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337)) && ( 
       <VStack width={500} pt="20px">
       <Heading size="md"> Characters revealed so far </Heading>
       <HStack>
@@ -580,7 +585,7 @@ function GamePage() {
     // PLAYER SUBMIT GUESS
     //
     {
-      (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account == playerAddress && turn % 2 == 1 ) && 
+      (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account == playerAddress && turn % 2 == 1 ) && 
       (
         <VStack width={500}>
         <Heading size="lg"> You're the player. Make a guess! </Heading>
@@ -602,7 +607,7 @@ function GamePage() {
     // HOST PROCESS GUESS
     //
     {
-      (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account == hostAddress && 
+      (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account == hostAddress && 
         turn != 0 && turn % 2 == 0 ) && (
           <VStack width={500}>
           <Heading size="md"> You are the host. Process the guess. If the value of the secret field below
@@ -623,7 +628,7 @@ function GamePage() {
     // HOST INITIAL SETUP
     //
     {
-      (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account == hostAddress && turn == 0) && 
+      (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account == hostAddress && turn == 0) && 
       (
         <VStack width={500}>
         <form onSubmit={generateProof}>
