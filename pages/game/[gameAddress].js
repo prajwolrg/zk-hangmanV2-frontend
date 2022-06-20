@@ -23,6 +23,7 @@ import { HStack,
          AlertDialogBody,
          useDisclosure
 } from "@chakra-ui/react";
+import Figure from "../../components/Figure"
 
 const snarkjs = require("snarkjs");
 
@@ -547,7 +548,7 @@ function GamePage() {
     //
     // Game stats
     //
-    { (contractConnected && (chainId == 1666700000 || chainId == 1666600000) && account ) &&
+    { (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account ) &&
       (
       <>
 
@@ -568,6 +569,10 @@ function GamePage() {
       <VStack>
       <Heading size="md"> Turn number</Heading>
       <Text> { turn } </Text>
+      </VStack>
+
+      <VStack>
+        <Figure errors={6-lives}></Figure>
       </VStack>
 
       </HStack>
