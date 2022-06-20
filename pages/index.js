@@ -35,9 +35,9 @@ if (typeof window !== 'undefined') {
 }
 
 // local hardhat contract addresses
-const localhostZkHangmanFactory = "0x997691EA886836FB59F547E915D5C1b7EE236A17"
-const localhostInitVerifier = "0xCf1aFDe70a43EBe93f4224aa239DD828353Ae1c7"
-const localhostGuessVerifier = "0x1D9317911CF1003B42a965574c29f18a87A2858c"
+const localhostZkHangmanFactory = "0x994230735cd9854F192524ac435a17aB808d6790"
+const localhostInitVerifier = "0xE082C13ac5a58F5f791376594558F5819a0396A6"
+const localhostGuessVerifier = "0xbc8718D1559d18fcfD23A7775D4472e22607A596"
 
 // harmony testnet contract addresses
 const testZkHangmanFactory = "0x981Fa2d6C2FC41C301C89693D5908597A2F41256"
