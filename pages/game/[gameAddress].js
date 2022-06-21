@@ -3,7 +3,8 @@ import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { zkHangmanAbi } from "../../abis/zkHangman";
+// import { zkHangmanAbi } from "../../abis/zkHangman";
+import zkHangman from "../../abis/zkHangman.json"
 import { toHex, harmonyDevnetParams } from "../../utils";
 import { HStack,
          VStack,
@@ -26,6 +27,8 @@ import { HStack,
 import Figure from "../../components/Figure"
 
 const snarkjs = require("snarkjs");
+
+const zkHangmanAbi = zkHangman.abi
 
 const providerOptions = {};
 
@@ -149,6 +152,10 @@ function GamePage() {
         console.log("The turn is now: ", nextTurn);
         let decTurn = parseInt(nextTurn._hex, 16);
         setTurn(decTurn);
+
+        console.log('Getting correct guesses')
+        const cGuesses = await zkHangmanContract.correctGuesses()
+        console.log(cGuesses)
 
         let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
         setCorrectGuesses(_correctGuesses);
@@ -381,10 +388,15 @@ function GamePage() {
     let parsedChar5 = (char5.toLowerCase()).charCodeAt(0) - 97
     console.log(parsedChar1, parsedChar2, parsedChar3, parsedChar4, parsedChar5);
 
+    let remainingChars = []
+    for (var i=0; i<20; i++) {
+      remainingChars.push(BigInt(0))
+    }
+
     let inputObject = {
       secret: BigInt(secret),
       char: [BigInt(parsedChar1), BigInt(parsedChar2), BigInt(parsedChar3), 
-        BigInt(parsedChar4), BigInt(parsedChar5)]
+        BigInt(parsedChar4), BigInt(parsedChar5), ...remainingChars]
     }
 
     console.log(inputObject);
@@ -427,7 +439,7 @@ function GamePage() {
 
     setDialogMessage("Awaiting transaction confirmation...");
 
-    let tx = await zkHangmanContract.initializeGame(_a, _b, _c, _input);
+    let tx = await zkHangmanContract.initializeGame(_a, _b, _c, _input, 5);
 
     console.log(tx);
     setDialogMessage("Waiting for transaction to finalize...");

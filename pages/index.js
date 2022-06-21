@@ -3,7 +3,8 @@ import Web3Modal from "web3modal";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
+// import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
+import zkHangmanFactory from "../abis/zkHangmanFactory.json";
 import { toHex, harmonyTestnetParams, harmonyMainnetParams, hardhatNodeParams } from "../utils";
 import { HStack,
          VStack,
@@ -24,6 +25,8 @@ import { HStack,
          useDisclosure,
 } from "@chakra-ui/react"
 
+const zkHangmanFactoryAbi = zkHangmanFactory.abi
+
 const providerOptions = {};
 
 let web3Modal;
@@ -40,9 +43,9 @@ const localInitVerifier = "0xCf1aFDe70a43EBe93f4224aa239DD828353Ae1c7"
 const localGuessVerifier = "0x1D9317911CF1003B42a965574c29f18a87A2858c"
 
 // harmony testnet contract addresses
-const devZkHangmanFactory = "0x990042B89dD7B9f65f32D328125fC66d2B2a3C54"
-const devInitVerifier = "0xD6E15A37Bcba48049ba10e1985Ea1FB8Bc449033"
-const devGuessVerifier = "0x1b7a3154C6ad5402082A0Eb0c0E6fC6F5d772885"
+const devZkHangmanFactory = "0x22A4212DeF5d3aA83c68beaAb0650307A01A08eB"
+const devInitVerifier = "0x130F9B984165CD444E35af37b26e5BC4F8fFF26d"
+const devGuessVerifier = "0x0AdB1582DC1f288C178137A3ec8d229127bfEaCe"
 
 // harmony mainnet contract addresses
 const mainZkHangmanFactory = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
