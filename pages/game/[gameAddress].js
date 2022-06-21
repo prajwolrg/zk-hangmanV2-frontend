@@ -4,7 +4,7 @@ import Web3Modal from "web3modal";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { zkHangmanAbi } from "../../abis/zkHangman";
-import { toHex, harmonyTestnetParams } from "../../utils";
+import { toHex, harmonyDevnetParams } from "../../utils";
 import { HStack,
          VStack,
          Heading,
@@ -219,14 +219,14 @@ function GamePage() {
       try {
         await provider.provider.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(1666700000) }]
+          params: [{ chainId: toHex(1666900000) }]
         });
       } catch (switchError) {
         if (switchError.code === 4902) {
           try {
             await provider.provider.request({
               method: "wallet_addEthereumChain",
-              params: [harmonyTestnetParams]
+              params: [harmonyDevnetParams]
             });
           } catch (error) {
             setError(error);
@@ -497,7 +497,7 @@ function GamePage() {
     </div>
 
     <div>
-      { (chainId == 1666700000 && account) ? (
+      { (chainId == 1666900000 && account) ? (
         <h2> You're connected to the Harmony testnet </h2>
       ) : (chainId == 1666600000 && account) ? (
         <h2> You're connected to the Harmony mainnet </h2>
@@ -531,7 +531,7 @@ function GamePage() {
     // Characters revealed
     //
     {
-    (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337)) && ( 
+    (contractConnected && (chainId == 1666900000 || chainId == 1666600000 || chainId == 31337)) && ( 
       <VStack width={500} pt="20px">
       <Heading size="md"> Characters revealed so far </Heading>
       <HStack>
@@ -548,7 +548,7 @@ function GamePage() {
     //
     // Game stats
     //
-    { (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account ) &&
+    { (contractConnected && (chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && account ) &&
       (
       <>
 
@@ -590,7 +590,7 @@ function GamePage() {
     // PLAYER SUBMIT GUESS
     //
     {
-      (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account == playerAddress && turn % 2 == 1 ) && 
+      (contractConnected && (chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && account == playerAddress && turn % 2 == 1 ) && 
       (
         <VStack width={500}>
         <Heading size="lg"> You're the player. Make a guess! </Heading>
@@ -612,7 +612,7 @@ function GamePage() {
     // HOST PROCESS GUESS
     //
     {
-      (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account == hostAddress && 
+      (contractConnected && (chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && account == hostAddress && 
         turn != 0 && turn % 2 == 0 ) && (
           <VStack width={500}>
           <Heading size="md"> You are the host. Process the guess. If the value of the secret field below
@@ -633,7 +633,7 @@ function GamePage() {
     // HOST INITIAL SETUP
     //
     {
-      (contractConnected && (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337) && account == hostAddress && turn == 0) && 
+      (contractConnected && (chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && account == hostAddress && turn == 0) && 
       (
         <VStack width={500}>
         <form onSubmit={generateProof}>

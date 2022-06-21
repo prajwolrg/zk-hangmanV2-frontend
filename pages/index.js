@@ -35,14 +35,14 @@ if (typeof window !== 'undefined') {
 }
 
 // local hardhat contract addresses
-const localhostZkHangmanFactory = "0x994230735cd9854F192524ac435a17aB808d6790"
-const localhostInitVerifier = "0xE082C13ac5a58F5f791376594558F5819a0396A6"
-const localhostGuessVerifier = "0xbc8718D1559d18fcfD23A7775D4472e22607A596"
+const localZkHangmanFactory = "0x997691EA886836FB59F547E915D5C1b7EE236A17"
+const localInitVerifier = "0xCf1aFDe70a43EBe93f4224aa239DD828353Ae1c7"
+const localGuessVerifier = "0x1D9317911CF1003B42a965574c29f18a87A2858c"
 
 // harmony testnet contract addresses
-const testZkHangmanFactory = "0x981Fa2d6C2FC41C301C89693D5908597A2F41256"
-const testInitVerifier = "0x3B3341dB17b1FC79Fb4F2149F0413e7Fa9375C76"
-const testGuessVerifier = "0x994230735cd9854F192524ac435a17aB808d6790"
+const devZkHangmanFactory = "0x990042B89dD7B9f65f32D328125fC66d2B2a3C54"
+const devInitVerifier = "0xD6E15A37Bcba48049ba10e1985Ea1FB8Bc449033"
+const devGuessVerifier = "0x1b7a3154C6ad5402082A0Eb0c0E6fC6F5d772885"
 
 // harmony mainnet contract addresses
 const mainZkHangmanFactory = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
@@ -138,19 +138,19 @@ function HomePage() {
 
   const switchNetwork = async (network) => {
     console.log(`Trying to switch network to: ${network}`)
-    if (network == 'testnet') {
-      console.log('testnet')
+    if (network == 'devnet') {
+      console.log('devnet')
       try {
         await provider.provider.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(1666700000) }]
+          params: [{ chainId: toHex(1666900000) }]
         });
       } catch (switchError) {
         if (switchError.code === 4902) {
           try {
             await provider.provider.request({
               method: "wallet_addEthereumChain",
-              params: [harmonyTestnetParams]
+              params: [harmonydevnetParams]
             });
           } catch (error) {
             setError(error);
@@ -226,11 +226,11 @@ function HomePage() {
   const createGame = async (e) => {
     console.log(`Trying to create a game`)
     e.preventDefault();
-    if (chainId == 1666700000) {
+    if (chainId == 1666900000) {
       console.log(`${chainId}`)
-      var zkHangmanFactoryAddress = testZkHangmanFactory;
-      var initVerifierAddress = testInitVerifier;
-      var guessVerifierAddress = testGuessVerifier;
+      var zkHangmanFactoryAddress = devZkHangmanFactory;
+      var initVerifierAddress = devInitVerifier;
+      var guessVerifierAddress = devGuessVerifier;
     } else if (chainId == 1666600000) {
       console.log(`${chainId}`)
       var zkHangmanFactoryAddress = mainZkHangmanFactory;
@@ -239,9 +239,9 @@ function HomePage() {
     }
     else if (chainId == 31337) {
       console.log(`${chainId}`)
-      var zkHangmanFactoryAddress = localhostZkHangmanFactory;
-      var initVerifierAddress = localhostInitVerifier;
-      var guessVerifierAddress = localhostGuessVerifier;
+      var zkHangmanFactoryAddress = localZkHangmanFactory;
+      var initVerifierAddress = localInitVerifier;
+      var guessVerifierAddress = localGuessVerifier;
     }
     const zkHangmanFactoryContract = new ethers.Contract(
       zkHangmanFactoryAddress,
@@ -293,20 +293,20 @@ function HomePage() {
       (chainId == 31337 && account) ? (
         <Button onClick={ () => switchNetwork('mainnet')}> Switch to mainnet </Button> 
       ) : (chainId == 1666600000 && account) ? (
-        <Button onClick={ () => switchNetwork('testnet')}> Switch to testnet </Button> 
+        <Button onClick={ () => switchNetwork('devnet')}> Switch to devnet </Button> 
       ) : (chainId == 1666600000 && account) ? (
-        <Button onClick={ () => switchNetwork('mainnet')}> Switch to testnet </Button> 
+        <Button onClick={ () => switchNetwork('mainnet')}> Switch to devnet </Button> 
       ) : <Button onClick={() => {connectWallet(); onSelectOpen();}}> Connect to Harmony </Button> 
     }
     </div>
 
     <div>
-      { (chainId == 1666700000 && account) ? (
-        <h2> You're connected to the Harmony testnet </h2>
+      { (chainId == 1666900000 && account) ? (
+        <h2> You're connected to the Harmony devnet </h2>
       ) : (chainId == 1666600000 && account) ? (
         <h2> You're connected to the Harmony mainnet </h2>
       ) : (chainId == 31337 && account) ? (
-        <h2> You're connected to the Hardhat testnet </h2>
+        <h2> You're connected to the Hardhat devnet </h2>
       ) : <h2> Please connect to Harmony </h2>
       }
     </div>
@@ -320,7 +320,7 @@ function HomePage() {
     </div>
 
        
-    { ( (chainId == 1666700000 || chainId == 1666600000 || chainId == 31337)  && account) &&
+    { ( (chainId == 1666900000 || chainId == 1666600000 || chainId == 31337)  && account) &&
         (
         <VStack>
           <Box my="30px" width={460}>
@@ -372,7 +372,7 @@ function HomePage() {
           <AlertDialogContent>
             <AlertDialogBody align="center" py={10}>
               <Button mb={7} width={250} onClick={() => switchNetwork('mainnet')}> Connect to harmony mainnet </Button> 
-              <Button width={250} mb={7} onClick={() => switchNetwork('testnet')}> Connect to harmony testnet </Button> 
+              <Button width={250} mb={7} onClick={() => switchNetwork('devnet')}> Connect to harmony devnet </Button> 
               <Button width={250} onClick={() => switchNetwork('hardhat')}> Connect to local hardhat node </Button> 
             </AlertDialogBody>
           </AlertDialogContent>
