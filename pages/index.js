@@ -6,24 +6,27 @@ import { useRouter } from "next/router";
 // import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
 import zkHangmanFactory from "../abis/zkHangmanFactory.json";
 import { toHex, harmonyTestnetParams, harmonyMainnetParams, hardhatNodeParams } from "../utils";
-import { HStack,
-         VStack,
-         Heading,
-         Text,
-         Box,
-         FormControl,
-         FormLabel,
-         FormErrorMessage,
-         FormHelperText,
-         Input,
-         Button,
-         Spinner,
-         AlertDialog,
-         AlertDialogOverlay,
-         AlertDialogContent,
-         AlertDialogBody,
-         useDisclosure,
+import {
+  HStack,
+  VStack,
+  Heading,
+  Text,
+  Box,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  FormHelperText,
+  Input,
+  Button,
+  Spinner,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogBody,
+  useDisclosure,
 } from "@chakra-ui/react"
+
+import TopNav from "../components/TopNav"
 
 const zkHangmanFactoryAbi = zkHangmanFactory.abi
 
@@ -49,8 +52,8 @@ const devGuessVerifier = "0x0AdB1582DC1f288C178137A3ec8d229127bfEaCe"
 
 // harmony mainnet contract addresses
 const mainZkHangmanFactory = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
-const mainInitVerifier= "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
-const mainGuessVerifier= "0x262201b73941709113Fb47E564C9026830476706";
+const mainInitVerifier = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
+const mainGuessVerifier = "0x262201b73941709113Fb47E564C9026830476706";
 
 function HomePage() {
   const [error, setError] = useState();
@@ -170,16 +173,16 @@ function HomePage() {
       } catch (switchError) {
         if (switchError.code === 4902) {
           try {
-             await provider.provider.request({
+            await provider.provider.request({
               method: "wallet_addEthereumChain",
               params: [harmonyMainnetParams]
-             });
+            });
           } catch (error) {
             setError(error);
           }
         }
       }
-    } else if (network=='localhost' || network == 'hardhat') {
+    } else if (network == 'localhost' || network == 'hardhat') {
       console.log('localhost')
       try {
         await provider.provider.request({
@@ -190,10 +193,10 @@ function HomePage() {
         console.log(switchError)
         if (switchError.code === 4902) {
           try {
-             await provider.provider.request({
+            await provider.provider.request({
               method: "wallet_addEthereumChain",
               params: [hardhatNodeParams]
-             });
+            });
           } catch (error) {
             setError(error);
           }
@@ -253,15 +256,15 @@ function HomePage() {
     )
 
     console.log(zkHangmanFactoryContract);
-    
+
     console.log("host address: ", hostAddress);
     console.log("player address: ", playerAddress);
     console.log("init verifier address: ", initVerifierAddress);
     console.log("guess verifier address: ", guessVerifierAddress);
-    
+
     onOpen();
     setDialogMessage("Awaiting transaction confirmation...");
-        
+
     let tx = await zkHangmanFactoryContract.createGame(
       hostAddress,
       playerAddress,
@@ -277,112 +280,114 @@ function HomePage() {
 
     let filter = zkHangmanFactoryContract.filters.GameCreated(hostAddress, playerAddress);
     let filterResults = await zkHangmanFactoryContract.queryFilter(filter, -1000);
-    let newGameAddress = filterResults[filterResults.length-1].args.gameAddress;
+    let newGameAddress = filterResults[filterResults.length - 1].args.gameAddress;
 
     let href = "/game/" + newGameAddress;
     router.push(href);
   }
-  
+
   return (
     <div>
-    <Head>
-      <title> zkHangman </title>
-    </Head>
-    <VStack h="100vh" mt={10}>
-    <Heading mb={7}>zkHangman</Heading>
-    <div>
-   
-    {
-      (chainId == 31337 && account) ? (
-        <Button onClick={ () => switchNetwork('mainnet')}> Switch to mainnet </Button> 
-      ) : (chainId == 1666600000 && account) ? (
-        <Button onClick={ () => switchNetwork('devnet')}> Switch to devnet </Button> 
-      ) : (chainId == 1666600000 && account) ? (
-        <Button onClick={ () => switchNetwork('mainnet')}> Switch to devnet </Button> 
-      ) : <Button onClick={() => {connectWallet(); onSelectOpen();}}> Connect to Harmony </Button> 
-    }
-    </div>
+      <TopNav></TopNav>
 
-    <div>
-      { (chainId == 1666900000 && account) ? (
-        <h2> You're connected to the Harmony devnet </h2>
-      ) : (chainId == 1666600000 && account) ? (
-        <h2> You're connected to the Harmony mainnet </h2>
-      ) : (chainId == 31337 && account) ? (
-        <h2> You're connected to the Hardhat devnet </h2>
-      ) : <h2> Please connect to Harmony </h2>
-      }
-    </div>
+      <Head>
+        <title> zkHangman </title>
+      </Head>
+      <VStack h="100vh" mt={10}>
+        <Heading mb={7}>zkHangman</Heading>
+        <div>
 
-    <div>
-      {account ? (
-        <h2> Account {account} </h2>
-      ) : (
-        <h2> Account: account not connected </h2>
-      )}
-    </div>
+          {
+            (chainId == 31337 && account) ? (
+              <Button onClick={() => switchNetwork('mainnet')}> Switch to mainnet </Button>
+            ) : (chainId == 1666600000 && account) ? (
+              <Button onClick={() => switchNetwork('devnet')}> Switch to devnet </Button>
+            ) : (chainId == 1666600000 && account) ? (
+              <Button onClick={() => switchNetwork('mainnet')}> Switch to devnet </Button>
+            ) : <Button onClick={() => { connectWallet(); onSelectOpen(); }}> Connect to Harmony </Button>
+          }
+        </div>
 
-       
-    { ( (chainId == 1666900000 || chainId == 1666600000 || chainId == 31337)  && account) &&
-        (
-        <VStack>
-          <Box my="30px" width={460}>
-          <Heading mb="10px"> Create new game </Heading>
-          <form onSubmit={createGame}>
-          <FormControl>
-            <FormLabel>
-              Host address:
-            </FormLabel>
-              <Input mb="5px" type="text" value={hostAddress} onChange={hostAddressChange} />
-            <FormLabel>
-              Player address:
-            </FormLabel>
-              <Input mb="5px" type="text" value={playerAddress} onChange={playerAddressChange} />
-          <Input type="submit" value="Submit" />
-          </FormControl>
-          </form>
-          </Box>
+        <div>
+          {(chainId == 1666900000 && account) ? (
+            <h2> You're connected to the Harmony devnet </h2>
+          ) : (chainId == 1666600000 && account) ? (
+            <h2> You're connected to the Harmony mainnet </h2>
+          ) : (chainId == 31337 && account) ? (
+            <h2> You're connected to the Hardhat devnet </h2>
+          ) : <h2> Please connect to Harmony </h2>
+          }
+        </div>
 
-          <Box my="30px" width={460}>
-          <Heading mb="10px"> Goto existing game </Heading>
-          <form onSubmit={gotoGame}>
-          <FormControl>
-            <FormLabel>
-              Game address:
-            </FormLabel>
-              <Input mb="5px" type="text" value={gameAddress} onChange={gameAddressChange} />
-          <Input type="submit" value="Submit" />
-          </FormControl>
-          </form>
-          </Box>
-        </VStack>
-        )
-    }
+        <div>
+          {account ? (
+            <h2> Account {account} </h2>
+          ) : (
+            <h2> Account: account not connected </h2>
+          )}
+        </div>
 
-      <AlertDialog isOpen={isOpen} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogBody align="center" py={10}>
-              <Text mb={7}> {dialogMessage} </Text>
-              <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> 
-            </AlertDialogBody>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
 
-    <AlertDialog isOpen={isSelectOpen} onClose={onSelectClose}>
-       <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogBody align="center" py={10}>
-              <Button mb={7} width={250} onClick={() => switchNetwork('mainnet')}> Connect to harmony mainnet </Button> 
-              <Button width={250} mb={7} onClick={() => switchNetwork('devnet')}> Connect to harmony devnet </Button> 
-              <Button width={250} onClick={() => switchNetwork('hardhat')}> Connect to local hardhat node </Button> 
-            </AlertDialogBody>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-    </AlertDialog>
+        {((chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && account) &&
+          (
+            <VStack>
+              <Box my="30px" width={460}>
+                <Heading mb="10px"> Create new game </Heading>
+                <form onSubmit={createGame}>
+                  <FormControl>
+                    <FormLabel>
+                      Host address:
+                    </FormLabel>
+                    <Input mb="5px" type="text" value={hostAddress} onChange={hostAddressChange} />
+                    <FormLabel>
+                      Player address:
+                    </FormLabel>
+                    <Input mb="5px" type="text" value={playerAddress} onChange={playerAddressChange} />
+                    <Input type="submit" value="Submit" />
+                  </FormControl>
+                </form>
+              </Box>
 
-    </VStack>
+              <Box my="30px" width={460}>
+                <Heading mb="10px"> Goto existing game </Heading>
+                <form onSubmit={gotoGame}>
+                  <FormControl>
+                    <FormLabel>
+                      Game address:
+                    </FormLabel>
+                    <Input mb="5px" type="text" value={gameAddress} onChange={gameAddressChange} />
+                    <Input type="submit" value="Submit" />
+                  </FormControl>
+                </form>
+              </Box>
+            </VStack>
+          )
+        }
+
+        <AlertDialog isOpen={isOpen} onClose={onClose}>
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogBody align="center" py={10}>
+                <Text mb={7}> {dialogMessage} </Text>
+                <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+              </AlertDialogBody>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+
+        <AlertDialog isOpen={isSelectOpen} onClose={onSelectClose}>
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogBody align="center" py={10}>
+                <Button mb={7} width={250} onClick={() => switchNetwork('mainnet')}> Connect to harmony mainnet </Button>
+                <Button width={250} mb={7} onClick={() => switchNetwork('devnet')}> Connect to harmony devnet </Button>
+                <Button width={250} onClick={() => switchNetwork('hardhat')}> Connect to local hardhat node </Button>
+              </AlertDialogBody>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+
+      </VStack>
     </div>
   )
 }

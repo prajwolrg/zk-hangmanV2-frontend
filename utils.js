@@ -38,3 +38,11 @@ export const hardhatNodeParams = {
     nativeCurrency: { name: "ETH", decimals: 18, symbol: "ETH" },
     blockExplorerUrls: [],
 }
+
+export const chainIdToNetworkMapping = {
+    "1": "Ethereum Mainnet",
+    "31337": "Local Hardhat Node",
+    "1666600000": "Harmony Mainnet",
+    "1666700000": "Harmony Testnet",
+    "1666900000": "Harmony Devnet",
+}
