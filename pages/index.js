@@ -293,7 +293,7 @@ function HomePage() {
       <Head>
         <title> zkHangman </title>
       </Head>
-      <VStack h="100vh" mt={10}>
+      {/* <VStack h="100vh" mt={10}>
         <Heading mb={7}>zkHangman</Heading>
         <div>
 
@@ -387,7 +387,8 @@ function HomePage() {
           </AlertDialogOverlay>
         </AlertDialog>
 
-      </VStack>
+      </VStack> */}
+      
     </div>
   )
 }

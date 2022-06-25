@@ -1,9 +1,26 @@
+// Contract Names
+const ZK_HANGMAN_FACTORY_ADDRESS = "ZK_HANGMAN_FACTORY"
+const INIT_VERIFIER_ADDRESS = "INIT_VERIFIER"
+const GUESS_VERIFIER_ADDRESS = "GUESS_VERIFIER"
+
+//  Network Names
+const HARMONY_MAINNET = "HARMONY_MAINNET"
+const HARMONY_DEVNET = "HARMONY_DEVNET"
+const HARMONY_TESTNET = "HARMONY_TESTNET"
+const LOCAL_HARDHAT = "LOCAL_HARDHAT"
+
+export const SUPPORTED_NETWORKS = [
+    HARMONY_MAINNET,
+    HARMONY_DEVNET,
+    // HARMONY_TESTNET
+]
+
 export const toHex = (num) => {
-  const val = BigInt(num);
-  return "0x" + val.toString(16);
+    const val = BigInt(num);
+    return "0x" + val.toString(16);
 }
 
-export const harmonyDevnetParams = {
+const harmonyDevnetParams = {
     chainId: toHex(1666900000),
     rpcUrls: ["https://api.s0.ps.hmny.io"],
     chainName: "Harmony Devnet",
@@ -13,7 +30,7 @@ export const harmonyDevnetParams = {
 }
 
 
-export const harmonyTestnetParams = {
+const harmonyTestnetParams = {
     chainId: toHex(1666700000),
     rpcUrls: ["https://api.s0.b.hmny.io"],
     chainName: "Harmony Testnet",
@@ -22,7 +39,7 @@ export const harmonyTestnetParams = {
     iconUrls: ["https://harmonynews.one/wp-content/uploads/2019/11/slfdjs.png"]
 }
 
-export const harmonyMainnetParams = {
+const harmonyMainnetParams = {
     chainId: toHex(1666600000),
     rpcUrls: ["https://api.harmony.one"],
     chainName: "Harmony Mainnet",
@@ -31,7 +48,7 @@ export const harmonyMainnetParams = {
     iconUrls: ["https://harmonynews.one/wp-content/uploads/2019/11/slfdjs.png"]
 }
 
-export const hardhatNodeParams = {
+const hardhatNodeParams = {
     chainId: toHex(31337),
     rpcUrls: ["http://127.0.0.1:8545"],
     chainName: "Hardhat Node",
@@ -40,9 +57,43 @@ export const hardhatNodeParams = {
 }
 
 export const chainIdToNetworkMapping = {
-    "1": "Ethereum Mainnet",
-    "31337": "Local Hardhat Node",
-    "1666600000": "Harmony Mainnet",
-    "1666700000": "Harmony Testnet",
-    "1666900000": "Harmony Devnet",
+    // "1": "Ethereum Mainnet",
+    // "31337": "Local Hardhat Node",
+    "1666600000": HARMONY_MAINNET,
+    "1666700000": HARMONY_TESTNET,
+    "1666900000": HARMONY_DEVNET,
+}
+
+export const SUPPORTED_NETWORKS_PARAMS = {
+    HARMONY_MAINNET: harmonyMainnetParams,
+    HARMONY_DEVNET: harmonyDevnetParams,
+    HARMONY_TESTNET: harmonyTestnetParams
+}
+
+// local hardhat contract addresses
+const localZkHangmanFactory = "0x997691EA886836FB59F547E915D5C1b7EE236A17"
+const localInitVerifier = "0xCf1aFDe70a43EBe93f4224aa239DD828353Ae1c7"
+const localGuessVerifier = "0x1D9317911CF1003B42a965574c29f18a87A2858c"
+
+// harmony testnet contract addresses
+const devZkHangmanFactory = "0x22A4212DeF5d3aA83c68beaAb0650307A01A08eB"
+const devInitVerifier = "0x130F9B984165CD444E35af37b26e5BC4F8fFF26d"
+const devGuessVerifier = "0x0AdB1582DC1f288C178137A3ec8d229127bfEaCe"
+
+// harmony mainnet contract addresses
+const mainZkHangmanFactory = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
+const mainInitVerifier = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
+const mainGuessVerifier = "0x262201b73941709113Fb47E564C9026830476706";
+
+export const contractAddreses = {
+    HARMONY_MAINNET: {
+        ZK_HANGMAN_FACTORY: mainZkHangmanFactory,
+        INIT_VERIFIER: mainInitVerifier,
+        GUESS_VERIFIER: mainGuessVerifier
+    },
+    HARMONY_DEVNET: {
+        ZK_HANGMAN_FACTORY: devZkHangmanFactory,
+        INIT_VERIFIER: devInitVerifier,
+        GUESS_VERIFIER: devGuessVerifier
+    },
 }

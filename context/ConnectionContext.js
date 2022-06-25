@@ -4,16 +4,16 @@ import React, { createContext, useContext, useState } from 'react';
 const ConnectionContext = createContext()
 const ConnectionUpdateContext = createContext()
 
-export function useAccount() {
+export function useConnection() {
 	return useContext(ConnectionContext)
 }
 
-export function useUpdateAccount() {
+export function useUpdateConnection() {
 	return useContext(ConnectionUpdateContext)
 }
 
-export function AccountProvider({children}) {
-	const [currentConnection, setCurrentConnection] = useState({accountAddress: ethers.constants.AddressZero, isConnected: false, isAdmin: false})
+export function ConnectionProvider({children}) {
+	const [currentConnection, setCurrentConnection] = useState({instance: null, provider: null, signer: null, network: null, chainId: null, accountAddress: null})
 
 	return (
 		<ConnectionContext.Provider value={currentConnection}>

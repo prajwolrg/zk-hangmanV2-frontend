@@ -1,18 +1,18 @@
 import {
-	Box,
-	Flex,
-	Button,
-	Stack,
-	useColorModeValue,
-	useDisclosure,
-	Heading,
-	Menu,
-	MenuButton,
-	MenuList,
-	MenuItem,
+  Box,
+  Flex,
+  Button,
+  Stack,
+  useColorModeValue,
+  useDisclosure,
+  Heading,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from '@chakra-ui/react';
 import {
-	ChevronDownIcon,
+  ChevronDownIcon,
 } from '@chakra-ui/icons';
 
 import Web3Modal from "web3modal";
@@ -20,7 +20,10 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 // import { zkHangmanFactoryAbi } from "../abis/zkHangmanFactory";
 
-import { toHex, harmonyTestnetParams, harmonyMainnetParams, hardhatNodeParams, chainIdToNetworkMapping } from "../utils";
+import { chainIdToNetworkMapping, contractAddreses, SUPPORTED_NETWORKS, SUPPORTED_NETWORKS_PARAMS } from "../utils";
+
+import { useConnection, useUpdateConnection } from '../context/ConnectionContext';
+import { useUpdateContractAddresses } from '../context/ContractContext';
 
 const providerOptions = {};
 let web3Modal;
@@ -34,13 +37,10 @@ if (typeof window !== 'undefined') {
 export default function TopNav() {
 
   const [error, setError] = useState();
-  const [dialogMessage, setDialogMessage] = useState();
-  const [instance, setInstance] = useState();
-  const [provider, setProvider] = useState();
-  const [signer, setSigner] = useState();
-  const [account, setAccount] = useState();
-  const [network, setNetwork] = useState();
-  const [chainId, setChainId] = useState();
+
+  const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
+  const updateConnection = useUpdateConnection()
+  const updateContractAddresses = useUpdateContractAddresses()
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
@@ -48,43 +48,45 @@ export default function TopNav() {
   useEffect(() => {
     if (instance?.on) {
       const handleAccountsChanged = (accounts) => {
-        console.log("accounts changed", accounts);
-        if (accounts) setAccount(accounts[0]);
+        connectWallet()
       };
 
-      const handleDisconnect = () => {
-        console.log("disconnect", error);
-        disconnect();
-      }
+      // const handleDisconnect = () => {
+      //   // console.log("disconnect", error);
+      //   disconnect();
+      // }
 
       const handleChainChanged = (hexChainId) => {
-        console.log("chain changed to: ", parseInt(hexChainId, 16))
-        setChainId(parseInt(hexChainId, 16));
+        // updateConnection({ ...useConnection, chainId: parseInt(hexChainId, 16) })
+        connectWallet()
+        // console.log("chain changed to: ", parseInt(hexChainId, 16))
+        // setChainId(parseInt(hexChainId, 16));
       };
 
       instance.on("accountsChanged", handleAccountsChanged);
       instance.on("chainChanged", handleChainChanged);
-      instance.on("disconnect", handleDisconnect);
+      // instance.on("disconnect", handleDisconnect);
 
       return () => {
         if (instance.removeListener) {
           instance.removeListener("accountsChanged", handleAccountsChanged);
           instance.removeListener("chainChanged", handleChainChanged);
-          instance.removeListener("disconnect", handleDisconnect);
+          // instance.removeListener("disconnect", handleDisconnect);
         }
       }
     }
   }, [instance])
 
-  useEffect(() => {
-    if (web3Modal.cachedProvider) {
-      connectWallet();
-    }
-  }, [])
+  // // This is used when the provider has already been selected previously
+  // useEffect(() => {
+  //   if (web3Modal.cachedProvider) {
+  //     connectWallet();
+  //   }
+  // }, [])
 
-  useEffect(() => {
-    console.log(error);
-  })
+  // useEffect(() => {
+  //   console.log(error);
+  // })
 
   const connectWallet = async () => {
     try {
@@ -93,144 +95,116 @@ export default function TopNav() {
       const signer = provider.getSigner();
       const accounts = await provider.listAccounts();
       const network = await provider.getNetwork();
-      setInstance(instance);
-      setProvider(provider);
-      setSigner(signer);
-      setNetwork(network);
-      setChainId(network.chainId);
-      if (accounts) setAccount(accounts[0]);
+      updateConnection({ instance: instance, provider: provider, signer: signer, network: network, chainId: network.chainId, accountAddress: accounts[0] })
+      // console.log(supportedNetworks)
+      // console.log(SUPPORTED_NETWORKS)
+      updateContractAddresses(contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]])
     } catch (error) {
       setError(error);
     }
   }
 
-  const disconnect = async () => {
-    await web3Modal.clearCachedProvider();
-    setAccount();
-    setChainId();
-    setNetwork("");
+  // const disconnect = async () => {
+  //   console.log('disconnect')
+  //   await web3Modal.clearCachedProvider();
+  //   updateConnection({ ...useConnection, accountAddress: null, chainId: null, network: null })
+  //   // setAccount();
+  //   // setChainId();
+  //   // setNetwork("");
+  // }
 
-  }
+  // const handleNetwork = (e) => {
+  //   setChainId(Number(e.target.value));
+  // }
 
-  const handleNetwork = (e) => {
-    setChainId(Number(e.target.value));
-  }
+  const supportedNetworks = SUPPORTED_NETWORKS.map((network) =>
+    <MenuItem key={network} onClick={() => { switchNetwork(network) }}>{SUPPORTED_NETWORKS_PARAMS[network]['chainName']}</MenuItem>
+  );
 
   const switchNetwork = async (network) => {
-    console.log(`Trying to switch network to: ${network}`)
-    if (network == 'devnet') {
-      console.log('devnet')
+    // console.log(network)
+    // console.log(SUPPORTED_NETWORKS)
+    // console.log(SUPPORTED_NETWORKS.includes(network))
+    if (SUPPORTED_NETWORKS.includes(network)) {
+      // console.log('trying to switch to ', network)
       try {
+        // console.log('trying to switch to chainId', SUPPORTED_NETWORKS_PARAMS[network]['chainId'])
         await provider.provider.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(1666900000) }]
+          params: [{ chainId: SUPPORTED_NETWORKS_PARAMS[network]['chainId'] }]
         });
       } catch (switchError) {
+        // console.log(switchError)
+        // console.log(switchError.code)
         if (switchError.code === 4902) {
           try {
             await provider.provider.request({
               method: "wallet_addEthereumChain",
-              params: [harmonydevnetParams]
+              params: [SUPPORTED_NETWORKS_PARAMS[network]]
             });
           } catch (error) {
+            // console.log(error)
             setError(error);
           }
         }
       }
-    } else if (network == 'mainnet') { // mainnet 
-      console.log('mainnet')
-      try {
-        await provider.provider.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(1666600000) }]
-        });
-      } catch (switchError) {
-        if (switchError.code === 4902) {
-          try {
-            await provider.provider.request({
-              method: "wallet_addEthereumChain",
-              params: [harmonyMainnetParams]
-            });
-          } catch (error) {
-            setError(error);
-          }
-        }
-      }
-    } else if (network == 'localhost' || network == 'hardhat') {
-      console.log('localhost')
-      try {
-        await provider.provider.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(31337) }]
-        });
-      } catch (switchError) {
-        console.log(switchError)
-        if (switchError.code === 4902) {
-          try {
-            await provider.provider.request({
-              method: "wallet_addEthereumChain",
-              params: [hardhatNodeParams]
-            });
-          } catch (error) {
-            setError(error);
-          }
-        }
-      }
-
+    } else {
+      console.log(`${network} not supported`)
     }
-
     onSelectClose();
   };
 
 
-	return (
-		<Box>
-			<Flex
-				bg={useColorModeValue('white', 'gray.800')}
-				color={useColorModeValue('gray.600', 'white')}
-				minH={'60px'}
-				py={{ base: 2 }}
-				px={{ base: 4 }}
-				borderBottom={1}
-				borderStyle={'solid'}
-				borderColor={useColorModeValue('gray.200', 'gray.900')}
-				align={'center'}>
-				<Flex
-					flex={{ base: 1, md: 'auto' }}
-					ml={{ base: -2 }}
-					display={{ base: 'flex', md: 'none' }}>
-				</Flex>
-				<Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
-					<Heading>
-						zkHangman
-					</Heading>
-					<Flex display={{ base: 'none', md: 'flex' }} ml={10}>
-					</Flex>
-				</Flex>
+  return (
+    <Box>
+      <Flex
+        bg={useColorModeValue('white', 'gray.800')}
+        color={useColorModeValue('gray.600', 'white')}
+        minH={'60px'}
+        py={{ base: 2 }}
+        px={{ base: 4 }}
+        borderBottom={1}
+        borderStyle={'solid'}
+        borderColor={useColorModeValue('gray.200', 'gray.900')}
+        align={'center'}>
+        <Flex
+          flex={{ base: 1, md: 'auto' }}
+          ml={{ base: -2 }}
+          display={{ base: 'flex', md: 'none' }}>
+        </Flex>
+        <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
+          <Heading>
+            zkHangman
+          </Heading>
+          <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
+          </Flex>
+        </Flex>
 
-				<Stack
-					flex={{ base: 1, md: 0 }}
-					justify={'flex-end'}
-					direction={'row'}
-					spacing={6}>
-					<Menu>
-						<MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-						{chainIdToNetworkMapping[String(chainId)]?chainIdToNetworkMapping[String(chainId)]:'Unsupported Network'}
-						</MenuButton>
-						<MenuList>
-							<MenuItem onClick={()=>{switchNetwork('mainnet')}}>Harmony Mainnet</MenuItem>
-							<MenuItem onClick={()=>{switchNetwork('testnet')}}>Harmony Testnet</MenuItem>
-							<MenuItem onClick={()=>{switchNetwork('devnet')}}>Harmony Devnet</MenuItem>
-							<MenuItem>Local Testnet</MenuItem>
-						</MenuList>
-					</Menu>
-					<Button
-						onClick={connectWallet}
-						fontWeight={600} >
-					{account ? account : 'Connect Wallet'}
-					</Button>
-				</Stack>
-			</Flex>
-		</Box>
-	);
+        <Stack
+          flex={{ base: 1, md: 0 }}
+          justify={'flex-end'}
+          direction={'row'}
+          spacing={6}>
+
+          {accountAddress && (
+
+            <Menu>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                {chainIdToNetworkMapping[String(chainId)] ? SUPPORTED_NETWORKS_PARAMS[chainIdToNetworkMapping[String(chainId)]]['chainName'] : 'Unsupported Network'}
+              </MenuButton>
+              <MenuList>
+                {supportedNetworks}
+              </MenuList>
+            </Menu>
+          )}
+
+          <Button
+            onClick={connectWallet}
+            fontWeight={600} >
+            {accountAddress ? accountAddress : 'Connect Wallet'}
+          </Button>
+        </Stack>
+      </Flex>
+    </Box>
+  );
 }
