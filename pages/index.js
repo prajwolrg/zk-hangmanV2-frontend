@@ -27,6 +27,8 @@ import {
 } from "@chakra-ui/react"
 
 import TopNav from "../components/TopNav"
+import { useConnection } from "../context/ConnectionContext";
+import { useContractAddresses } from "../context/ContractContext";
 
 const zkHangmanFactoryAbi = zkHangmanFactory.abi
 
@@ -58,12 +60,6 @@ const mainGuessVerifier = "0x262201b73941709113Fb47E564C9026830476706";
 function HomePage() {
   const [error, setError] = useState();
   const [dialogMessage, setDialogMessage] = useState();
-  const [instance, setInstance] = useState();
-  const [provider, setProvider] = useState();
-  const [signer, setSigner] = useState();
-  const [account, setAccount] = useState();
-  const [network, setNetwork] = useState();
-  const [chainId, setChainId] = useState();
   const [gameAddress, setGameAddress] = useState('');
   const [hostAddress, setHostAddress] = useState('');
   const [playerAddress, setPlayerAddress] = useState('');
@@ -71,143 +67,12 @@ function HomePage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
 
-  useEffect(() => {
-    if (instance?.on) {
-      const handleAccountsChanged = (accounts) => {
-        console.log("accounts changed", accounts);
-        if (accounts) setAccount(accounts[0]);
-      };
-
-      const handleDisconnect = () => {
-        console.log("disconnect", error);
-        disconnect();
-      }
-
-      const handleChainChanged = (hexChainId) => {
-        console.log("chain changed to: ", parseInt(hexChainId, 16))
-        setChainId(parseInt(hexChainId, 16));
-      };
-
-      instance.on("accountsChanged", handleAccountsChanged);
-      instance.on("chainChanged", handleChainChanged);
-      instance.on("disconnect", handleDisconnect);
-
-      return () => {
-        if (instance.removeListener) {
-          instance.removeListener("accountsChanged", handleAccountsChanged);
-          instance.removeListener("chainChanged", handleChainChanged);
-          instance.removeListener("disconnect", handleDisconnect);
-        }
-      }
-    }
-  }, [instance])
-
-  useEffect(() => {
-    if (web3Modal.cachedProvider) {
-      connectWallet();
-    }
-  }, [])
-
-  useEffect(() => {
-    console.log(error);
-  })
-
-  const connectWallet = async () => {
-    try {
-      const instance = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(instance);
-      const signer = provider.getSigner();
-      const accounts = await provider.listAccounts();
-      const network = await provider.getNetwork();
-      setInstance(instance);
-      setProvider(provider);
-      setSigner(signer);
-      setNetwork(network);
-      setChainId(network.chainId);
-      if (accounts) setAccount(accounts[0]);
-    } catch (error) {
-      setError(error);
-    }
-  }
-
-  const disconnect = async () => {
-    await web3Modal.clearCachedProvider();
-    setAccount();
-    setChainId();
-    setNetwork("");
-
-  }
-
-  const handleNetwork = (e) => {
-    setChainId(Number(e.target.value));
-  }
-
-  const switchNetwork = async (network) => {
-    console.log(`Trying to switch network to: ${network}`)
-    if (network == 'devnet') {
-      console.log('devnet')
-      try {
-        await provider.provider.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(1666900000) }]
-        });
-      } catch (switchError) {
-        if (switchError.code === 4902) {
-          try {
-            await provider.provider.request({
-              method: "wallet_addEthereumChain",
-              params: [harmonydevnetParams]
-            });
-          } catch (error) {
-            setError(error);
-          }
-        }
-      }
-    } else if (network == 'mainnet') { // mainnet 
-      console.log('mainnet')
-      try {
-        await provider.provider.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(1666600000) }]
-        });
-      } catch (switchError) {
-        if (switchError.code === 4902) {
-          try {
-            await provider.provider.request({
-              method: "wallet_addEthereumChain",
-              params: [harmonyMainnetParams]
-            });
-          } catch (error) {
-            setError(error);
-          }
-        }
-      }
-    } else if (network == 'localhost' || network == 'hardhat') {
-      console.log('localhost')
-      try {
-        await provider.provider.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: toHex(31337) }]
-        });
-      } catch (switchError) {
-        console.log(switchError)
-        if (switchError.code === 4902) {
-          try {
-            await provider.provider.request({
-              method: "wallet_addEthereumChain",
-              params: [hardhatNodeParams]
-            });
-          } catch (error) {
-            setError(error);
-          }
-        }
-      }
-
-    }
-
-
-    onSelectClose();
-  };
+  const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
+  const { ZK_HANGMAN_FACTORY_ADDRESS, INIT_VERIFIER_ADDRESS, GUESS_VERIFIER_ADDRESS } = useContractAddresses()
+  console.log(chainId)
+  console.log(ZK_HANGMAN_FACTORY_ADDRESS)
+  console.log(INIT_VERIFIER_ADDRESS)
+  console.log(GUESS_VERIFIER_ADDRESS)
 
   const gameAddressChange = (e) => {
     setGameAddress(e.target.value);
@@ -231,36 +96,20 @@ function HomePage() {
 
   const createGame = async (e) => {
     console.log(`Trying to create a game`)
+
+    console.log("host address: ", hostAddress);
+    console.log("player address: ", playerAddress);
+    console.log("init verifier address: ", INIT_VERIFIER_ADDRESS);
+    console.log("guess verifier address: ", GUESS_VERIFIER_ADDRESS);
+
     e.preventDefault();
-    if (chainId == 1666900000) {
-      console.log(`${chainId}`)
-      var zkHangmanFactoryAddress = devZkHangmanFactory;
-      var initVerifierAddress = devInitVerifier;
-      var guessVerifierAddress = devGuessVerifier;
-    } else if (chainId == 1666600000) {
-      console.log(`${chainId}`)
-      var zkHangmanFactoryAddress = mainZkHangmanFactory;
-      var initVerifierAddress = mainInitVerifier;
-      var guessVerifierAddress = mainGuessVerifier;
-    }
-    else if (chainId == 31337) {
-      console.log(`${chainId}`)
-      var zkHangmanFactoryAddress = localZkHangmanFactory;
-      var initVerifierAddress = localInitVerifier;
-      var guessVerifierAddress = localGuessVerifier;
-    }
     const zkHangmanFactoryContract = new ethers.Contract(
-      zkHangmanFactoryAddress,
+      ZK_HANGMAN_FACTORY_ADDRESS,
       zkHangmanFactoryAbi,
       signer
     )
 
     console.log(zkHangmanFactoryContract);
-
-    console.log("host address: ", hostAddress);
-    console.log("player address: ", playerAddress);
-    console.log("init verifier address: ", initVerifierAddress);
-    console.log("guess verifier address: ", guessVerifierAddress);
 
     onOpen();
     setDialogMessage("Awaiting transaction confirmation...");
@@ -268,8 +117,8 @@ function HomePage() {
     let tx = await zkHangmanFactoryContract.createGame(
       hostAddress,
       playerAddress,
-      initVerifierAddress,
-      guessVerifierAddress
+      INIT_VERIFIER_ADDRESS,
+      GUESS_VERIFIER_ADDRESS
     );
 
     setDialogMessage("Waiting for transaction to finalize...");
@@ -293,42 +142,9 @@ function HomePage() {
       <Head>
         <title> zkHangman </title>
       </Head>
-      {/* <VStack h="100vh" mt={10}>
-        <Heading mb={7}>zkHangman</Heading>
-        <div>
+      <VStack h="100vh" mt={10}>
 
-          {
-            (chainId == 31337 && account) ? (
-              <Button onClick={() => switchNetwork('mainnet')}> Switch to mainnet </Button>
-            ) : (chainId == 1666600000 && account) ? (
-              <Button onClick={() => switchNetwork('devnet')}> Switch to devnet </Button>
-            ) : (chainId == 1666600000 && account) ? (
-              <Button onClick={() => switchNetwork('mainnet')}> Switch to devnet </Button>
-            ) : <Button onClick={() => { connectWallet(); onSelectOpen(); }}> Connect to Harmony </Button>
-          }
-        </div>
-
-        <div>
-          {(chainId == 1666900000 && account) ? (
-            <h2> You're connected to the Harmony devnet </h2>
-          ) : (chainId == 1666600000 && account) ? (
-            <h2> You're connected to the Harmony mainnet </h2>
-          ) : (chainId == 31337 && account) ? (
-            <h2> You're connected to the Hardhat devnet </h2>
-          ) : <h2> Please connect to Harmony </h2>
-          }
-        </div>
-
-        <div>
-          {account ? (
-            <h2> Account {account} </h2>
-          ) : (
-            <h2> Account: account not connected </h2>
-          )}
-        </div>
-
-
-        {((chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && account) &&
+        {((chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && accountAddress) &&
           (
             <VStack>
               <Box my="30px" width={460}>
@@ -387,8 +203,8 @@ function HomePage() {
           </AlertDialogOverlay>
         </AlertDialog>
 
-      </VStack> */}
-      
+      </VStack>
+
     </div>
   )
 }

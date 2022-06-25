@@ -87,13 +87,13 @@ const mainGuessVerifier = "0x262201b73941709113Fb47E564C9026830476706";
 
 export const contractAddreses = {
     HARMONY_MAINNET: {
-        ZK_HANGMAN_FACTORY: mainZkHangmanFactory,
-        INIT_VERIFIER: mainInitVerifier,
-        GUESS_VERIFIER: mainGuessVerifier
+        ZK_HANGMAN_FACTORY_ADDRESS: mainZkHangmanFactory,
+        INIT_VERIFIER_ADDRESS: mainInitVerifier,
+        GUESS_VERIFIER_ADDRESS: mainGuessVerifier
     },
     HARMONY_DEVNET: {
-        ZK_HANGMAN_FACTORY: devZkHangmanFactory,
-        INIT_VERIFIER: devInitVerifier,
-        GUESS_VERIFIER: devGuessVerifier
+        ZK_HANGMAN_FACTORY_ADDRESS: devZkHangmanFactory,
+        INIT_VERIFIER_ADDRESS: devInitVerifier,
+        GUESS_VERIFIER_ADDRESS: devGuessVerifier
     },
 }

@@ -90,14 +90,17 @@ export default function TopNav() {
 
   const connectWallet = async () => {
     try {
+      console.log('connecting wallet')
       const instance = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(instance);
       const signer = provider.getSigner();
       const accounts = await provider.listAccounts();
       const network = await provider.getNetwork();
       updateConnection({ instance: instance, provider: provider, signer: signer, network: network, chainId: network.chainId, accountAddress: accounts[0] })
-      // console.log(supportedNetworks)
-      // console.log(SUPPORTED_NETWORKS)
+
+      console.log(Number(network.chainId))
+      console.log(chainIdToNetworkMapping[Number(network.chainId)])
+      console.log(contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]])
       updateContractAddresses(contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]])
     } catch (error) {
       setError(error);
