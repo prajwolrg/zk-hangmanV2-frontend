@@ -29,6 +29,8 @@ import {
 import TopNav from "../components/TopNav"
 import { useConnection } from "../context/ConnectionContext";
 import { useContractAddresses } from "../context/ContractContext";
+import Login from "../components/Login";
+import ExistingGame from "../components/ExistingGame";
 
 const zkHangmanFactoryAbi = zkHangmanFactory.abi
 
@@ -147,8 +149,12 @@ function HomePage() {
         {((chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) && accountAddress) &&
           (
             <VStack>
-              <Box my="30px" width={460}>
-                <Heading mb="10px"> Create new game </Heading>
+              <Heading mb="10px"> Create new game </Heading>
+              <Login></Login>
+              <Heading mb="10px">Join Existing Game</Heading>
+              <ExistingGame></ExistingGame>
+
+              {/* <Box my="30px" width={460}>
                 <form onSubmit={createGame}>
                   <FormControl>
                     <FormLabel>
@@ -162,9 +168,9 @@ function HomePage() {
                     <Input type="submit" value="Submit" />
                   </FormControl>
                 </form>
-              </Box>
+              </Box> */}
 
-              <Box my="30px" width={460}>
+              {/* <Box my="30px" width={460}>
                 <Heading mb="10px"> Goto existing game </Heading>
                 <form onSubmit={gotoGame}>
                   <FormControl>
@@ -175,7 +181,8 @@ function HomePage() {
                     <Input type="submit" value="Submit" />
                   </FormControl>
                 </form>
-              </Box>
+              </Box> */}
+
             </VStack>
           )
         }
