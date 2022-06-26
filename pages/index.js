@@ -37,6 +37,9 @@ import { useContractAddresses } from "../context/ContractContext";
 import Login from "../components/Login";
 import ExistingGame from "../components/ExistingGame";
 import LandingPage from "./LandingPage";
+import Stepper from "../components/Stepper";
+import ModalComponent from "../components/ModalComponent";
+import PlayerScreen from "./playerScreen";
 
 const zkHangmanFactoryAbi = zkHangmanFactory.abi;
 
@@ -161,12 +164,19 @@ function HomePage() {
 
   return (
     <div>
-      <TopNav></TopNav>
-      <LandingPage />
       <Head>
         <title> zkHangman </title>
       </Head>
-      <VStack h="100vh" mt={10}>
+      <TopNav />
+      <Button
+        onClick={() => {
+          router.push("/playerScreen");
+        }}
+      >
+        Checkout Player Screen
+      </Button>
+      <LandingPage />
+      {/* <VStack h="100vh" mt={10}>
         {(chainId == 1666900000 || chainId == 1666600000 || chainId == 31337) &&
           accountAddress && (
             <VStack>
@@ -175,7 +185,7 @@ function HomePage() {
               <Heading mb="10px">Join Existing Game</Heading>
               <ExistingGame></ExistingGame>
 
-              {/* <Box my="30px" width={460}>
+              <Box my="30px" width={460}>
                 <form onSubmit={createGame}>
                   <FormControl>
                     <FormLabel>
@@ -189,9 +199,9 @@ function HomePage() {
                     <Input type="submit" value="Submit" />
                   </FormControl>
                 </form>
-              </Box> */}
+              </Box>
 
-              {/* <Box my="30px" width={460}>
+              <Box my="30px" width={460}>
                 <Heading mb="10px"> Goto existing game </Heading>
                 <form onSubmit={gotoGame}>
                   <FormControl>
@@ -202,7 +212,7 @@ function HomePage() {
                     <Input type="submit" value="Submit" />
                   </FormControl>
                 </form>
-              </Box> */}
+              </Box>
             </VStack>
           )}
 
@@ -251,7 +261,7 @@ function HomePage() {
             </AlertDialogContent>
           </AlertDialogOverlay>
         </AlertDialog>
-      </VStack>
+      </VStack> */}
     </div>
   );
 }

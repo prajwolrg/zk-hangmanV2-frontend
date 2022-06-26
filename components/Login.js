@@ -105,7 +105,7 @@ export default function CreateNewGame() {
     let newGameAddress =
       filterResults[filterResults.length - 1].args.gameAddress;
 
-    let href = "/game/" + newGameAddress;
+    let href = "/gamee/" + newGameAddress;
     router.push(href);
   };
 
