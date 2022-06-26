@@ -113,7 +113,7 @@ export default function CreateNewGame() {
     <Box bg="white" p={6} rounded="md" w={460}>
       <Formik
         initialValues={{
-          hostAddress: "",
+          hostAddress: accountAddress,
           playerAddress: "",
         }}
         onSubmit={(values) => {
