@@ -9,11 +9,11 @@ export default function LandingPage() {
   const { accountAddress, isNetworkSupported } = useConnection();
 
   useEffect(() => {
-    console.log(`Network support: ${isNetworkSupported}`)
+    console.log(`Network support: ${isNetworkSupported}`);
     if (accountAddress == null || !isNetworkSupported) {
       setIsConnected(false);
     } else {
-      setIsConnected(true)
+      setIsConnected(true);
     }
   }, [accountAddress, isNetworkSupported]);
   return (
@@ -33,7 +33,14 @@ export default function LandingPage() {
         alt="homepage"
       />
 
-      <Box boxShadow="xl" w="40vw" h="70vh" rounded="md" bg="white">
+      <Box
+        overflow={"overlay"}
+        boxShadow="xl"
+        w="40vw"
+        h="70vh"
+        rounded="md"
+        bg="white"
+      >
         <Flex flexDirection={"row"} justifyContent={"space-between"}>
           <Box
             textAlign="center"

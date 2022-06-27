@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Step, Steps, useSteps } from "chakra-ui-steps"
+import { Step, Steps, useSteps } from "chakra-ui-steps";
 
 import {
   Modal,

@@ -49,7 +49,7 @@ export default function ExistingGame() {
   };
 
   return (
-    <Box bg="white" p={6} rounded="md" w={460}>
+    <Box bg="white" p={6} rounded="md" w={"30vw"}>
       <Formik
         initialValues={{
           gameAddress: "",

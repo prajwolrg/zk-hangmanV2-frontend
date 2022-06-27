@@ -51,12 +51,12 @@ yup.addMethod(yup.string, "ethereumAddress", function (errMsg) {
 let schema = yup.object().shape({
   playerAddress: yup.string().required().ethereumAddress(),
   word: yup.string().required().min(2).max(25),
-  secret: yup.string().required().min(2).max(25)
+  secret: yup.string().required().min(2).max(25),
 });
 
 export default function CreateNewGame() {
   const [dialogMessage, setDialogMessage] = useState();
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(0);
   const {
     ZK_HANGMAN_FACTORY_ADDRESS,
     INIT_VERIFIER_ADDRESS,
@@ -70,40 +70,40 @@ export default function CreateNewGame() {
   const router = useRouter();
 
   const nextStep = () => {
-    setCurrentStep(currentStep+1)
-  }
+    setCurrentStep(currentStep + 1);
+  };
 
   const createGame = async ({ playerAddress, word, secret }) => {
-    console.log('creating game')
+    console.log("creating game");
     onOpen();
     console.log(`Trying to create a game`);
 
     setDialogMessage(`Trying to validate word`);
-    const [valid, res] = await checkWordValidity(word)
+    const [valid, res] = await checkWordValidity(word);
 
     console.log("player address: ", playerAddress);
     console.log("init verifier address: ", INIT_VERIFIER_ADDRESS);
     console.log("guess verifier address: ", GUESS_VERIFIER_ADDRESS);
 
     if (valid) {
-      console.log('valid')
-      setCurrentStep(1)
+      console.log("valid");
+      setCurrentStep(1);
 
       setDialogMessage(`Generating Proof...`);
 
-      let modSecret = ethers.utils.id(secret)
-      modSecret = ethers.BigNumber.from(modSecret)
-      console.log("Secret Hash: ", modSecret)
-      const parsedChars = getParsedChars(res.word)
-      console.log(res.word)
-      console.log(parsedChars)
+      let modSecret = ethers.utils.id(secret);
+      modSecret = ethers.BigNumber.from(modSecret);
+      console.log("Secret Hash: ", modSecret);
+      const parsedChars = getParsedChars(res.word);
+      console.log(res.word);
+      console.log(parsedChars);
 
       const inputObject = {
         secret: BigInt(modSecret),
-        char: parsedChars
-      }
-      const { _a, _b, _c, _input } = await getInitProofParams(inputObject)
-      setCurrentStep(2)
+        char: parsedChars,
+      };
+      const { _a, _b, _c, _input } = await getInitProofParams(inputObject);
+      setCurrentStep(2);
 
       // e.preventDefault();
       const zkHangmanFactoryContract = new ethers.Contract(
@@ -120,15 +120,18 @@ export default function CreateNewGame() {
         playerAddress,
         INIT_VERIFIER_ADDRESS,
         GUESS_VERIFIER_ADDRESS,
-        _a, _b, _c, _input,
+        _a,
+        _b,
+        _c,
+        _input,
         word.length
       );
-      setCurrentStep(3)
+      setCurrentStep(3);
 
       setDialogMessage("Waiting for transaction to finalize...");
 
       let txFinalized = await tx.wait();
-      setCurrentStep(4)
+      setCurrentStep(4);
 
       onClose();
 
@@ -145,12 +148,12 @@ export default function CreateNewGame() {
 
       let href = "/game/" + newGameAddress;
       router.push(href);
-    };
-  }
+    }
+  };
 
   return (
     <>
-      <Box bg="white" p={6} rounded="md" w={460}>
+      <Box bg="white" p={6} rounded="md" w={"30vw"}>
         <Formik
           initialValues={{
             playerAddress: "",
@@ -165,8 +168,6 @@ export default function CreateNewGame() {
           {({ handleSubmit, errors, touched }) => (
             <form onSubmit={handleSubmit}>
               <VStack spacing={9} align="flex-start">
-
-
                 <FormControl
                   isInvalid={!!errors.playerAddress && touched.playerAddress}
                 >
@@ -205,8 +206,6 @@ export default function CreateNewGame() {
                   <FormErrorMessage>{errors.secret}</FormErrorMessage>
                 </FormControl>
 
-
-
                 <Button type="submit" colorScheme="purple" width="full">
                   Create Game
                 </Button>
@@ -216,7 +215,7 @@ export default function CreateNewGame() {
         </Formik>
       </Box>
 
-      <Box bg="white" p={6} rounded="md" w={640}>
+      <Box bg="transparent" p={6} rounded="md" w={640}>
         <AlertDialog isOpen={isOpen} onClose={onClose}>
           <AlertDialogOverlay>
             <AlertDialogContent>
@@ -224,12 +223,12 @@ export default function CreateNewGame() {
                 {/* <Text mb={7}> {dialogMessage} </Text> */}
                 <InitStepperV currentStep={currentStep}></InitStepperV>
                 {/* <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="blue.500"
-                size="xl"
-              /> */}
+                  thickness="4px"
+                  speed="0.65s"
+                  emptyColor="gray.200"
+                  color="blue.500"
+                  size="xl"
+                /> */}
               </AlertDialogBody>
             </AlertDialogContent>
           </AlertDialogOverlay>
