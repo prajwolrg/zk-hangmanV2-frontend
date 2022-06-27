@@ -35,6 +35,7 @@ import Web3Modal from "web3modal";
 
 import zkHangman from "../abis/zkHangman.json"
 import Figure from "./Figure";
+import GuessProcessStepper from "./GuessProcessStepper";
 const zkHangmanAbi = zkHangman.abi
 
 let schema = yup.object().shape({
@@ -57,6 +58,8 @@ export default function ProcessGuess({turn}) {
   const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
   const [dialogMessage, setDialogMessage] = useState('');
   const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
+
+	const [currentStep, setCurrentStep] = useState(0)
 
   const router = useRouter();
   const { gameAddress } = router.query;
@@ -93,10 +96,12 @@ export default function ProcessGuess({turn}) {
 
 		const {_a, _b, _c, _input} = await getGuessProofParams(inputObject)
 
+		setCurrentStep(1)
 		setDialogMessage("Awaiting transaction confirmation...");
 		console.log("Awaiting transaction confirmation...");
 
 		let tx = await zkHangmanContract.processGuess(_a, _b, _c, _input);
+		setCurrentStep(2)
 
 		setDialogMessage("Waiting for transaction to finalize...");
 		console.log("Waiting for transaction to finalize...");
@@ -154,8 +159,9 @@ export default function ProcessGuess({turn}) {
 				<AlertDialogOverlay>
 					<AlertDialogContent>
 						<AlertDialogBody align="center" py={10}>
-							<Text mb={7}> {dialogMessage} </Text>
-							<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+								<GuessProcessStepper currentStep={currentStep} />
+							{/* <Text mb={7}> {dialogMessage} </Text>
+							<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> */}
 						</AlertDialogBody>
 					</AlertDialogContent>
 				</AlertDialogOverlay>

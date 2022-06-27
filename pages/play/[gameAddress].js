@@ -80,8 +80,8 @@ function GamePage() {
 	const { gameAddress } = router.query;
 	const gameContract = gameAddress;
 
-	const refreshRevealedChars = async (zkHangmanContract) => {
-		console.log('Revealing chars')
+	const refreshRevealedChars = async (zkHangmanContract, totalChars) => {
+		console.log('Revealing chars', totalChars)
 		let revealedChars = []
 		for (let i = 0; i < totalChars; i++) {
 			let revealedChar = parseInt(await zkHangmanContract.revealedChars(i)) + 97
@@ -95,11 +95,12 @@ function GamePage() {
 			}
 			revealedChars.push(revealedChar)
 		}
+		setLastValidGuess('')
 		console.log(revealedChars)
 		setRevealedChars(revealedChars)
 	}
 
-	const refreshGuesses = async (zkHangmanContract) => {
+	const refreshGuesses = async (zkHangmanContract, turn) => {
 		let guesses = []
 		for (let i = 0; i < Math.floor(turn / 2); i++) {
 			let guess = String.fromCharCode(parseInt(await zkHangmanContract.guesses(i)) + 97)
@@ -107,8 +108,8 @@ function GamePage() {
 			guesses.push(guess)
 		}
 		setGuesses(guesses)
+		setLastValidGuess('')
 		console.log(guesses)
-
 	}
 
 
@@ -141,19 +142,6 @@ function GamePage() {
 
 		zkHangmanContract.on("NextTurn", async (nextTurn) => {
 			connectContract()
-			// console.log("The turn is now: ", nextTurn);
-			// let decTurn = parseInt(nextTurn._hex, 16);
-			// setTurn(decTurn);
-
-			// let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
-			// setCorrectGuesses(_correctGuesses);
-
-			// await refreshRevealedChars(zkHangmanContract);
-			// await refreshGuesses(zkHangmanContract);
-
-			// let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
-			// setPlayerLives(playerLives);
-			// onClose();
 		});
 
 	}
@@ -203,6 +191,12 @@ function GamePage() {
 			console.log("turn", turn)
 			setTurn(turn);
 
+			await refreshRevealedChars(zkHangmanContract, totalChars)
+
+			await refreshGuesses(zkHangmanContract, turn)
+
+			setContractConnected(true);
+
 			if (turn > 0 && turn % 2 == 0) {
 				onOpen()
 				setCurrentStep(2)
@@ -225,12 +219,6 @@ function GamePage() {
 				setGameOver(true)
 			}
 
-
-			refreshRevealedChars(zkHangmanContract)
-
-			refreshGuesses(zkHangmanContract)
-
-			setContractConnected(true);
 
 		} catch (error) {
 			setError(error);
@@ -380,11 +368,15 @@ function GamePage() {
 						</AlertDialogBody>
 
 
-						<AlertDialogFooter>
-							<Button ref={cancelRef} onClick={playNewGame}>
-								Play New Game
-							</Button>
-						</AlertDialogFooter>
+						{
+							gameOver && (
+								<AlertDialogFooter>
+									<Button ref={cancelRef} onClick={playNewGame}>
+										Play New Game
+									</Button>
+								</AlertDialogFooter>
+							)
+						}
 
 					</AlertDialogContent>
 				</AlertDialogOverlay>

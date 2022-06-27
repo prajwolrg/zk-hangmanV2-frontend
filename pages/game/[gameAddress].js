@@ -19,12 +19,11 @@ import {
 } from "@chakra-ui/react";
 
 import TopNav from "../../components/TopNav"
-import InitializeGame from "../../components/InitializeGame";
-import SubmitGuess from "../../components/SubmitGuess";
 import GameStats from "../../components/GameStats";
 import ProcessGuess from "../../components/ProcessGuess";
 import { useConnection } from "../../context/ConnectionContext";
 import { useContractAddresses, useUpdateContractAddresses } from "../../context/ContractContext";
+import GuessProcessStepper from "../../components/GuessProcessStepper";
 
 const zkHangmanAbi = zkHangman.abi
 
@@ -50,6 +49,7 @@ function GamePage() {
 
   const [turn, setTurn] = useState();
 
+  const [currentStep, setCurrentStep] = useState()
   const [contractConnected, setContractConnected] = useState(false);
 
   const [revealedChars, setRevealedChars] = useState([]);
@@ -161,33 +161,7 @@ function GamePage() {
           <ProcessGuess turn={turn}></ProcessGuess>
         )}
 
-        {accountAddress == hostAddress && turn == 0 && (
-          <InitializeGame></InitializeGame>
-        )}
-
-        <AlertDialog isOpen={isOpen} onClose={onClose}>
-          <AlertDialogOverlay>
-            <AlertDialogContent>
-              <AlertDialogBody align="center" py={10}>
-                <Text mb={7}> {dialogMessage} </Text>
-                <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
-              </AlertDialogBody>
-            </AlertDialogContent>
-          </AlertDialogOverlay>
-        </AlertDialog>
       </VStack>
-
-      <AlertDialog isOpen={isSelectOpen} onClose={onSelectClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogBody align="center" py={10}>
-              <Button mb={7} width={250} onClick={() => switchNetwork(true)}> Connect to harmony mainnet </Button>
-              <Button width={250} onClick={() => switchNetwork(false)}> Connect to harmony testnet </Button>
-            </AlertDialogBody>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-
 
     </>
   )
