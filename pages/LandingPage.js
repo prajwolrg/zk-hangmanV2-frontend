@@ -6,13 +6,16 @@ import { useConnection } from "../context/ConnectionContext";
 export default function LandingPage() {
   const [selectedMode, setSelectedMode] = useState("Host");
   const [isConnected, setIsConnected] = useState(false);
-  const { accountAddress } = useConnection();
+  const { accountAddress, isNetworkSupported } = useConnection();
 
   useEffect(() => {
-    if (accountAddress !== null) {
-      setIsConnected(true);
+    console.log(`Network support: ${isNetworkSupported}`)
+    if (accountAddress == null || !isNetworkSupported) {
+      setIsConnected(false);
+    } else {
+      setIsConnected(true)
     }
-  }, [accountAddress]);
+  }, [accountAddress, isNetworkSupported]);
   return (
     <Flex
       style={{
@@ -77,7 +80,7 @@ export default function LandingPage() {
               alt="noConnection"
             />
             <Text fontWeight="bold" fontSize="1.4vw">
-              Please Connect Your Wallet to Begin
+              Connect Your Wallet and Select Right Network
             </Text>
           </Flex>
         ) : selectedMode === "Host" ? (

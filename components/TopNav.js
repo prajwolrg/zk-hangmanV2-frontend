@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import {
   chainIdToNetworkMapping,
   contractAddreses,
+  isNetworkSupported,
   SUPPORTED_NETWORKS,
   SUPPORTED_NETWORKS_PARAMS,
 } from "../utils";
@@ -106,6 +107,8 @@ export default function TopNav() {
       const signer = provider.getSigner();
       const accounts = await provider.listAccounts();
       const network = await provider.getNetwork();
+      const isSupported = isNetworkSupported(String(network.chainId))
+      console.log(isSupported)
       updateConnection({
         instance: instance,
         provider: provider,
@@ -113,16 +116,15 @@ export default function TopNav() {
         network: network,
         chainId: network.chainId,
         accountAddress: accounts[0],
+        isNetworkSupported: isSupported
       });
 
-      console.log(Number(network.chainId));
-      console.log(chainIdToNetworkMapping[Number(network.chainId)]);
-      console.log(
-        contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]]
-      );
-      updateContractAddresses(
-        contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]]
-      );
+      if (isSupported) {
+        updateContractAddresses(
+          contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]]
+        );
+      }
+
     } catch (error) {
       setError(error);
     }
@@ -219,8 +221,8 @@ export default function TopNav() {
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 {chainIdToNetworkMapping[String(chainId)]
                   ? SUPPORTED_NETWORKS_PARAMS[
-                      chainIdToNetworkMapping[String(chainId)]
-                    ]["chainName"]
+                  chainIdToNetworkMapping[String(chainId)]
+                  ]["chainName"]
                   : "Unsupported Network"}
               </MenuButton>
               <MenuList>{supportedNetworks}</MenuList>
