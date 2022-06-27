@@ -210,7 +210,7 @@ export default function TopNav() {
           display={{ base: "flex", md: "none" }}
         ></Flex>
         <Flex flex={{ base: 1 }} justify={{ base: "center", md: "start" }}>
-          <Heading>zkHangman</Heading>
+          <Heading>zkHangmanV2</Heading>
           <Flex display={{ base: "none", md: "flex" }} ml={10}></Flex>
         </Flex>
 

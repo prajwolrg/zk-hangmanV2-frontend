@@ -10,7 +10,7 @@ const HARMONY_TESTNET = "HARMONY_TESTNET"
 const LOCAL_HARDHAT = "LOCAL_HARDHAT"
 
 export const SUPPORTED_NETWORKS = [
-    HARMONY_MAINNET,
+    // HARMONY_MAINNET,
     HARMONY_DEVNET,
     // HARMONY_TESTNET
 ]
@@ -65,9 +65,9 @@ export const chainIdToNetworkMapping = {
 }
 
 export const SUPPORTED_NETWORKS_PARAMS = {
-    HARMONY_MAINNET: harmonyMainnetParams,
+    // HARMONY_MAINNET: harmonyMainnetParams,
     HARMONY_DEVNET: harmonyDevnetParams,
-    HARMONY_TESTNET: harmonyTestnetParams
+    // HARMONY_TESTNET: harmonyTestnetParams
 }
 
 // local hardhat contract addresses
@@ -81,17 +81,17 @@ const devInitVerifier = "0x010F32F74Accb565F69A546766787b8ff6A5c255"
 const devGuessVerifier = "0xa7a4C64b0ECed827e0Caa90C72003B3937DB400a"
 
 // harmony mainnet contract addresses
-const mainZkHangmanFactory = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
-const mainInitVerifier = "0xcb3729aE1C27De9b4F7826A749f49E74dC130344";
-const mainGuessVerifier = "0x262201b73941709113Fb47E564C9026830476706";
+const mainZkHangmanFactory = null;
+const mainInitVerifier = null;
+const mainGuessVerifier = null;
 
 export const contractAddreses = {
-    HARMONY_MAINNET: {
-        ZK_HANGMAN_FACTORY_ADDRESS: mainZkHangmanFactory,
-        INIT_VERIFIER_ADDRESS: mainInitVerifier,
-        GUESS_VERIFIER_ADDRESS: mainGuessVerifier,
-        ZK_HANGMAN_GAME_ADDRESS: null
-    },
+    // HARMONY_MAINNET: {
+    //     ZK_HANGMAN_FACTORY_ADDRESS: mainZkHangmanFactory,
+    //     INIT_VERIFIER_ADDRESS: mainInitVerifier,
+    //     GUESS_VERIFIER_ADDRESS: mainGuessVerifier,
+    //     ZK_HANGMAN_GAME_ADDRESS: null
+    // },
     HARMONY_DEVNET: {
         ZK_HANGMAN_FACTORY_ADDRESS: devZkHangmanFactory,
         INIT_VERIFIER_ADDRESS: devInitVerifier,
