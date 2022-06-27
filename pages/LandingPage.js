@@ -34,10 +34,11 @@ export default function LandingPage() {
       />
 
       <Box
-        overflow={"overlay"}
+        paddingBottom={"3vh"}
+        overflow={"auto"}
         boxShadow="xl"
         w="40vw"
-        h="70vh"
+        minH={"73%"}
         rounded="md"
         bg="white"
       >

@@ -153,7 +153,7 @@ export default function CreateNewGame() {
 
   return (
     <>
-      <Box bg="white" p={6} rounded="md" w={"30vw"}>
+      <Box bg="white" p={(0, 6, 0, 6)} rounded="md" w={"30vw"}>
         <Formik
           initialValues={{
             playerAddress: "",
