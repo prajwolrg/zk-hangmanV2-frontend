@@ -35,11 +35,14 @@ The following graphic shows the structure of the zero knowledge elements used in
 1. Connect the wallet and select the right network. 
 > Currently support only for the Harmony devnet.
 
+![CreateNewGameImage](https://raw.githubusercontent.com/prajwolrg/zk-hangmanV2-frontend/master/assets/2.png)
+
 2. Fill the appropriate values and Click Create Game. Metamask extension must pop out. Confirm the transaction and wait for it to finalize.
 
 ### Joining the game
 1. Connect the wallet and select the right network. 
 2. On the Player tab, enter the game address and click Join Game.
+![JoinGame](assets/2.png)
 
 ### Playing the game - Player
 1. Type your guess letter and press enter
