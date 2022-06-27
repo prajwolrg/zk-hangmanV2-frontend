@@ -24,8 +24,7 @@ import SubmitGuess from "../../components/SubmitGuess";
 import GameStats from "../../components/GameStats";
 import ProcessGuess from "../../components/ProcessGuess";
 import { useConnection } from "../../context/ConnectionContext";
-
-const snarkjs = require("snarkjs");
+import { useContractAddresses, useUpdateContractAddresses } from "../../context/ContractContext";
 
 const zkHangmanAbi = zkHangman.abi
 
@@ -66,6 +65,8 @@ function GamePage() {
   const { gameAddress } = router.query;
   const gameContract = gameAddress;
 
+  const updateContractAddresses = useUpdateContractAddresses();
+  const contractAddreses = useContractAddresses()
 
   useEffect(() => {
     console.log('GameStats useEffect')
@@ -78,8 +79,9 @@ function GamePage() {
   }, [router.isReady, signer])
 
   const connectContract = async () => {
-    console.log('Connecting contract')
-    console.log(gameContract, zkHangmanAbi, signer)
+    // console.log('Connecting contract')
+    // console.log(gameContract, zkHangmanAbi, signer)
+    updateContractAddresses({...contractAddreses, ZK_HANGMAN_GAME_ADDRESS: gameContract})
     try {
       const zkHangmanContract = new ethers.Contract(
         gameContract,
@@ -88,36 +90,36 @@ function GamePage() {
       );
 
       let host = await zkHangmanContract.host();
-      console.log("host:", host)
+      // console.log("host:", host)
       setHostAddress(host);
 
       let player = await zkHangmanContract.player();
-      console.log("player:", player)
+      // console.log("player:", player)
       setPlayerAddress(player);
 
       let totalChars = parseInt(await zkHangmanContract.totalChars(), 16)
       setTotalChars(totalChars)
-      console.log("total chars: ", totalChars);
+      // console.log("total chars: ", totalChars);
 
       let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
-      console.log("player Lives: ", playerLives);
+      // console.log("player Lives: ", playerLives);
       setPlayerLives(playerLives);
 
       let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
-      console.log("correct guesses: ", _correctGuesses);
+      // console.log("correct guesses: ", _correctGuesses);
       setCorrectGuesses(_correctGuesses)
 
       let turn = parseInt((await zkHangmanContract.turn())._hex, 16);
-      console.log("turn", turn)
+      // console.log("turn", turn)
       setTurn(turn);
 
       let guesses = []
       for (let i = 0; i < Math.floor(turn / 2); i++) {
-        let guess = String.fromCharCode(parseInt(await zkHangmanContract.guesses(i), 16) + 97)
+        let guess = String.fromCharCode(parseInt(await zkHangmanContract.guesses(i)) + 97)
         console.log(guess)
         guesses.push(guess)
       }
-      console.log(guesses)
+      // console.log(guesses)
 
       let revealedChars = []
       for (let i = 0; i < totalChars; i++) {
@@ -161,10 +163,6 @@ function GamePage() {
 
         {accountAddress == hostAddress && turn == 0 && (
           <InitializeGame></InitializeGame>
-        )}
-
-        {accountAddress == playerAddress && turn % 2 == 1 && (
-          <SubmitGuess></SubmitGuess>
         )}
 
         <AlertDialog isOpen={isOpen} onClose={onClose}>

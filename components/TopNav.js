@@ -30,7 +30,7 @@ import {
   useConnection,
   useUpdateConnection,
 } from "../context/ConnectionContext";
-import { useUpdateContractAddresses } from "../context/ContractContext";
+import { useContractAddresses, useUpdateContractAddresses } from "../context/ContractContext";
 
 const providerOptions = {};
 let web3Modal;
@@ -87,6 +87,7 @@ export default function TopNav() {
       };
     }
   }, [instance]);
+  const contractAddresesFromContext = useContractAddresses()
 
   // // This is used when the provider has already been selected previously
   // useEffect(() => {
@@ -121,7 +122,10 @@ export default function TopNav() {
 
       if (isSupported) {
         updateContractAddresses(
-          contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]]
+          {
+            ...contractAddresesFromContext,
+            ...contractAddreses[chainIdToNetworkMapping[Number(network.chainId)]]
+          }
         );
       }
 

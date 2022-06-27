@@ -1,6 +1,8 @@
 import React from 'react'
 
-const Figure = ({errors}) => {
+const Figure = ({playerLives}) => {
+
+  const errors = 6 - playerLives
 
   return (
     <svg height="250" width="200" style={{fill: 'transparent', stroke: '#000', strokeWidth: '4px', strokeLinecap: 'round'}}>

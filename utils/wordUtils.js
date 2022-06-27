@@ -26,3 +26,14 @@ export const getParsedChars = (word) => {
 	}
 	return parsedChars
 }
+
+export const isValidChar = (char) => {
+	if (char.length > 1) {
+		return false
+	}
+	let charCode = char.toLowerCase().charCodeAt(0)
+	if (charCode < 97 || charCode > 122) {
+		return false
+	}
+	return true
+}

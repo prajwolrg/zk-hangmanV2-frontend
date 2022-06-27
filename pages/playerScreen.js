@@ -38,7 +38,8 @@ function playerScreen() {
           <Heading marginBottom={20}>Make your guess!</Heading>
           <Figure errors={errors} />
           <HStack style={{ marginTop: 60 }}>
-            <PinInput autoFocus type="alphanumeric">
+
+            <PinInput manageFocus={false} type="alphanumeric">
               {[...Array(wordLength)].map((item, index) => (
                 <PinInputField
                   onKeyDown={(e) => {
@@ -51,6 +52,7 @@ function playerScreen() {
                 />
               ))}
             </PinInput>
+
           </HStack>
         </VStack>
       </Center>

@@ -82,8 +82,10 @@ export default function ProcessGuess({turn}) {
 		console.log("index: ", Math.floor((turn - 1) / 2));
 		console.log("hex latest guess: ", hexLatestGuess._hex);
 
+		console.log(parseInt(hexLatestGuess))
+
 		let inputObject = {
-			char: BigInt(parseInt(hexLatestGuess._hex, 16)),
+			char: BigInt(parseInt(hexLatestGuess._hex)),
 			secret: BigInt(ethers.BigNumber.from(ethers.utils.id(secret)))
 		}
 
@@ -91,12 +93,12 @@ export default function ProcessGuess({turn}) {
 
 		const {_a, _b, _c, _input} = await getGuessProofParams(inputObject)
 
-		// setDialogMessage("Awaiting transaction confirmation...");
+		setDialogMessage("Awaiting transaction confirmation...");
 		console.log("Awaiting transaction confirmation...");
 
 		let tx = await zkHangmanContract.processGuess(_a, _b, _c, _input);
 
-		// setDialogMessage("Waiting for transaction to finalize...");
+		setDialogMessage("Waiting for transaction to finalize...");
 		console.log("Waiting for transaction to finalize...");
 
 		console.log(tx);

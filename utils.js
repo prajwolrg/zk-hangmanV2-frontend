@@ -76,7 +76,7 @@ const localInitVerifier = "0xCf1aFDe70a43EBe93f4224aa239DD828353Ae1c7"
 const localGuessVerifier = "0x1D9317911CF1003B42a965574c29f18a87A2858c"
 
 // harmony testnet contract addresses
-const devZkHangmanFactory = "0xEc0a387ae2C385fd5D1411AB9948b66b3513Cc9c"
+const devZkHangmanFactory = "0x9D07025dC2861062a7A37BC639F21D443a5a9f26"
 const devInitVerifier = "0x010F32F74Accb565F69A546766787b8ff6A5c255"
 const devGuessVerifier = "0xa7a4C64b0ECed827e0Caa90C72003B3937DB400a"
 
@@ -89,11 +89,17 @@ export const contractAddreses = {
     HARMONY_MAINNET: {
         ZK_HANGMAN_FACTORY_ADDRESS: mainZkHangmanFactory,
         INIT_VERIFIER_ADDRESS: mainInitVerifier,
-        GUESS_VERIFIER_ADDRESS: mainGuessVerifier
+        GUESS_VERIFIER_ADDRESS: mainGuessVerifier,
+        ZK_HANGMAN_GAME_ADDRESS: null
     },
     HARMONY_DEVNET: {
         ZK_HANGMAN_FACTORY_ADDRESS: devZkHangmanFactory,
         INIT_VERIFIER_ADDRESS: devInitVerifier,
-        GUESS_VERIFIER_ADDRESS: devGuessVerifier
+        GUESS_VERIFIER_ADDRESS: devGuessVerifier,
+        ZK_HANGMAN_GAME_ADDRESS: null
     },
+}
+
+export const isNetworkSupported = (chainId) => {
+    return Object.keys(chainIdToNetworkMapping).includes(chainId)
 }
