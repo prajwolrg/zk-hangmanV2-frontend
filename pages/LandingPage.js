@@ -1,7 +1,7 @@
 import { Box, Input, Flex, Text, Heading, Img, VStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import ExistingGame from "../components/ExistingGame";
-import CreateNewGame from "../components/Login";
+import CreateNewGame from "../components/CreateGame";
 import { useConnection } from "../context/ConnectionContext";
 export default function LandingPage() {
   const [selectedMode, setSelectedMode] = useState("Host");

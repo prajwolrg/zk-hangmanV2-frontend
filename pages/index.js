@@ -34,7 +34,7 @@ import {
 import TopNav from "../components/TopNav";
 import { useConnection } from "../context/ConnectionContext";
 import { useContractAddresses } from "../context/ContractContext";
-import Login from "../components/Login";
+import CreateNewGame from "../components/CreateGame";
 import ExistingGame from "../components/ExistingGame";
 import LandingPage from "./LandingPage";
 import Stepper from "../components/Stepper";

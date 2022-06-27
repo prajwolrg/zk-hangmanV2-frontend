@@ -76,9 +76,9 @@ const localInitVerifier = "0xCf1aFDe70a43EBe93f4224aa239DD828353Ae1c7"
 const localGuessVerifier = "0x1D9317911CF1003B42a965574c29f18a87A2858c"
 
 // harmony testnet contract addresses
-const devZkHangmanFactory = "0x22A4212DeF5d3aA83c68beaAb0650307A01A08eB"
-const devInitVerifier = "0x130F9B984165CD444E35af37b26e5BC4F8fFF26d"
-const devGuessVerifier = "0x0AdB1582DC1f288C178137A3ec8d229127bfEaCe"
+const devZkHangmanFactory = "0xEc0a387ae2C385fd5D1411AB9948b66b3513Cc9c"
+const devInitVerifier = "0x010F32F74Accb565F69A546766787b8ff6A5c255"
+const devGuessVerifier = "0xa7a4C64b0ECed827e0Caa90C72003B3937DB400a"
 
 // harmony mainnet contract addresses
 const mainZkHangmanFactory = "0x295b98D5977b303d965cCcaa5e8BF888fb29e824";
