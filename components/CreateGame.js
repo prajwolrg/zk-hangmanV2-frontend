@@ -29,6 +29,8 @@ import { useRouter } from "next/router";
 
 import { getInitProofParams } from "../utils/proofUtils";
 import { checkWordValidity, getParsedChars } from "../utils/wordUtils";
+import { InitStepper } from "./InitStepper";
+import InitStepperV from "./InitStepperV";
 
 const zkHangmanFactoryAbi = zkHangmanFactory.abi;
 
@@ -48,12 +50,13 @@ yup.addMethod(yup.string, "ethereumAddress", function (errMsg) {
 
 let schema = yup.object().shape({
   playerAddress: yup.string().required().ethereumAddress(),
-	word: yup.string().required().min(2).max(25),
-	secret: yup.string().required().min(2).max(25)
+  word: yup.string().required().min(2).max(25),
+  secret: yup.string().required().min(2).max(25)
 });
 
 export default function CreateNewGame() {
   const [dialogMessage, setDialogMessage] = useState();
+  const [currentStep, setCurrentStep] = useState(0)
   const {
     ZK_HANGMAN_FACTORY_ADDRESS,
     INIT_VERIFIER_ADDRESS,
@@ -66,9 +69,16 @@ export default function CreateNewGame() {
 
   const router = useRouter();
 
+  const nextStep = () => {
+    setCurrentStep(currentStep+1)
+  }
+
   const createGame = async ({ playerAddress, word, secret }) => {
+    console.log('creating game')
+    onOpen();
     console.log(`Trying to create a game`);
 
+    setDialogMessage(`Trying to validate word`);
     const [valid, res] = await checkWordValidity(word)
 
     console.log("player address: ", playerAddress);
@@ -76,6 +86,11 @@ export default function CreateNewGame() {
     console.log("guess verifier address: ", GUESS_VERIFIER_ADDRESS);
 
     if (valid) {
+      console.log('valid')
+      setCurrentStep(1)
+
+      setDialogMessage(`Generating Proof...`);
+
       let modSecret = ethers.utils.id(secret)
       modSecret = ethers.BigNumber.from(modSecret)
       console.log("Secret Hash: ", modSecret)
@@ -88,6 +103,7 @@ export default function CreateNewGame() {
         char: parsedChars
       }
       const { _a, _b, _c, _input } = await getInitProofParams(inputObject)
+      setCurrentStep(2)
 
       // e.preventDefault();
       const zkHangmanFactoryContract = new ethers.Contract(
@@ -98,7 +114,6 @@ export default function CreateNewGame() {
 
       console.log(zkHangmanFactoryContract);
 
-      onOpen();
       setDialogMessage("Awaiting transaction confirmation...");
 
       let tx = await zkHangmanFactoryContract.createGame(
@@ -108,10 +123,12 @@ export default function CreateNewGame() {
         _a, _b, _c, _input,
         word.length
       );
+      setCurrentStep(3)
 
       setDialogMessage("Waiting for transaction to finalize...");
 
       let txFinalized = await tx.wait();
+      setCurrentStep(4)
 
       onClose();
 
@@ -131,7 +148,8 @@ export default function CreateNewGame() {
     };
   }
 
-    return (
+  return (
+    <>
       <Box bg="white" p={6} rounded="md" w={460}>
         <Formik
           initialValues={{
@@ -196,23 +214,27 @@ export default function CreateNewGame() {
             </form>
           )}
         </Formik>
+      </Box>
 
+      <Box bg="white" p={6} rounded="md" w={640}>
         <AlertDialog isOpen={isOpen} onClose={onClose}>
           <AlertDialogOverlay>
             <AlertDialogContent>
               <AlertDialogBody align="center" py={10}>
-                <Text mb={7}> {dialogMessage} </Text>
-                <Spinner
-                  thickness="4px"
-                  speed="0.65s"
-                  emptyColor="gray.200"
-                  color="blue.500"
-                  size="xl"
-                />
+                {/* <Text mb={7}> {dialogMessage} </Text> */}
+                <InitStepperV currentStep={currentStep}></InitStepperV>
+                {/* <Spinner
+                thickness="4px"
+                speed="0.65s"
+                emptyColor="gray.200"
+                color="blue.500"
+                size="xl"
+              /> */}
               </AlertDialogBody>
             </AlertDialogContent>
           </AlertDialogOverlay>
         </AlertDialog>
       </Box>
-    );
-  }
+    </>
+  );
+}

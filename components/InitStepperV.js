@@ -1,46 +1,54 @@
-import { Step, Steps, useSteps } from "chakra-ui-steps";
-import { Flex, Heading, Button, Text, VStack, Center } from "@chakra-ui/react";
+import { Step, Steps, useSteps } from "chakra-ui-steps"
+import { Flex, Button, Heading, Center, VStack, Text, Spinner } from "@chakra-ui/react"
+import next from "next";
+import { useEffect } from "react";
 
 const steps = [
-  { label: "Word", stepDetail: "Validating the word.." },
+  { label: "Word", stepDetail: "Validating the word..." },
   { label: "Proof", stepDetail: "Creating Proof..." },
   { label: "Confirmation", stepDetail: "Waiting for the transaction confirmation..." },
   { label: "Finalization", stepDetail: "Waiting for transaction to finalize" },
 ];
 
-export const Stepper = ({ guessedLetter, setCloseModal }) => {
+
+export const InitStepperV = ({currentStep}) => {
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
-  });
+  })
 
-  var delayTime = 5000;
+  console.log(activeStep, currentStep)
+  if (currentStep > activeStep) {
+    nextStep()
+  }
 
-  setTimeout(function () {
-    nextStep();
-  }, delayTime);
-
-  const Contents = (item) => {
+  const Contents = ({detail}) => {
     return (
       <Center>
-        <VStack marginTop={10}>
-          <Text fontSize={30}>{item.stepDetail}</Text>
-          <Text fontSize={25}>Your guessed letter is: {guessedLetter}</Text>
-          {item.index == 3 ? setCloseModal(true) : null}
+        <VStack >
+					<Spinner
+						thickness="4px"
+						speed="0.65s"
+						emptyColor="gray.200"
+						color="blue.500"
+						size="xl"
+					/>
+          <Text>{detail}</Text>
         </VStack>
       </Center>
     );
   };
 
   return (
-    <Flex flexDir="column" width="100%">
-      <Steps activeStep={activeStep}>
+    <>
+      <Steps orientation="vertical" activeStep={activeStep}>
         {steps.map(({ label, stepDetail }, index) => (
-          <Step key={label}>
-            <Contents stepDetail={stepDetail} index={index} />
+          <Step width="100%" label={label} key={label}>
+            <Contents detail={stepDetail} />
           </Step>
         ))}
       </Steps>
-      {/* {activeStep === steps.length ? (
+
+      {activeStep === steps.length ? (
         <Flex px={4} py={4} width="100%" flexDirection="column">
           <Heading fontSize="xl" textAlign="center">
             Woohoo! All steps completed!
@@ -51,7 +59,7 @@ export const Stepper = ({ guessedLetter, setCloseModal }) => {
         </Flex>
       ) : (
         <Flex width="100%" justify="flex-end">
-          <Button
+          {/* <Button
             isDisabled={activeStep === 0}
             mr={4}
             onClick={prevStep}
@@ -62,11 +70,11 @@ export const Stepper = ({ guessedLetter, setCloseModal }) => {
           </Button>
           <Button size="sm" onClick={nextStep}>
             {activeStep === steps.length - 1 ? "Finish" : "Next"}
-          </Button>
+          </Button> */}
         </Flex>
-      )} */}
-    </Flex>
-  );
-};
+      )}
+    </>
+  )
+}
 
-export default Stepper;
+export default InitStepperV
