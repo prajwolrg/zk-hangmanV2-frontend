@@ -1,5 +1,5 @@
 import { Button, Center, Box, Text } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function AlphabetList() {
   const alphabet = [
@@ -36,12 +36,21 @@ export default function AlphabetList() {
   ];
 
   // Test Word
-  const testWord = ["B", "A", "N", "A", "N", "A"];
+  const testWord = ["B", "A", "N", "A", "N", "A", "F"];
+
+  //   Revealed Letters
+  const revelaedLetters = ["A", "N"];
 
   const [selectedAlphabet, setSelectedAlphabet] = useState([]);
   const [currentAlphabet, setCurrentAlphabet] = useState("");
   const [correctAlphabet, setCorrectAlphabet] = useState([]);
 
+  useEffect(() => {
+    revelaedLetters.map((item) => {
+      setSelectedAlphabet([...selectedAlphabet, item]);
+      setCorrectAlphabet([...correctAlphabet, item]);
+    });
+  }, []);
   function checkCorrect(item) {
     if (testWord.includes(item)) {
       return setCorrectAlphabet([...correctAlphabet, item]);
@@ -64,12 +73,13 @@ export default function AlphabetList() {
           {alphabet.map((item, index) => {
             const toDisable = selectedAlphabet.includes(item);
             const isCorrect = correctAlphabet.includes(item);
+            const isSelected = currentAlphabet.includes(item);
             return (
               <Button
-                disabled={toDisable ? true : false}
-                boxSize={20}
+                colorScheme="purple"
+                disabled={toDisable}
+                boxSize={"5vw"}
                 onClick={() => {
-                  setSelectedAlphabet([...selectedAlphabet, item]);
                   setCurrentAlphabet(item);
                   checkCorrect(item);
                 }}
@@ -83,6 +93,8 @@ export default function AlphabetList() {
                     ? "green"
                     : toDisable
                     ? "red.400"
+                    : isSelected
+                    ? "purple"
                     : "#805AD5"
                 }
                 key={index}
@@ -92,6 +104,16 @@ export default function AlphabetList() {
             );
           })}
         </Box>
+        <Button
+          onClick={() => {
+            setSelectedAlphabet([...selectedAlphabet, currentAlphabet]);
+          }}
+          color={"white"}
+          backgroundColor={"#805AD5"}
+          marginTop={5}
+        >
+          Submit
+        </Button>
       </Center>
     </div>
   );
