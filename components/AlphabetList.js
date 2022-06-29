@@ -1,7 +1,7 @@
 import { Button, Center, Box, Text } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
-export default function AlphabetList() {
+export default function AlphabetList({ guesses, revealedKeys }) {
   const alphabet = [
     "A",
     "B",
@@ -36,26 +36,32 @@ export default function AlphabetList() {
   ];
 
   // Test Word
-  const testWord = ["B", "A", "N", "A", "N", "A", "F"];
+  // const testWord = ["B", "A", "N", "A", "N", "A", "F"];
 
   //   Revealed Letters
-  const revelaedLetters = ["A", "N"];
+  const revelaedLetters = ["A", "N", "L", "P"];
 
-  const [selectedAlphabet, setSelectedAlphabet] = useState([]);
+  const [selectedAlphabets, setSelectedAlphabets] = useState([]);
   const [currentAlphabet, setCurrentAlphabet] = useState("");
-  const [correctAlphabet, setCorrectAlphabet] = useState([]);
+  const [correctAlphabets, setCorrectAlphabets] = useState([]);
+
+  const [rightGuesses, setRightGuesses] = useState([])
 
   useEffect(() => {
-    revelaedLetters.map((item) => {
-      setSelectedAlphabet([...selectedAlphabet, item]);
-      setCorrectAlphabet([...correctAlphabet, item]);
-    });
-  }, []);
-  function checkCorrect(item) {
-    if (testWord.includes(item)) {
-      return setCorrectAlphabet([...correctAlphabet, item]);
+    let _rightGuesses = [], _wrongGuesses = []
+    // console.log('Use Effect')
+    for (let i = 0; i < guesses.length; i++) {
+      // console.log(`Guess ${i}: ${guesses[i]}`)
+      if (revealedKeys.includes(guesses[i])) {
+        _rightGuesses.push(guesses[i])
+      }
     }
-  }
+
+    // console.log(`Right Guesses: ${_rightGuesses}`)
+    setRightGuesses(_rightGuesses)
+    // console.log(`Right Guesses: ${rightGuesses}`)
+
+  }, [])
 
   return (
     <div style={{ marginTop: 100, marginBottom: 100 }}>
@@ -71,8 +77,8 @@ export default function AlphabetList() {
           style={{ boxShadow: "4px 3px 2px grey" }}
         >
           {alphabet.map((item, index) => {
-            const toDisable = selectedAlphabet.includes(item);
-            const isCorrect = correctAlphabet.includes(item);
+            const toDisable = guesses.includes(item.toLowerCase());
+            const isCorrect = rightGuesses.includes(item.toLowerCase());
             const isSelected = currentAlphabet.includes(item);
             return (
               <Button
@@ -81,7 +87,7 @@ export default function AlphabetList() {
                 boxSize={"5vw"}
                 onClick={() => {
                   setCurrentAlphabet(item);
-                  checkCorrect(item);
+                  // checkCorrect(item);
                 }}
                 style={{
                   boxShadow: "4px 3px 2px black",
@@ -92,10 +98,10 @@ export default function AlphabetList() {
                   isCorrect && toDisable
                     ? "green"
                     : toDisable
-                    ? "red.400"
-                    : isSelected
-                    ? "purple"
-                    : "#805AD5"
+                      ? "red.400"
+                      : isSelected
+                        ? "purple"
+                        : "#805AD5"
                 }
                 key={index}
               >
@@ -106,7 +112,7 @@ export default function AlphabetList() {
         </Box>
         <Button
           onClick={() => {
-            setSelectedAlphabet([...selectedAlphabet, currentAlphabet]);
+            setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
           }}
           color={"white"}
           backgroundColor={"#805AD5"}

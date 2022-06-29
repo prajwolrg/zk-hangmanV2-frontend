@@ -15,7 +15,7 @@ function HomePage() {
       </Head>
       <TopNav />
       <LandingPage />
-      <AlphabetList />
+      <AlphabetList guesses={['a', 'b', 'c']} revealedKeys={['a', '?', '?', '?', '?']}/>
     </div>
   );
 }
