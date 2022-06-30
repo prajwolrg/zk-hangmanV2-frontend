@@ -2,7 +2,7 @@ import { Button, Center, Box, Text, VStack, HStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import AlphabetButton from "./AlphabetButton";
 
-export default function AlphabetList({ guesses, revealedKeys }) {
+export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
   const alphabet = [
     "A",
     "B",
@@ -66,8 +66,7 @@ export default function AlphabetList({ guesses, revealedKeys }) {
     // console.log(`Right Guesses: ${_rightGuesses}`)
     setRightGuesses(_rightGuesses)
     // console.log(`Right Guesses: ${rightGuesses}`)
-
-  }, [])
+  }, [guesses, revealedKeys])
 
   return (
     <div style={{ marginTop: 100, marginBottom: 100 }}>
@@ -177,8 +176,8 @@ export default function AlphabetList({ guesses, revealedKeys }) {
 
         </Box>
         <Button
-          onClick={() => {
-            setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
+          onClick={() => { setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
+            handleSubmit(currentAlphabet)
           }}
           color={"white"}
           backgroundColor={"#805AD5"}

@@ -1,6 +1,7 @@
 import { Button } from "@chakra-ui/react";
 
-const AlphabetButton = ({item, index, key, toDisable, isCorrect, isSelected, handleClick }) => {
+const AlphabetButton = ({item, index, toDisable, isCorrect, isSelected, handleClick }) => {
+	// console.log(`${key} is correct: ${isCorrect}`)
 	return (
 		<Button
 			colorScheme="purple"

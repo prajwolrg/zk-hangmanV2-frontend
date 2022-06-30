@@ -32,6 +32,9 @@ import GuessStepper from "../../components/GuessStepper";
 import Confetti from 'react-confetti'
 
 import AlphabetList from "../../components/AlphabetList";
+import ProcessGuess from "../../components/ProcessGuess";
+import RevealedLetters from "../../components/RevealedLetters";
+import { getGameStatus } from "../../utils/gameUtils";
 
 const zkHangmanAbi = zkHangman.abi
 
@@ -52,6 +55,8 @@ function GamePage() {
 	const [playerAddress, setPlayerAddress] = useState('');
 	const [totalChars, setTotalChars] = useState(0)
 	const [guesses, setGuesses] = useState([])
+
+	const [zkHangmanContract, setZkHangmanContract] = useState(null)
 
 	const [playerLives, setPlayerLives] = useState();
 	const [correctGuesses, setCorrectGuesses] = useState(0);
@@ -77,43 +82,15 @@ function GamePage() {
 
 	const cancelRef = useRef()
 
+	const handleGuessSubmit = (e) => {
+		console.log(e)
+		console.log(typeof (e))
+		submitGuess({ guess: e })
+	}
 
 	const router = useRouter();
 	const { gameAddress } = router.query;
 	const gameContract = gameAddress;
-
-	const refreshRevealedChars = async (zkHangmanContract, totalChars) => {
-		console.log('Revealing chars', totalChars)
-		let revealedChars = []
-		for (let i = 0; i < totalChars; i++) {
-			let revealedChar = parseInt(await zkHangmanContract.revealedChars(i)) + 97
-			if (revealedChar < 123) {
-				console.log(revealedChar)
-				console.log(revealedChars)
-				revealedChar = String.fromCharCode(revealedChar)
-				console.log(revealedChar)
-			} else {
-				revealedChar = String.fromCharCode(63)
-			}
-			revealedChars.push(revealedChar)
-		}
-		setLastValidGuess('')
-		console.log(revealedChars)
-		setRevealedChars(revealedChars)
-	}
-
-	const refreshGuesses = async (zkHangmanContract, turn) => {
-		let guesses = []
-		for (let i = 0; i < Math.floor(turn / 2); i++) {
-			let guess = String.fromCharCode(parseInt(await zkHangmanContract.guesses(i)) + 97)
-			console.log(guess)
-			guesses.push(guess)
-		}
-		setGuesses(guesses)
-		setLastValidGuess('')
-		console.log(guesses)
-	}
-
 
 	const submitGuess = async ({ guess }) => {
 		const zkHangmanContract = new ethers.Contract(
@@ -142,10 +119,10 @@ function GamePage() {
 		await tx.wait()
 		setCurrentStep(2)
 
-		zkHangmanContract.on("NextTurn", async (nextTurn) => {
-			connectContract()
-		});
+	}
 
+	const handleNextTurn = () => {
+		getContractData()
 	}
 
 
@@ -154,78 +131,53 @@ function GamePage() {
 		if (!router.isReady) return;
 
 		if (web3Modal.cachedProvider) {
-			connectContract();
+			getContractData();
 		}
 
-	}, [router.isReady, signer])
-
-	const connectContract = async () => {
-		console.log('Connecting contract')
-		console.log(gameContract, zkHangmanAbi, signer)
-		try {
-			const zkHangmanContract = new ethers.Contract(
+		if (accountAddress) {
+			const _zkHangmanContract = new ethers.Contract(
 				gameContract,
 				zkHangmanAbi,
 				signer
 			);
+			setZkHangmanContract(_zkHangmanContract)
+			_zkHangmanContract.on("NextTurn", handleNextTurn);
+		}
 
-			let host = await zkHangmanContract.host();
-			console.log("host:", host)
-			setHostAddress(host);
+		return () => {
+			if (zkHangmanContract) {
+				zkHangmanContract.off("NextTurn", handleNextTurn);
+			}
+		}
 
-			let player = await zkHangmanContract.player();
-			console.log("player:", player)
-			setPlayerAddress(player);
+	}, [router.isReady, signer])
 
-			let totalChars = parseInt(await zkHangmanContract.totalChars(), 16)
+	const getContractData = async () => {
+		if (accountAddress) {
+			const {
+				host,
+				player,
+				totalChars,
+				playerLives,
+				correctGuesses,
+				turn,
+				revealedChars,
+				guesses
+			} = await getGameStatus(gameContract, signer)
+
+			setHostAddress(host)
+			setPlayerAddress(player)
 			setTotalChars(totalChars)
-			console.log("total chars: ", totalChars);
-
-			let playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
-			console.log("player Lives: ", playerLives);
-			setPlayerLives(playerLives);
-
-			let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
-			console.log("correct guesses: ", _correctGuesses);
-			setCorrectGuesses(_correctGuesses)
-
-			let turn = parseInt((await zkHangmanContract.turn())._hex, 16);
-			console.log("turn", turn)
-			setTurn(turn);
-
-			await refreshRevealedChars(zkHangmanContract, totalChars)
-
-			await refreshGuesses(zkHangmanContract, turn)
+			setPlayerLives(playerLives)
+			setCorrectGuesses(correctGuesses)
+			setTurn(turn)
+			setRevealedChars(revealedChars)
+			setGuesses(guesses)
 
 			setContractConnected(true);
 
-			if (turn > 0 && turn % 2 == 0) {
-				onOpen()
-				setCurrentStep(2)
-			}
-
-			if (turn > 0 && turn % 2 == 1) {
-				onClose()
-				setLastValidGuess(null)
-			}
-
-			if (playerLives == 0) {
-				onOpen()
-				setGameWin(false)
-				setGameOver(true)
-			}
-
-			if (playerLives > 0 && correctGuesses == totalChars) {
-				onOpen()
-				setGameWin(true)
-				setGameOver(true)
-			}
-
-
-		} catch (error) {
-			setError(error);
+			setLastValidGuess('')
 		}
-
 	}
 
 	const playNewGame = () => {
@@ -251,7 +203,9 @@ function GamePage() {
 			<Head>
 				<title> zkHangman - {gameAddress} </title>
 			</Head>
+
 			<TopNav></TopNav>
+
 			<Center
 				overflow="hidden"
 				height={"95vh"}
@@ -259,34 +213,27 @@ function GamePage() {
 				backgroundColor="whitesmoke"
 			>
 				<VStack>
-					<Heading marginBottom={10}>Make your guess!</Heading>
+
+					{
+						accountAddress && accountAddress == playerAddress && (
+							<Heading marginBottom={10}>Make your guess!</Heading>
+						)
+					}
 
 					<Figure playerLives={playerLives} />
 
-					<HStack style={{ marginTop: 60 }}>
-						<PinInput autoFocus type="alphanumeric"
-							isReadOnly
-							// placeholder="hello"
-							// isDisabled
-							value={revealedChars.join('')}
-						>
-							{[...Array(totalChars)].map((item, index) => (
+					<RevealedLetters revealedChars={revealedChars} totalChars={totalChars} />
 
-								<PinInputField
-									onKeyDown={(e) => {
-										handleKeyDown(e);
-									}}
-									ringColor={"purple.500"}
-									borderWidth={2}
-									boxSize={"20"}
-									key={index}
-								/>
-							))}
-						</PinInput>
-					</HStack>
+					<AlphabetList guesses={guesses} revealedKeys={revealedChars} handleSubmit={handleGuessSubmit} />
 
-					<AlphabetList guesses={guesses} revealedKeys={revealedChars} />
+					{
+						accountAddress && accountAddress == hostAddress && (turn % 2 == 0) && (
+							<ProcessGuess turn={turn} />
+						)
+					}
+
 				</VStack>
+
 			</Center>
 
 			<AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
