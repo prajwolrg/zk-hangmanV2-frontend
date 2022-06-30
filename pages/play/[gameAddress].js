@@ -31,6 +31,8 @@ import { toHex } from "../../utils";
 import GuessStepper from "../../components/GuessStepper";
 import Confetti from 'react-confetti'
 
+import AlphabetList from "../../components/AlphabetList";
+
 const zkHangmanAbi = zkHangman.abi
 
 const providerOptions = {};
@@ -259,45 +261,13 @@ function GamePage() {
 				<VStack>
 					<Heading marginBottom={10}>Make your guess!</Heading>
 
+
 					<HStack>
-						<Heading as='h3' size='lg'>Your Guesses: </Heading>
-						<PinInput autoFocus type="alphanumeric"
-							marginBottom={10}
-							isReadOnly
-							// placeholder="hello"
-							// isDisabled
-							value={guesses.join('')}
-						>
-							{guesses.map((item, index) => (
 
-								<PinInputField
-									ringColor={"purple.500"}
-									borderWidth={2}
-									boxSize={"20"}
-									key={index}
-								/>
-							))}
-						</PinInput>
-
-						<PinInput autoFocus type="alphanumeric"
-							marginBottom={10}
-						>
-							{[1].map((item, index) => (
-								<PinInputField
-									onKeyDown={(e) => {
-										handleKeyDown(e);
-									}}
-									ringColor={"red"}
-									borderWidth={5}
-									boxSize={"20"}
-									key={index}
-								/>
-							))}
-						</PinInput>
+						<Figure playerLives={playerLives} />
+						<AlphabetList guesses={guesses} revealedKeys={revealedChars} />
 
 					</HStack>
-
-					<Figure playerLives={playerLives} />
 					<HStack style={{ marginTop: 60 }}>
 
 						<PinInput autoFocus type="alphanumeric"
