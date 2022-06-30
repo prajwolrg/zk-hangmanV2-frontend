@@ -170,7 +170,7 @@ export default function CreateNewGame() {
         let newGameAddress =
           filterResults[filterResults.length - 1].args.gameAddress;
 
-        let href = "/game/" + newGameAddress;
+        let href = "/play/" + newGameAddress;
         router.push(href);
 
       } catch (err) {
