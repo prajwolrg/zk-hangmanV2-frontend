@@ -2,299 +2,289 @@ import Head from "next/head";
 import Web3Modal from "web3modal";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import zkHangman from "../../abis/zkHangman.json"
+import zkHangman from "../../abis/zkHangman.json";
 import { ethers } from "ethers";
 import {
-	HStack,
-	VStack,
-	Heading,
-	Text,
-	Button,
-	Spinner,
-	AlertDialog,
-	AlertDialogOverlay,
-	AlertDialogContent,
-	AlertDialogBody,
-	useDisclosure,
-	Center,
-	PinInput,
-	PinInputField,
-	AlertDialogFooter,
-	AlertDialogHeader
+  HStack,
+  VStack,
+  Heading,
+  Text,
+  Button,
+  Spinner,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogBody,
+  useDisclosure,
+  Center,
+  PinInput,
+  PinInputField,
+  AlertDialogFooter,
+  AlertDialogHeader,
 } from "@chakra-ui/react";
 
-import TopNav from "../../components/TopNav"
+import TopNav from "../../components/TopNav";
 import { useConnection } from "../../context/ConnectionContext";
 import Figure from "../../components/Figure";
 import { isValidChar } from "../../utils/wordUtils";
 import { toHex } from "../../utils";
 import GuessStepper from "../../components/GuessStepper";
-import Confetti from 'react-confetti'
+import Confetti from "react-confetti";
 
 import AlphabetList from "../../components/AlphabetList";
 import ProcessGuess from "../../components/ProcessGuess";
 import RevealedLetters from "../../components/RevealedLetters";
 import { getGameStatus } from "../../utils/gameUtils";
 
-const zkHangmanAbi = zkHangman.abi
+const zkHangmanAbi = zkHangman.abi;
 
 const providerOptions = {};
 
 let web3Modal;
-if (typeof window !== 'undefined') {
-	web3Modal = new Web3Modal({
-		cacheProvider: true,
-		providerOptions
-	});
+if (typeof window !== "undefined") {
+  web3Modal = new Web3Modal({
+    cacheProvider: true,
+    providerOptions,
+  });
 }
 
 function GamePage() {
-	const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
+  const { instance, provider, signer, network, chainId, accountAddress } =
+    useConnection();
 
-	const [hostAddress, setHostAddress] = useState('');
-	const [playerAddress, setPlayerAddress] = useState('');
-	const [totalChars, setTotalChars] = useState(0)
-	const [guesses, setGuesses] = useState([])
+  const [hostAddress, setHostAddress] = useState("");
+  const [playerAddress, setPlayerAddress] = useState("");
+  const [totalChars, setTotalChars] = useState(0);
+  const [guesses, setGuesses] = useState([]);
 
-	const [zkHangmanContract, setZkHangmanContract] = useState(null)
+  const [zkHangmanContract, setZkHangmanContract] = useState(null);
 
-	const [playerLives, setPlayerLives] = useState();
-	const [correctGuesses, setCorrectGuesses] = useState(0);
+  const [playerLives, setPlayerLives] = useState();
+  const [correctGuesses, setCorrectGuesses] = useState(0);
 
-	const [gameOver, setGameOver] = useState(false)
-	const [gameWin, setGameWin] = useState(null)
+  const [gameOver, setGameOver] = useState(false);
+  const [gameWin, setGameWin] = useState(null);
 
-	const [turn, setTurn] = useState();
+  const [turn, setTurn] = useState();
 
-	const [contractConnected, setContractConnected] = useState(false);
+  const [contractConnected, setContractConnected] = useState(false);
 
-	const [revealedChars, setRevealedChars] = useState([]);
-	const [guess, setGuess] = useState('');
-	const [lastValidGuess, setLastValidGuess] = useState('')
+  const [revealedChars, setRevealedChars] = useState([]);
+  const [guess, setGuess] = useState("");
+  const [lastValidGuess, setLastValidGuess] = useState("");
 
-	const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(0);
 
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isSelectOpen,
+    onOpen: onSelectOpen,
+    onClose: onSelectClose,
+  } = useDisclosure();
 
-	const [dialogMessage, setDialogMessage] = useState('');
-	const [error, setError] = useState();
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [error, setError] = useState();
 
-	const cancelRef = useRef()
+  const cancelRef = useRef();
 
-	const handleGuessSubmit = (e) => {
-		console.log(e)
-		console.log(typeof (e))
-		submitGuess({ guess: e })
-	}
+  const handleGuessSubmit = (e) => {
+    console.log(e);
+    console.log(typeof e);
+    submitGuess({ guess: e });
+  };
 
-	const router = useRouter();
-	const { gameAddress } = router.query;
-	const gameContract = gameAddress;
+  const router = useRouter();
+  const { gameAddress } = router.query;
+  const gameContract = gameAddress;
 
-	const submitGuess = async ({ guess }) => {
-		const zkHangmanContract = new ethers.Contract(
-			gameContract,
-			zkHangmanAbi,
-			signer
-		);
+  const submitGuess = async ({ guess }) => {
+    const zkHangmanContract = new ethers.Contract(
+      gameContract,
+      zkHangmanAbi,
+      signer
+    );
 
-		let guessNumba = guess.trim().toLowerCase().charCodeAt(0) - 97;
+    let guessNumba = guess.trim().toLowerCase().charCodeAt(0) - 97;
 
-		console.log(`sending the number ${guessNumba} to the contract`);
-		console.log("the guess from this number was: ", guess);
+    console.log(`sending the number ${guessNumba} to the contract`);
+    console.log("the guess from this number was: ", guess);
 
-		onOpen();
+    onOpen();
 
-		setDialogMessage("Awaiting transaction confirmation...");
-		console.log("Awaiting transaction confirmation...");
-		setCurrentStep(0)
+    setDialogMessage("Awaiting transaction confirmation...");
+    console.log("Awaiting transaction confirmation...");
+    setCurrentStep(0);
 
-		let tx = await zkHangmanContract.playerGuess(toHex(guessNumba));
-		setCurrentStep(1)
+    let tx = await zkHangmanContract.playerGuess(toHex(guessNumba));
+    setCurrentStep(1);
 
-		setDialogMessage("Waiting for transaction to finalize...");
-		console.log("Waiting for transaction to finalize...");
+    setDialogMessage("Waiting for transaction to finalize...");
+    console.log("Waiting for transaction to finalize...");
 
-		await tx.wait()
-		setCurrentStep(2)
+    await tx.wait();
+    setCurrentStep(2);
+  };
 
-	}
+  const handleNextTurn = () => {
+    getContractData();
+  };
 
-	const handleNextTurn = () => {
-		getContractData()
-	}
+  useEffect(() => {
+    console.log("GameStats useEffect");
+    if (!router.isReady) return;
 
+    if (web3Modal.cachedProvider) {
+      getContractData();
+    }
 
-	useEffect(() => {
-		console.log('GameStats useEffect')
-		if (!router.isReady) return;
+    if (accountAddress) {
+      const _zkHangmanContract = new ethers.Contract(
+        gameContract,
+        zkHangmanAbi,
+        signer
+      );
+      setZkHangmanContract(_zkHangmanContract);
+      _zkHangmanContract.on("NextTurn", handleNextTurn);
+    }
 
-		if (web3Modal.cachedProvider) {
-			getContractData();
-		}
+    return () => {
+      if (zkHangmanContract) {
+        zkHangmanContract.off("NextTurn", handleNextTurn);
+      }
+    };
+  }, [router.isReady, signer]);
 
-		if (accountAddress) {
-			const _zkHangmanContract = new ethers.Contract(
-				gameContract,
-				zkHangmanAbi,
-				signer
-			);
-			setZkHangmanContract(_zkHangmanContract)
-			_zkHangmanContract.on("NextTurn", handleNextTurn);
-		}
+  const getContractData = async () => {
+    if (accountAddress) {
+      const {
+        host,
+        player,
+        totalChars,
+        playerLives,
+        correctGuesses,
+        turn,
+        revealedChars,
+        guesses,
+      } = await getGameStatus(gameContract, signer);
 
-		return () => {
-			if (zkHangmanContract) {
-				zkHangmanContract.off("NextTurn", handleNextTurn);
-			}
-		}
+      setHostAddress(host);
+      setPlayerAddress(player);
+      setTotalChars(totalChars);
+      setPlayerLives(playerLives);
+      setCorrectGuesses(correctGuesses);
+      setTurn(turn);
+      setRevealedChars(revealedChars);
+      setGuesses(guesses);
 
-	}, [router.isReady, signer])
+      setContractConnected(true);
 
-	const getContractData = async () => {
-		if (accountAddress) {
-			const {
-				host,
-				player,
-				totalChars,
-				playerLives,
-				correctGuesses,
-				turn,
-				revealedChars,
-				guesses
-			} = await getGameStatus(gameContract, signer)
+      setLastValidGuess("");
+    }
+  };
 
-			setHostAddress(host)
-			setPlayerAddress(player)
-			setTotalChars(totalChars)
-			setPlayerLives(playerLives)
-			setCorrectGuesses(correctGuesses)
-			setTurn(turn)
-			setRevealedChars(revealedChars)
-			setGuesses(guesses)
+  const playNewGame = () => {
+    router.push("/");
+  };
 
-			setContractConnected(true);
+  const errors = 0;
+  const [openModal, setOpenModal] = useState(false);
+  const [guessedLetter, setGuessedLetter] = useState("");
 
-			setLastValidGuess('')
-		}
-	}
+  const handleKeyDown = (e) => {
+    setOpenModal(!openModal);
+    if (isValidChar(e.key)) {
+      setLastValidGuess(e.key);
+    }
+    if (e.key == "Enter") {
+      submitGuess({ guess: lastValidGuess });
+    }
+  };
 
-	const playNewGame = () => {
-		router.push('/')
-	}
+  return (
+    <>
+      <Head>
+        <title> zkHangman - {gameAddress} </title>
+      </Head>
 
-	const errors = 0;
-	const [openModal, setOpenModal] = useState(false);
-	const [guessedLetter, setGuessedLetter] = useState("");
+      <TopNav></TopNav>
 
-	const handleKeyDown = (e) => {
-		setOpenModal(!openModal);
-		if (isValidChar(e.key)) {
-			setLastValidGuess(e.key)
-		}
-		if (e.key == 'Enter') {
-			submitGuess({ guess: lastValidGuess })
-		}
-	};
+      <Center
+        // overflow="hidden"
+        // height={"95vh"}
+        alignItems="center"
+        backgroundColor="whitesmoke"
+      >
+        <VStack>
+          {accountAddress && accountAddress == playerAddress && (
+            <Heading marginBottom={10}>Make your guess!</Heading>
+          )}
 
-	return (
-		<>
-			<Head>
-				<title> zkHangman - {gameAddress} </title>
-			</Head>
+          <Figure playerLives={playerLives} />
 
-			<TopNav></TopNav>
+          <RevealedLetters
+            revealedChars={revealedChars}
+            totalChars={totalChars}
+          />
 
-			<Center
-				overflow="hidden"
-				height={"95vh"}
-				alignItems="center"
-				backgroundColor="whitesmoke"
-			>
-				<VStack>
+          <AlphabetList
+            guesses={guesses}
+            revealedKeys={revealedChars}
+            handleSubmit={handleGuessSubmit}
+          />
 
-					{
-						accountAddress && accountAddress == playerAddress && (
-							<Heading marginBottom={10}>Make your guess!</Heading>
-						)
-					}
+          {accountAddress && accountAddress == hostAddress && turn % 2 == 0 && (
+            <ProcessGuess turn={turn} />
+          )}
+        </VStack>
+      </Center>
 
-					<Figure playerLives={playerLives} />
+      <AlertDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            {gameOver && gameWin && (
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Congratulations! You Won!
+              </AlertDialogHeader>
+            )}
 
-					<RevealedLetters revealedChars={revealedChars} totalChars={totalChars} />
+            {gameOver && !gameWin && (
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Sorry! You Lost!
+              </AlertDialogHeader>
+            )}
 
-					<AlphabetList guesses={guesses} revealedKeys={revealedChars} handleSubmit={handleGuessSubmit} />
+            <AlertDialogBody align="center" py={10}>
+              {!gameOver && <GuessStepper currentStep={currentStep} />}
 
-					{
-						accountAddress && accountAddress == hostAddress && (turn % 2 == 0) && (
-							<ProcessGuess turn={turn} />
-						)
-					}
+              {gameOver && gameWin && (
+                <>
+                  <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                    Congratulations! You Won!
+                  </AlertDialogHeader>
+                  <Confetti height={250} width={460}></Confetti>
+                </>
+              )}
 
-				</VStack>
-
-			</Center>
-
-			<AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
-				<AlertDialogOverlay>
-
-					<AlertDialogContent>
-						{
-							gameOver && gameWin && (
-								<AlertDialogHeader fontSize='lg' fontWeight='bold'>
-									Congratulations! You Won!
-								</AlertDialogHeader>
-
-							)
-						}
-
-						{
-							gameOver && !gameWin && (
-								<AlertDialogHeader fontSize='lg' fontWeight='bold'>
-									Sorry! You Lost!
-								</AlertDialogHeader>
-							)
-						}
-
-						<AlertDialogBody align="center" py={10}>
-							{!gameOver && (
-								<GuessStepper currentStep={currentStep} />
-							)}
-
-							{
-								gameOver && gameWin && (
-									<>
-										<AlertDialogHeader fontSize='lg' fontWeight='bold'>
-											Congratulations! You Won!
-										</AlertDialogHeader>
-										<Confetti height={250} width={460}></Confetti>
-									</>
-								)
-							}
-
-
-							{/* <Text mb={7}> {dialogMessage} </Text>
+              {/* <Text mb={7}> {dialogMessage} </Text>
 							<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> */}
-						</AlertDialogBody>
+            </AlertDialogBody>
 
-
-						{
-							gameOver && (
-								<AlertDialogFooter>
-									<Button ref={cancelRef} onClick={playNewGame}>
-										Play New Game
-									</Button>
-								</AlertDialogFooter>
-							)
-						}
-
-					</AlertDialogContent>
-				</AlertDialogOverlay>
-			</AlertDialog>
-
-		</>
-	)
+            {gameOver && (
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={playNewGame}>
+                  Play New Game
+                </Button>
+              </AlertDialogFooter>
+            )}
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+    </>
+  );
 }
 
-export default GamePage
+export default GamePage;

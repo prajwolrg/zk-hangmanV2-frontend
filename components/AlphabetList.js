@@ -37,9 +37,9 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
   ];
 
   // If qwerty is required
-  const querty = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
-  const asdf = ["A", "S", "D", "F", "G", "H", "J", "K", "L"]
-  const zxcv = ["Z", "X", "C", "V", "B", "N", "M"]
+  const querty = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
+  const asdf = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
+  const zxcv = ["Z", "X", "C", "V", "B", "N", "M"];
 
   // Test Word
   // const testWord = ["B", "A", "N", "A", "N", "A", "F"];
@@ -51,27 +51,28 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
   const [currentAlphabet, setCurrentAlphabet] = useState("");
   const [correctAlphabets, setCorrectAlphabets] = useState([]);
 
-  const [rightGuesses, setRightGuesses] = useState([])
+  const [rightGuesses, setRightGuesses] = useState([]);
 
   useEffect(() => {
-    let _rightGuesses = [], _wrongGuesses = []
+    let _rightGuesses = [],
+      _wrongGuesses = [];
     // console.log('Use Effect')
     for (let i = 0; i < guesses.length; i++) {
       // console.log(`Guess ${i}: ${guesses[i]}`)
       if (revealedKeys.includes(guesses[i])) {
-        _rightGuesses.push(guesses[i])
+        _rightGuesses.push(guesses[i]);
       }
     }
 
     // console.log(`Right Guesses: ${_rightGuesses}`)
-    setRightGuesses(_rightGuesses)
+    setRightGuesses(_rightGuesses);
     // console.log(`Right Guesses: ${rightGuesses}`)
-  }, [guesses, revealedKeys])
+  }, [guesses, revealedKeys]);
 
   return (
-    <div style={{ marginTop: 100, marginBottom: 100 }}>
+    <div style={{ marginTop: 20, marginBottom: 100 }}>
       <Center flexDirection={"column"}>
-        <Text fontWeight={"bold"} marginBottom={10}>
+        <Text fontWeight={"bold"} marginBottom={5}>
           Chosen Alphabet: {currentAlphabet}
         </Text>
         <Box
@@ -82,7 +83,6 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
           style={{ boxShadow: "4px 3px 2px grey" }}
         >
           <VStack>
-
             <HStack>
               {querty.map((item, index) => {
                 const toDisable = guesses.includes(item.toLowerCase());
@@ -96,7 +96,8 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
                     isCorrect={isCorrect}
                     isSelected={isSelected}
                     index={index}
-                    handleClick={setCurrentAlphabet} />
+                    handleClick={setCurrentAlphabet}
+                  />
                 );
               })}
             </HStack>
@@ -114,7 +115,8 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
                     isCorrect={isCorrect}
                     isSelected={isSelected}
                     index={index}
-                    handleClick={setCurrentAlphabet} />
+                    handleClick={setCurrentAlphabet}
+                  />
                 );
               })}
             </HStack>
@@ -132,11 +134,11 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
                     isCorrect={isCorrect}
                     isSelected={isSelected}
                     index={index}
-                    handleClick={setCurrentAlphabet} />
+                    handleClick={setCurrentAlphabet}
+                  />
                 );
               })}
             </HStack>
-
           </VStack>
 
           {/* {alphabet.map((item, index) => {
@@ -172,12 +174,11 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
               </Button>
             );
           })} */}
-
-
         </Box>
         <Button
-          onClick={() => { setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
-            handleSubmit(currentAlphabet)
+          onClick={() => {
+            setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
+            handleSubmit(currentAlphabet);
           }}
           color={"white"}
           backgroundColor={"#805AD5"}
