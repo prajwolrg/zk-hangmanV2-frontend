@@ -1,5 +1,6 @@
 import { Button, Center, Box, Text, VStack, HStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
+import AlphabetButton from "./AlphabetButton";
 
 export default function AlphabetList({ guesses, revealedKeys }) {
   const alphabet = [
@@ -83,112 +84,58 @@ export default function AlphabetList({ guesses, revealedKeys }) {
         >
           <VStack>
 
-						<HStack>
-            {querty.map((item, index) => {
-              const toDisable = guesses.includes(item.toLowerCase());
-              const isCorrect = rightGuesses.includes(item.toLowerCase());
-              const isSelected = currentAlphabet.includes(item);
-              return (
-                <Button
-                  colorScheme="purple"
-                  disabled={toDisable}
-                  boxSize={"2.5vw"}
-                  onClick={() => {
-                    setCurrentAlphabet(item);
-                    // checkCorrect(item);
-                  }}
-                  style={{
-                    boxShadow: "4px 3px 2px black",
-                    margin: "1em",
-                  }}
-                  color={"white"}
-                  backgroundColor={
-                    isCorrect && toDisable
-                      ? "green"
-                      : toDisable
-                        ? "red.400"
-                        : isSelected
-                          ? "purple"
-                          : "#805AD5"
-                  }
-                  key={index}
-                >
-                  {item}
-                </Button>
-              );
-            })}
-            </HStack>
-
-						<HStack>
-            {asdf.map((item, index) => {
-              const toDisable = guesses.includes(item.toLowerCase());
-              const isCorrect = rightGuesses.includes(item.toLowerCase());
-              const isSelected = currentAlphabet.includes(item);
-              return (
-                <Button
-                  colorScheme="purple"
-                  disabled={toDisable}
-                  boxSize={"2.5vw"}
-                  onClick={() => {
-                    setCurrentAlphabet(item);
-                    // checkCorrect(item);
-                  }}
-                  style={{
-                    boxShadow: "4px 3px 2px black",
-                    margin: "1em",
-                  }}
-                  color={"white"}
-                  backgroundColor={
-                    isCorrect && toDisable
-                      ? "green"
-                      : toDisable
-                        ? "red.400"
-                        : isSelected
-                          ? "purple"
-                          : "#805AD5"
-                  }
-                  key={index}
-                >
-                  {item}
-                </Button>
-              );
-            })}
+            <HStack>
+              {querty.map((item, index) => {
+                const toDisable = guesses.includes(item.toLowerCase());
+                const isCorrect = rightGuesses.includes(item.toLowerCase());
+                const isSelected = currentAlphabet.includes(item);
+                return (
+                  <AlphabetButton
+                    key={item}
+                    item={item}
+                    toDisable={toDisable}
+                    isCorrect={isCorrect}
+                    isSelected={isSelected}
+                    index={index}
+                    handleClick={setCurrentAlphabet} />
+                );
+              })}
             </HStack>
 
             <HStack>
-            {zxcv.map((item, index) => {
-              const toDisable = guesses.includes(item.toLowerCase());
-              const isCorrect = rightGuesses.includes(item.toLowerCase());
-              const isSelected = currentAlphabet.includes(item);
-              return (
-                <Button
-                  colorScheme="purple"
-                  disabled={toDisable}
-                  boxSize={"2.5vw"}
-                  onClick={() => {
-                    setCurrentAlphabet(item);
-                    // checkCorrect(item);
-                  }}
-                  style={{
-                    boxShadow: "4px 3px 2px black",
-                    margin: "1em",
-                  }}
-                  color={"white"}
-                  backgroundColor={
-                    isCorrect && toDisable
-                      ? "green"
-                      : toDisable
-                        ? "red.400"
-                        : isSelected
-                          ? "purple"
-                          : "#805AD5"
-                  }
-                  key={index}
-                >
-                  {item}
-                </Button>
-              );
-            })}
+              {asdf.map((item, index) => {
+                const toDisable = guesses.includes(item.toLowerCase());
+                const isCorrect = rightGuesses.includes(item.toLowerCase());
+                const isSelected = currentAlphabet.includes(item);
+                return (
+                  <AlphabetButton
+                    key={item}
+                    item={item}
+                    toDisable={toDisable}
+                    isCorrect={isCorrect}
+                    isSelected={isSelected}
+                    index={index}
+                    handleClick={setCurrentAlphabet} />
+                );
+              })}
+            </HStack>
+
+            <HStack>
+              {zxcv.map((item, index) => {
+                const toDisable = guesses.includes(item.toLowerCase());
+                const isCorrect = rightGuesses.includes(item.toLowerCase());
+                const isSelected = currentAlphabet.includes(item);
+                return (
+                  <AlphabetButton
+                    key={item}
+                    item={item}
+                    toDisable={toDisable}
+                    isCorrect={isCorrect}
+                    isSelected={isSelected}
+                    index={index}
+                    handleClick={setCurrentAlphabet} />
+                );
+              })}
             </HStack>
 
           </VStack>

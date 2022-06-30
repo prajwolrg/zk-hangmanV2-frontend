@@ -261,15 +261,9 @@ function GamePage() {
 				<VStack>
 					<Heading marginBottom={10}>Make your guess!</Heading>
 
+					<Figure playerLives={playerLives} />
 
-					<HStack>
-
-						<Figure playerLives={playerLives} />
-						<AlphabetList guesses={guesses} revealedKeys={revealedChars} />
-
-					</HStack>
 					<HStack style={{ marginTop: 60 }}>
-
 						<PinInput autoFocus type="alphanumeric"
 							isReadOnly
 							// placeholder="hello"
@@ -288,10 +282,10 @@ function GamePage() {
 									key={index}
 								/>
 							))}
-
 						</PinInput>
-
 					</HStack>
+
+					<AlphabetList guesses={guesses} revealedKeys={revealedChars} />
 				</VStack>
 			</Center>
 

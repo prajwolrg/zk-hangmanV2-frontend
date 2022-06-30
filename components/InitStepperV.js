@@ -2,6 +2,7 @@ import { Step, Steps, useSteps } from "chakra-ui-steps"
 import { Flex, Button, Heading, Center, VStack, Text, Spinner } from "@chakra-ui/react"
 import next from "next";
 import { useEffect } from "react";
+import { CloseIcon } from '@chakra-ui/icons'
 
 const steps = [
   { label: "Word", stepDetail: "Validating the word..." },
@@ -10,31 +11,39 @@ const steps = [
   { label: "Finalization", stepDetail: "Waiting for transaction to finalize" },
 ];
 
-
-export const InitStepperV = ({currentStep}) => {
+export const InitStepperV = ({ currentStep, error, errorMsg }) => {
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
   })
 
-  console.log(activeStep, currentStep)
+  console.log(`Active step: ${activeStep}, Current Step: ${currentStep}, Error: ${error}`)
   if (currentStep > activeStep) {
     nextStep()
   }
 
-  const Contents = ({detail}) => {
+  const Contents = ({ detail, error, errorMsg}) => {
     return (
-      <Center>
-        <VStack >
-					<Spinner
-						thickness="4px"
-						speed="0.65s"
-						emptyColor="gray.200"
-						color="blue.500"
-						size="xl"
-					/>
-          <Text>{detail}</Text>
-        </VStack>
-      </Center>
+      error ? (
+        <Center>
+          <VStack >
+          <CloseIcon w={6} h={6} color="red" />
+            <Text>{errorMsg}</Text>
+          </VStack >
+        </Center >
+      ) : (
+        <Center>
+          <VStack >
+            <Spinner
+              thickness="4px"
+              speed="0.65s"
+              emptyColor="gray.200"
+              color="blue.500"
+              size="xl"
+            />
+            <Text>{detail}</Text>
+          </VStack >
+        </Center >
+      )
     );
   };
 
@@ -43,7 +52,7 @@ export const InitStepperV = ({currentStep}) => {
       <Steps orientation="vertical" activeStep={activeStep}>
         {steps.map(({ label, stepDetail }, index) => (
           <Step width="100%" label={label} key={label}>
-            <Contents detail={stepDetail} />
+            <Contents detail={stepDetail} error={error} errorMsg={errorMsg}/>
           </Step>
         ))}
       </Steps>

@@ -48,13 +48,31 @@ yup.addMethod(yup.string, "ethereumAddress", function (errMsg) {
   });
 });
 
+yup.addMethod(yup.string, "validEnglishWord", function (errMsg) {
+  return this.test(`test-valid-english-word`, errMsg, async function (value) {
+    const { path, createError } = this;
+    const wordDetails = await checkWordValidity(value)
+    return (
+      wordDetails[0] ||
+      createError({
+        path,
+        message: errMsg ? errMsg : "Enter a valid English word",
+      })
+    );
+  });
+});
+
+
 let schema = yup.object().shape({
   playerAddress: yup.string().required().ethereumAddress(),
+  // word: yup.string().required().min(2).max(25).validEnglishWord(),
   word: yup.string().required().min(2).max(25),
   secret: yup.string().required().min(2).max(25),
 });
 
 export default function CreateNewGame() {
+  const [error, setError] = useState(false)
+  const [errorMsg, setErrorMsg] = useState("")
   const [dialogMessage, setDialogMessage] = useState();
   const [currentStep, setCurrentStep] = useState(0);
   const {
@@ -74,16 +92,21 @@ export default function CreateNewGame() {
   };
 
   const createGame = async ({ playerAddress, word, secret }) => {
+    setError(false)
+    setErrorMsg("")
+    setCurrentStep(0)
+
     console.log("creating game");
     onOpen();
     console.log(`Trying to create a game`);
 
     setDialogMessage(`Trying to validate word`);
+
     const [valid, res] = await checkWordValidity(word);
 
-    console.log("player address: ", playerAddress);
-    console.log("init verifier address: ", INIT_VERIFIER_ADDRESS);
-    console.log("guess verifier address: ", GUESS_VERIFIER_ADDRESS);
+    // console.log("player address: ", playerAddress);
+    // console.log("init verifier address: ", INIT_VERIFIER_ADDRESS);
+    // console.log("guess verifier address: ", GUESS_VERIFIER_ADDRESS);
 
     if (valid) {
       console.log("valid");
@@ -116,38 +139,49 @@ export default function CreateNewGame() {
 
       setDialogMessage("Awaiting transaction confirmation...");
 
-      let tx = await zkHangmanFactoryContract.createGame(
-        playerAddress,
-        INIT_VERIFIER_ADDRESS,
-        GUESS_VERIFIER_ADDRESS,
-        _a,
-        _b,
-        _c,
-        _input,
-        word.length
-      );
-      setCurrentStep(3);
+      try {
+        let tx = await zkHangmanFactoryContract.createGame(
+          playerAddress,
+          INIT_VERIFIER_ADDRESS,
+          GUESS_VERIFIER_ADDRESS,
+          _a,
+          _b,
+          _c,
+          _input,
+          word.length
+        );
+        setCurrentStep(3);
 
-      setDialogMessage("Waiting for transaction to finalize...");
+        setDialogMessage("Waiting for transaction to finalize...");
 
-      let txFinalized = await tx.wait();
-      setCurrentStep(4);
+        let txFinalized = await tx.wait();
+        setCurrentStep(4);
 
-      onClose();
+        onClose();
 
-      let filter = zkHangmanFactoryContract.filters.GameCreated(
-        accountAddress,
-        playerAddress
-      );
-      let filterResults = await zkHangmanFactoryContract.queryFilter(
-        filter,
-        -1000
-      );
-      let newGameAddress =
-        filterResults[filterResults.length - 1].args.gameAddress;
+        let filter = zkHangmanFactoryContract.filters.GameCreated(
+          accountAddress,
+          playerAddress
+        );
+        let filterResults = await zkHangmanFactoryContract.queryFilter(
+          filter,
+          -1000
+        );
+        let newGameAddress =
+          filterResults[filterResults.length - 1].args.gameAddress;
 
-      let href = "/game/" + newGameAddress;
-      router.push(href);
+        let href = "/game/" + newGameAddress;
+        router.push(href);
+
+      } catch (err) {
+        setError(true)
+        console.log(err)
+        setErrorMsg("User denied transaction signature!")
+      }
+    }
+    else {
+      setError(true)
+      setErrorMsg("Not a valid word. Try again!")
     }
   };
 
@@ -156,9 +190,9 @@ export default function CreateNewGame() {
       <Box bg="white" p={(0, 6, 0, 6)} rounded="md" w={"30vw"}>
         <Formik
           initialValues={{
-            playerAddress: "",
-            word: "",
-            secret: "",
+            playerAddress: "0x1F39D6a90AFb5B7C27034196A87EB399939E1df4",
+            word: "apple",
+            secret: "apple",
           }}
           onSubmit={(values) => {
             createGame(values);
@@ -216,12 +250,12 @@ export default function CreateNewGame() {
       </Box>
 
       <Box bg="transparent" p={6} rounded="md" w={640}>
-        <AlertDialog isOpen={isOpen} onClose={onClose}>
+        <AlertDialog isOpen={isOpen} onClose={onClose} closeOnOverlayClick={error}>
           <AlertDialogOverlay>
             <AlertDialogContent>
               <AlertDialogBody align="center" py={10}>
                 {/* <Text mb={7}> {dialogMessage} </Text> */}
-                <InitStepperV currentStep={currentStep}></InitStepperV>
+                <InitStepperV currentStep={currentStep} error={error} errorMsg={errorMsg}></InitStepperV>
                 {/* <Spinner
                   thickness="4px"
                   speed="0.65s"
