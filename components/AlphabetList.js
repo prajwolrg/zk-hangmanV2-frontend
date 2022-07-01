@@ -1,40 +1,15 @@
-import { Button, Center, Box, Text, VStack, HStack } from "@chakra-ui/react";
+import { Button, Center, Box, Text, VStack, HStack, Tooltip } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import AlphabetButton from "./AlphabetButton";
 
-export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
+export default function AlphabetList({ guesses, revealedKeys, handleSubmit, player, initialLetter }) {
   const alphabet = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-    // If qwerty is required
-    // ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
-    // ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
-    // ["Z", "X", "C", "V", "B", "N", "M"],
+    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+    "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
   ];
+
+  const abcd = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
+  const nopq = ["N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
   // If qwerty is required
   const querty = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
@@ -45,11 +20,13 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
   // const testWord = ["B", "A", "N", "A", "N", "A", "F"];
 
   //   Revealed Letters
-  const revelaedLetters = ["A", "N", "L", "P"];
+  // const revelaedLetters = ["A", "N", "L", "P"];
 
   const [selectedAlphabets, setSelectedAlphabets] = useState([]);
-  const [currentAlphabet, setCurrentAlphabet] = useState("");
+  const [currentAlphabet, setCurrentAlphabet] = useState(initialLetter);
   const [correctAlphabets, setCorrectAlphabets] = useState([]);
+
+  console.log(`Player: ${player}`)
 
   const [rightGuesses, setRightGuesses] = useState([]);
 
@@ -67,10 +44,11 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
     // console.log(`Right Guesses: ${_rightGuesses}`)
     setRightGuesses(_rightGuesses);
     // console.log(`Right Guesses: ${rightGuesses}`)
-  }, [guesses, revealedKeys]);
+    setCurrentAlphabet(initialLetter)
+  }, [guesses, revealedKeys, initialLetter]);
 
   return (
-    <div style={{ marginTop: 20, marginBottom: 100 }}>
+    <div style={{ marginTop: 20, marginBottom: 20 }}>
       <Center flexDirection={"column"}>
         <Text fontWeight={"bold"} marginBottom={5}>
           Chosen Alphabet: {currentAlphabet}
@@ -83,45 +61,74 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
           style={{ boxShadow: "4px 3px 2px grey" }}
         >
           <VStack>
+
             <HStack>
-              {querty.map((item, index) => {
+              {abcd.map((item, index) => {
                 const toDisable = guesses.includes(item.toLowerCase());
                 const isCorrect = rightGuesses.includes(item.toLowerCase());
                 const isSelected = currentAlphabet.includes(item);
                 return (
-                  <AlphabetButton
-                    key={item}
-                    item={item}
-                    toDisable={toDisable}
-                    isCorrect={isCorrect}
-                    isSelected={isSelected}
-                    index={index}
-                    handleClick={setCurrentAlphabet}
-                  />
+                  <Tooltip
+                    label={
+                      toDisable && isCorrect ?
+                        `${item} is already guessed and is correct.` :
+                        toDisable ?
+                          `${item} is already guessed and is incorrect` :
+                          player ?
+                            "Select to choose the alphabet" :
+                            "Only player can make a guess"
+                    }
+                    shouldWrapChildren>
+
+                    <AlphabetButton
+                      key={item}
+                      item={item}
+                      toDisable={toDisable}
+                      player={player}
+                      isCorrect={isCorrect}
+                      isSelected={isSelected}
+                      index={index}
+                      handleClick={setCurrentAlphabet}
+                    />
+                  </Tooltip>
                 );
               })}
             </HStack>
 
             <HStack>
-              {asdf.map((item, index) => {
+              {nopq.map((item, index) => {
                 const toDisable = guesses.includes(item.toLowerCase());
                 const isCorrect = rightGuesses.includes(item.toLowerCase());
                 const isSelected = currentAlphabet.includes(item);
                 return (
-                  <AlphabetButton
-                    key={item}
-                    item={item}
-                    toDisable={toDisable}
-                    isCorrect={isCorrect}
-                    isSelected={isSelected}
-                    index={index}
-                    handleClick={setCurrentAlphabet}
-                  />
+                  <Tooltip
+                    label={
+                      toDisable && isCorrect ?
+                        `${item} is already guessed and is correct.` :
+                        toDisable ?
+                          `${item} is already guessed and is incorrect` :
+                          player ?
+                            "Select to choose the alphabet" :
+                            "Only player can make a guess"
+                    }
+                    shouldWrapChildren>
+
+                    <AlphabetButton
+                      key={item}
+                      item={item}
+                      toDisable={toDisable}
+                      player={player}
+                      isCorrect={isCorrect}
+                      isSelected={isSelected}
+                      index={index}
+                      handleClick={setCurrentAlphabet}
+                    />
+                  </Tooltip>
                 );
               })}
             </HStack>
 
-            <HStack>
+            {/* <HStack>
               {zxcv.map((item, index) => {
                 const toDisable = guesses.includes(item.toLowerCase());
                 const isCorrect = rightGuesses.includes(item.toLowerCase());
@@ -138,7 +145,8 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
                   />
                 );
               })}
-            </HStack>
+            </HStack> */}
+
           </VStack>
 
           {/* {alphabet.map((item, index) => {
@@ -175,17 +183,44 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit }) {
             );
           })} */}
         </Box>
-        <Button
-          onClick={() => {
-            setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
-            handleSubmit(currentAlphabet);
-          }}
-          color={"white"}
-          backgroundColor={"#805AD5"}
-          marginTop={5}
+
+        {/* <Tooltip
+          label={player ? "" : "Only player can submit the guess"}
+          placement="bottom"
+          shouldWrapChildren
         >
-          Submit
-        </Button>
+          <Button
+            onClick={() => {
+              setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
+              handleSubmit(currentAlphabet);
+            }}
+            colorScheme={"purple"}
+            // color={"white"}
+            // backgroundColor={"#805AD5"}
+            marginTop={5}
+            isDisabled={!player}
+          >
+            Submit Guess
+          </Button>
+        </Tooltip> */}
+
+        {
+          player && (
+            <Button
+              onClick={() => {
+                setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
+                handleSubmit(currentAlphabet);
+              }}
+              colorScheme={"purple"}
+              // color={"white"}
+              // backgroundColor={"#805AD5"}
+              marginTop={5}
+            >
+              Submit Guess
+            </Button>
+          )
+        }
+
       </Center>
     </div>
   );

@@ -1,11 +1,19 @@
 import { Button } from "@chakra-ui/react";
 
-const AlphabetButton = ({item, index, toDisable, isCorrect, isSelected, handleClick }) => {
+const AlphabetButton = ({ item, index, toDisable, isCorrect, player, isSelected, handleClick }) => {
 	// console.log(`${key} is correct: ${isCorrect}`)
 	return (
 		<Button
-			colorScheme="purple"
-			disabled={toDisable}
+			// colorScheme="purple"
+
+			colorScheme={toDisable && isCorrect ?
+				"green" :
+				toDisable ?
+					"red" :
+					"purple"
+			}
+
+			disabled={toDisable || !player}
 			boxSize={"2.5vw"}
 			onClick={() => {
 				handleClick(item);
@@ -16,16 +24,17 @@ const AlphabetButton = ({item, index, toDisable, isCorrect, isSelected, handleCl
 				margin: "1em",
 			}}
 			color={"white"}
-			backgroundColor={
-				isCorrect && toDisable
-					? "green"
-					: toDisable
-						? "red.400"
-						: isSelected
-							? "purple"
-							: "#805AD5"
-			}
-			// key={index}
+
+		// backgroundColor={
+		// 	isCorrect && toDisable
+		// 		? "green"
+		// 		: toDisable
+		// 			? "red.400"
+		// 			: isSelected
+		// 				? "purple"
+		// 				: "#805AD5"
+		// }
+		// key={index}
 		>
 			{item}
 		</Button>
