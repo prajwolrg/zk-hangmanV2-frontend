@@ -2,7 +2,7 @@ import { HStack, PinInput, PinInputField } from "@chakra-ui/react";
 
 const RevealedLetters = ({ totalChars, revealedChars }) => {
   return (
-    <HStack style={{ marginTop: 20 }}>
+    <HStack style={{ marginTop: 20, marginBottom: 30 }}>
       <PinInput
         autoFocus
         type="alphanumeric"

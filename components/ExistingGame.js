@@ -44,7 +44,7 @@ export default function ExistingGame() {
   const router = useRouter();
 
   const gotoGame = ({ gameAddress }) => {
-    let href = "/game/" + gameAddress;
+    let href = "/play/" + gameAddress;
     router.push(href);
   };
 

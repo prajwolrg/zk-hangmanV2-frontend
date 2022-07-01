@@ -35,6 +35,7 @@ import AlphabetList from "../../components/AlphabetList";
 import ProcessGuess from "../../components/ProcessGuess";
 import RevealedLetters from "../../components/RevealedLetters";
 import { getGameStatus } from "../../utils/gameUtils";
+import next from "next";
 
 const zkHangmanAbi = zkHangman.abi;
 
@@ -65,7 +66,7 @@ function GamePage() {
   const [gameOver, setGameOver] = useState(false);
   const [gameWin, setGameWin] = useState(null);
 
-  const [turn, setTurn] = useState();
+  const [turn, setTurn] = useState(0);
 
   const [contractConnected, setContractConnected] = useState(false);
 
@@ -125,12 +126,14 @@ function GamePage() {
     setCurrentStep(2);
   };
 
-  const handleNextTurn = () => {
-    getContractData();
+  const handleNextTurn = async (nextTurn) => {
+    console.log(`State turn: ${turn}, Blockchain turn: ${nextTurn}`)
+    if (nextTurn > turn) {
+      getContractData();
+    }
   };
 
   useEffect(() => {
-    console.log("GameStats useEffect");
     if (!router.isReady) return;
 
     if (web3Modal.cachedProvider) {
@@ -157,28 +160,39 @@ function GamePage() {
   const getContractData = async () => {
     if (accountAddress) {
       const {
-        host,
-        player,
-        totalChars,
-        playerLives,
-        correctGuesses,
-        turn,
-        revealedChars,
-        guesses,
+        _host,
+        _player,
+        _totalChars,
+        _playerLives,
+        _correctGuesses,
+        _turn,
+        _revealedChars,
+        _guesses,
       } = await getGameStatus(gameContract, signer);
 
-      setHostAddress(host);
-      setPlayerAddress(player);
-      setTotalChars(totalChars);
-      setPlayerLives(playerLives);
-      setCorrectGuesses(correctGuesses);
-      setTurn(turn);
-      setRevealedChars(revealedChars);
-      setGuesses(guesses);
+      setHostAddress(_host);
+      setPlayerAddress(_player);
+      setTotalChars(_totalChars);
+      setPlayerLives(_playerLives);
+      setCorrectGuesses(_correctGuesses);
+      setTurn(_turn);
+      setRevealedChars(_revealedChars);
+      setGuesses(_guesses);
 
       setContractConnected(true);
 
-      setLastValidGuess("");
+      if (_turn % 2 == 0) {
+        if (_guesses.length > 0) {
+          const lastGuess = _guesses[_guesses.length - 1].toUpperCase()
+          console.log(`Last guess was: ${lastGuess}`)
+          setLastValidGuess(lastGuess);
+        }
+      }
+
+      if (_turn % 2 == 1) {
+        setLastValidGuess("");
+        onClose()
+      }
     }
   };
 
@@ -189,16 +203,6 @@ function GamePage() {
   const errors = 0;
   const [openModal, setOpenModal] = useState(false);
   const [guessedLetter, setGuessedLetter] = useState("");
-
-  const handleKeyDown = (e) => {
-    setOpenModal(!openModal);
-    if (isValidChar(e.key)) {
-      setLastValidGuess(e.key);
-    }
-    if (e.key == "Enter") {
-      submitGuess({ guess: lastValidGuess });
-    }
-  };
 
   return (
     <>
@@ -215,8 +219,12 @@ function GamePage() {
         backgroundColor="whitesmoke"
       >
         <VStack>
-          {accountAddress && accountAddress == playerAddress && (
+          {accountAddress && accountAddress == playerAddress && turn % 2 == 1 && (
             <Heading marginBottom={10}>Make your guess!</Heading>
+          )}
+
+          {accountAddress && accountAddress == hostAddress && turn % 2 == 0 && (
+            <Heading marginBottom={10}>Process the guess!</Heading>
           )}
 
           <Figure playerLives={playerLives} />
@@ -230,11 +238,14 @@ function GamePage() {
             guesses={guesses}
             revealedKeys={revealedChars}
             handleSubmit={handleGuessSubmit}
+            player={accountAddress == playerAddress}
+            initialLetter={lastValidGuess}
           />
 
           {accountAddress && accountAddress == hostAddress && turn % 2 == 0 && (
             <ProcessGuess turn={turn} />
           )}
+
         </VStack>
       </Center>
 
