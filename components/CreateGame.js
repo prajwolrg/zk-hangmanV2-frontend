@@ -76,6 +76,7 @@ export default function CreateNewGame() {
   const [dialogMessage, setDialogMessage] = useState();
   const [currentStep, setCurrentStep] = useState(0);
   const [gameUrl, setGameUrl] = useState(null)
+  const [gameAddress, setGameAddress] = useState(null)
   const {
     ZK_HANGMAN_FACTORY_ADDRESS,
     INIT_VERIFIER_ADDRESS,
@@ -172,12 +173,7 @@ export default function CreateNewGame() {
 
         let href = "/play/" + newGameAddress;
 
-        let newGameURL
-        if (typeof window !== 'undefined') {
-          newGameURL = `${window.location.hostname}/play/${newGameAddress}`
-        }
-        console.log(`New Game URL: ${newGameURL}`)
-        setGameUrl(newGameURL)
+        setGameAddress(newGameAddress)
         setCurrentStep(4);
 
         // router.push(href);
@@ -264,7 +260,7 @@ export default function CreateNewGame() {
             <AlertDialogContent>
               <AlertDialogBody align="center" py={10}>
                 {/* <Text mb={7}> {dialogMessage} </Text> */}
-                <InitStepperV currentStep={currentStep} error={error} errorMsg={errorMsg} gameUrl={gameUrl}></InitStepperV>
+                <InitStepperV currentStep={currentStep} error={error} errorMsg={errorMsg} gameAddress={gameAddress}></InitStepperV>
                 {/* <Spinner
                   thickness="4px"
                   speed="0.65s"

@@ -1,7 +1,7 @@
 import { Step, Steps, useSteps } from "chakra-ui-steps"
 import { Flex, Button, Heading, Center, VStack, Text, Spinner, HStack } from "@chakra-ui/react"
 import next from "next";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CloseIcon } from '@chakra-ui/icons'
 
 import {
@@ -55,6 +55,7 @@ import {
   WeiboIcon,
   HatenaIcon,
 } from 'react-share';
+import { useRouter } from "next/router";
 
 const steps = [
   { label: "Word", stepDetail: "Validating the word..." },
@@ -63,15 +64,29 @@ const steps = [
   { label: "Finalization", stepDetail: "Waiting for transaction to finalize" },
 ];
 
-export const InitStepperV = ({ currentStep, error, errorMsg, gameUrl }) => {
+export const InitStepperV = ({ currentStep, error, errorMsg, gameAddress }) => {
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
   })
+
+  const [gameUrl, setGameUrl] = useState()
 
   // console.log(`Active step: ${activeStep}, Current Step: ${currentStep}, Error: ${error}`)
   if (currentStep > activeStep) {
     nextStep()
   }
+
+  const router = useRouter()
+  const goToGame=() => {
+    router.push(`play/${gameAddress}`)
+  }
+
+  useEffect(()=> {
+    let newGameURL = `${window.location.hostname}/play/${gameAddress}`
+    setGameUrl(newGameURL)
+  }, [gameAddress])
+
+
 
   const Contents = ({ detail, error, errorMsg }) => {
     return (
@@ -115,17 +130,67 @@ export const InitStepperV = ({ currentStep, error, errorMsg, gameUrl }) => {
             The game is successfully created!
           </Heading>
 
-          <Button mx="auto" mt={6} size="sm" onClick={reset}>
-            Go To Game
-          </Button>
+          <HStack mt={6} justifyContent={"center"}>
+            <Button size="sm" onClick={goToGame}>
+              Go To Game
+            </Button>
+            {/* <Button size="sm" onClick={reset}>
+              Copy Game URL
+            </Button> */}
+          </HStack>
 
-          <HStack>
+          <Heading fontSize="xl" textAlign="center" marginTop={10}>Invite your friend for a challenge!</Heading>
+          <HStack justifyContent={"center"} marginTop={5}>
             <FacebookShareButton
               url={gameUrl}
+              quote={"Guess the letters!"}
+              hashtag={"ZeroKnowledge"}
             >
               <FacebookIcon size={32} round />
             </FacebookShareButton>
 
+            <LinkedinShareButton
+              url={gameUrl}
+              title={"Guess the letters!"}
+            >
+              <LinkedinIcon size={32} round />
+            </LinkedinShareButton>
+
+            <TelegramShareButton
+              url={gameUrl}
+              title={"Guess the letters!"}
+            >
+              <TelegramIcon size={32} round />
+            </TelegramShareButton>
+
+            <RedditShareButton
+              url={gameUrl}
+              title={"Guess the letters!"}
+            >
+              <RedditIcon size={32} round />
+            </RedditShareButton>
+
+            <TwitterShareButton
+              url={gameUrl}
+              title={"Guess the letters!"}
+              hashtags={["hangman", "zeroknowledge", "harmonyzku"]}
+            >
+              <TwitterIcon size={32} round />
+            </TwitterShareButton>
+
+            <ViberShareButton
+              url={gameUrl}
+              title={"Guess the letters!"}
+            >
+              <ViberIcon size={32} round />
+            </ViberShareButton>
+
+            <WhatsappShareButton
+              url={gameUrl}
+              title={"Guess the letters!"}
+            >
+              <WhatsappIcon size={32} round />
+            </WhatsappShareButton>
           </HStack>
 
         </Flex>
