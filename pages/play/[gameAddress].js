@@ -159,6 +159,8 @@ function GamePage() {
 
   const getContractData = async () => {
     if (accountAddress) {
+      const gameStatus = await getGameStatus(gameContract, signer)
+      console.log(gameStatus)
       const {
         _host,
         _player,
@@ -168,7 +170,7 @@ function GamePage() {
         _turn,
         _revealedChars,
         _guesses,
-      } = await getGameStatus(gameContract, signer);
+      } = gameStatus;
 
       setHostAddress(_host);
       setPlayerAddress(_player);
