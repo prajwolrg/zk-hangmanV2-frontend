@@ -46,16 +46,16 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 		let _player = await zkHangmanContract.player();
 		console.log("player:", _player)
 
-		let _totalChars = parseInt(await zkHangmanContract.totalChars(), 16)
+		let _totalChars = parseInt(await zkHangmanContract.totalChars())
 		console.log("total chars: ", _totalChars);
 
-		let _playerLives = parseInt(await zkHangmanContract.playerLives(), 16);
+		let _playerLives = parseInt(await zkHangmanContract.playerLives());
 		console.log("player Lives: ", _playerLives);
 
-		let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses(), 16);
+		let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses());
 		console.log("correct guesses: ", _correctGuesses);
 
-		let _turn = parseInt((await zkHangmanContract.turn())._hex, 16);
+		let _turn = parseInt((await zkHangmanContract.turn())._hex);
 		console.log("turn", _turn)
 
 		let _revealedChars = await refreshRevealedChars(zkHangmanContract, _totalChars)
