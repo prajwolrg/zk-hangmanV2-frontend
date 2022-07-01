@@ -52,22 +52,28 @@ if (typeof window !== 'undefined') {
 	});
 }
 
-export default function ProcessGuess({turn}) {
+export default function ProcessGuess({ turn }) {
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
-  const [dialogMessage, setDialogMessage] = useState('');
-  const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
+	const [dialogMessage, setDialogMessage] = useState('');
+	const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
+
+	const [error, setError] = useState(false)
+	const [errorMsg, setErrorMsg] = useState("")
 
 	const [currentStep, setCurrentStep] = useState(0)
 
-  const router = useRouter();
-  const { gameAddress } = router.query;
-  const gameContract = gameAddress;
+	const router = useRouter();
+	const { gameAddress } = router.query;
+	const gameContract = gameAddress;
 
 
 	const processGuess = async ({ secret }) => {
 
+		setError(false)
+		setErrorMsg("")
+		setCurrentStep(0)
 		console.log("secret: ", secret);
 
 		// setDialogMessage("Generating proof...");
@@ -80,7 +86,9 @@ export default function ProcessGuess({turn}) {
 			signer
 		)
 
-		let hexLatestGuess = await zkHangmanContract.guesses(Math.floor((turn-1)/2));
+		let hexLatestGuess = await zkHangmanContract.guesses(Math.floor((turn - 1) / 2));
+		let hexSecretHash = await zkHangmanContract.secretHash()
+
 		console.log("turn: ", turn);
 		console.log("index: ", Math.floor((turn - 1) / 2));
 		console.log("hex latest guess: ", hexLatestGuess._hex);
@@ -92,35 +100,46 @@ export default function ProcessGuess({turn}) {
 			secret: BigInt(ethers.BigNumber.from(ethers.utils.id(secret)))
 		}
 
-		console.log(inputObject);
+		// console.log(inputObject);
 
-		const {_a, _b, _c, _input} = await getGuessProofParams(inputObject)
+		const { _a, _b, _c, _input } = await getGuessProofParams(inputObject)
 
-		setCurrentStep(1)
-		setDialogMessage("Awaiting transaction confirmation...");
-		console.log("Awaiting transaction confirmation...");
+		console.log(`Secret Hash Stored: ${BigInt(hexSecretHash)}`)
+		console.log(`Secret Hash Generated: ${BigInt(_input[0])}`)
+		if (BigInt(hexSecretHash) == BigInt(_input[0])) {
+			setCurrentStep(1)
+			setDialogMessage("Awaiting transaction confirmation...");
+			console.log("Awaiting transaction confirmation...");
 
-		let tx = await zkHangmanContract.processGuess(_a, _b, _c, _input);
-		setCurrentStep(2)
+			try {
+				let tx = await zkHangmanContract.processGuess(_a, _b, _c, _input);
+				setCurrentStep(2)
 
-		setDialogMessage("Waiting for transaction to finalize...");
-		console.log("Waiting for transaction to finalize...");
+				setDialogMessage("Waiting for transaction to finalize...");
+				console.log("Waiting for transaction to finalize...");
 
-		console.log(tx);
+				console.log(tx);
 
-		let txFinalized = await tx.wait();
+				let txFinalized = await tx.wait();
 
-		onClose();
+				onClose();
 
-		console.log(txFinalized);
-
+				console.log(txFinalized);
+			} catch (err) {
+				setError(true)
+				console.log(err)
+				setErrorMsg("User denied transaction signature")
+			}
+		}
+		else {
+			setError(true)
+			setErrorMsg("Use the same secret used to create the game!")
+		}
 	}
 
 
 	return (
-		<VStack width={500}>
-			<Heading size="md"> You are the host. Process the guess. If the value of the secret field below
-				is empty, enter the secret you set in the init process! </Heading>
+		<>
 			<Formik
 				initialValues={{
 					secret: "",
@@ -159,15 +178,14 @@ export default function ProcessGuess({turn}) {
 				<AlertDialogOverlay>
 					<AlertDialogContent>
 						<AlertDialogBody align="center" py={10}>
-								<GuessProcessStepper currentStep={currentStep} />
+							<GuessProcessStepper currentStep={currentStep} error={error} errorMsg={errorMsg} />
 							{/* <Text mb={7}> {dialogMessage} </Text>
 							<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> */}
 						</AlertDialogBody>
 					</AlertDialogContent>
 				</AlertDialogOverlay>
 			</AlertDialog>
-
-		</VStack >
+		</>
 
 	);
 }

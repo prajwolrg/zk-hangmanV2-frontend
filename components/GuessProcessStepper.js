@@ -2,6 +2,7 @@ import { Step, Steps, useSteps } from "chakra-ui-steps"
 import { Flex, Button, Heading, Center, VStack, Text, Spinner } from "@chakra-ui/react"
 import next from "next";
 import { useEffect } from "react";
+import { CloseIcon } from "@chakra-ui/icons";
 
 const steps = [
   { label: "Proof", stepDetail: "Generating proof to process the guess..." },
@@ -10,7 +11,7 @@ const steps = [
 ];
 
 
-export const GuessProcessStepper = ({currentStep}) => {
+export const GuessProcessStepper = ({currentStep, error, errorMsg}) => {
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
   })
@@ -22,18 +23,27 @@ export const GuessProcessStepper = ({currentStep}) => {
 
   const Contents = ({detail}) => {
     return (
-      <Center>
-        <VStack >
-					<Spinner
-						thickness="4px"
-						speed="0.65s"
-						emptyColor="gray.200"
-						color="blue.500"
-						size="xl"
-					/>
-          <Text>{detail}</Text>
-        </VStack>
-      </Center>
+      error ? (
+        <Center>
+          <VStack >
+          <CloseIcon w={6} h={6} color="red" />
+            <Text>{errorMsg}</Text>
+          </VStack >
+        </Center >
+      ) : (
+        <Center>
+          <VStack >
+            <Spinner
+              thickness="4px"
+              speed="0.65s"
+              emptyColor="gray.200"
+              color="blue.500"
+              size="xl"
+            />
+            <Text>{detail}</Text>
+          </VStack >
+        </Center >
+      )
     );
   };
 
@@ -42,7 +52,7 @@ export const GuessProcessStepper = ({currentStep}) => {
       <Steps orientation="vertical" activeStep={activeStep}>
         {steps.map(({ label, stepDetail }, index) => (
           <Step width="100%" label={label} key={label}>
-            <Contents detail={stepDetail} />
+            <Contents detail={stepDetail} error={error} errorMsg={errorMsg} />
           </Step>
         ))}
       </Steps>
