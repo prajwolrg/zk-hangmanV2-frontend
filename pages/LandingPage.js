@@ -3,18 +3,39 @@ import React, { useEffect, useState } from "react";
 import ExistingGame from "../components/ExistingGame";
 import CreateNewGame from "../components/CreateGame";
 import { useConnection } from "../context/ConnectionContext";
+import { useRouter } from "next/router";
 export default function LandingPage() {
+
   const [selectedMode, setSelectedMode] = useState("Host");
   const [isConnected, setIsConnected] = useState(false);
   const { accountAddress, isNetworkSupported } = useConnection();
+  const [gameAddress, setGameAddress] = useState("");
+
+  const router = useRouter()
 
   useEffect(() => {
-    console.log(`Network support: ${isNetworkSupported}`);
+    // console.log(`Network support: ${isNetworkSupported}`);
+    // console.log(`Selected Mode: ${selectedMode}`)
     if (accountAddress == null || !isNetworkSupported) {
       setIsConnected(false);
     } else {
       setIsConnected(true);
     }
+
+    if (router.query) {
+      const mode = router.query.mode
+      const gameAddress = router.query.gameAddress
+      if (mode) {
+        if (mode == 'player' || mode == 'Player') {
+          setSelectedMode('Player')
+          if (gameAddress) {
+            setGameAddress(gameAddress)
+          }
+        }
+
+      }
+    }
+
   }, [accountAddress, isNetworkSupported]);
   return (
     <Flex
@@ -99,7 +120,7 @@ export default function LandingPage() {
         ) : selectedMode === "Player" ? (
           <VStack marginTop="5vh">
             <Heading mb="10px"> Join existing game </Heading>
-            <ExistingGame />
+            <ExistingGame gameAddress={gameAddress}/>
           </VStack>
         ) : null}
       </Box>

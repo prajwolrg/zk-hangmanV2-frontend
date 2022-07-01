@@ -82,7 +82,7 @@ export const InitStepperV = ({ currentStep, error, errorMsg, gameAddress }) => {
   }
 
   useEffect(()=> {
-    let newGameURL = `${window.location.hostname}/play/${gameAddress}`
+    let newGameURL = `${window.location.hostname}/?mode=player&gameAddress=${gameAddress}`
     setGameUrl(newGameURL)
   }, [gameAddress])
 

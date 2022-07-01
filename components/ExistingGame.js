@@ -40,7 +40,7 @@ let schema = yup.object().shape({
   gameAddress: yup.string().required().ethereumAddress(),
 });
 
-export default function ExistingGame() {
+export default function ExistingGame({gameAddress}) {
   const router = useRouter();
 
   const gotoGame = ({ gameAddress }) => {
@@ -52,8 +52,7 @@ export default function ExistingGame() {
     <Box bg="white" p={6} rounded="md" w={"30vw"}>
       <Formik
         initialValues={{
-          gameAddress: "",
-          playerAddress: "",
+          gameAddress: gameAddress,
         }}
         onSubmit={(values) => {
           gotoGame(values);

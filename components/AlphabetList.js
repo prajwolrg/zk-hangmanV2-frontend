@@ -26,7 +26,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
   const [currentAlphabet, setCurrentAlphabet] = useState(initialLetter);
   const [correctAlphabets, setCorrectAlphabets] = useState([]);
 
-  console.log(`Player: ${player}`)
+  // console.log(`Player: ${player}`)
 
   const [rightGuesses, setRightGuesses] = useState([]);
 
