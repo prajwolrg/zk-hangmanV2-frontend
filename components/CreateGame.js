@@ -156,7 +156,6 @@ export default function CreateNewGame() {
         setDialogMessage("Waiting for transaction to finalize...");
 
         let txFinalized = await tx.wait();
-        setCurrentStep(4);
 
         // onClose();
 
@@ -179,6 +178,7 @@ export default function CreateNewGame() {
         }
         console.log(`New Game URL: ${newGameURL}`)
         setGameUrl(newGameURL)
+        setCurrentStep(4);
 
         // router.push(href);
 

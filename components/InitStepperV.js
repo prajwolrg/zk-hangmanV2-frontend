@@ -121,7 +121,7 @@ export const InitStepperV = ({ currentStep, error, errorMsg, gameUrl }) => {
 
           <HStack>
             <FacebookShareButton
-              url={""}
+              url={gameUrl}
             >
               <FacebookIcon size={32} round />
             </FacebookShareButton>
