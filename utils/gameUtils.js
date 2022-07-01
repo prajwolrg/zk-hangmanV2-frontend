@@ -32,7 +32,7 @@ const refreshGuesses = async (zkHangmanContract, turn) => {
 
 export const getGameStatus = async (gameContractAddress, signer) => {
 	console.log('Getting contract data')
-	console.log(gameContractAddress, zkHangmanAbi, signer)
+	// console.log(gameContractAddress, zkHangmanAbi, signer)
 	try {
 		const zkHangmanContract = new ethers.Contract(
 			gameContractAddress,
@@ -40,29 +40,10 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 			signer
 		);
 
-		let _host = await zkHangmanContract.host();
-		console.log("host:", _host)
+		let _gameInfo = await zkHangmanContract.getGameInfo()
+		// console.log(_gameInfo)
 
-		let _player = await zkHangmanContract.player();
-		console.log("player:", _player)
-
-		let _totalChars = parseInt(await zkHangmanContract.totalChars())
-		console.log("total chars: ", _totalChars);
-
-		let _playerLives = parseInt(await zkHangmanContract.playerLives());
-		console.log("player Lives: ", _playerLives);
-
-		let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses());
-		console.log("correct guesses: ", _correctGuesses);
-
-		let _turn = parseInt((await zkHangmanContract.turn())._hex);
-		console.log("turn", _turn)
-
-		let _revealedChars = await refreshRevealedChars(zkHangmanContract, _totalChars)
-
-		let _guesses = await refreshGuesses(zkHangmanContract, _turn)
-
-		return {
+		let {
 			_host,
 			_player,
 			_totalChars,
@@ -71,6 +52,70 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 			_turn,
 			_revealedChars,
 			_guesses
+		} = _gameInfo
+
+		// let _host = await zkHangmanContract.host();
+		// console.log("host:", _host)
+
+		// let _player = await zkHangmanContract.player();
+		// console.log("player:", _player)
+
+		// let _totalChars = parseInt(await zkHangmanContract.totalChars())
+		// console.log("total chars: ", _totalChars);
+
+		// let _playerLives = parseInt(await zkHangmanContract.playerLives());
+		// console.log("player Lives: ", _playerLives);
+
+		// let _correctGuesses = parseInt(await zkHangmanContract.correctGuesses());
+		// console.log("correct guesses: ", _correctGuesses);
+
+		// let _turn = parseInt((await zkHangmanContract.turn())._hex);
+		// console.log("turn", _turn)
+
+		// let _revealedChars = await refreshRevealedChars(zkHangmanContract, _totalChars)
+
+		// let _guesses = await refreshGuesses(zkHangmanContract, _turn)
+
+		_totalChars = parseInt(_totalChars)
+		// console.log("total chars: ", _totalChars);
+
+		_playerLives = parseInt(_playerLives)
+		// console.log("player Lives: ", _playerLives);
+
+		_turn = parseInt(_turn)
+		// console.log("turn", _turn)
+
+		_correctGuesses = parseInt(_correctGuesses)
+		// console.log("correct guesses: ", _correctGuesses);
+
+		let _parsedRevealedChars = []
+		for (let i = 0; i < _revealedChars.length; i++) {
+			let _parsedInt = parseInt(_revealedChars[i]) + 97
+			let _parsedChar = String.fromCharCode(63)
+			if (_parsedInt < 123) {
+				_parsedChar = String.fromCharCode(_parsedInt)
+			}
+			_parsedRevealedChars.push(_parsedChar)
+		}
+		console.log(_parsedRevealedChars)
+
+		let _parsedGuesses = []
+		for (let i = 0; i < _guesses.length; i++) {
+			let _parsedInt = parseInt(_revealedChars[i]) + 97
+			let _parsedChar = String.fromCharCode(_parsedInt)
+			_parsedGuesses.push(_parsedChar)
+		}
+		console.log(_parsedGuesses)
+
+		return {
+			_host,
+			_player,
+			_totalChars,
+			_playerLives,
+			_correctGuesses,
+			_turn,
+			_revealedChars: _parsedRevealedChars,
+			_guesses: _parsedGuesses
 		}
 
 
