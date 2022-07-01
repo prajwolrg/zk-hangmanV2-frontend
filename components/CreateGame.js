@@ -75,6 +75,7 @@ export default function CreateNewGame() {
   const [errorMsg, setErrorMsg] = useState("")
   const [dialogMessage, setDialogMessage] = useState();
   const [currentStep, setCurrentStep] = useState(0);
+  const [gameUrl, setGameUrl] = useState(null)
   const {
     ZK_HANGMAN_FACTORY_ADDRESS,
     INIT_VERIFIER_ADDRESS,
@@ -157,7 +158,7 @@ export default function CreateNewGame() {
         let txFinalized = await tx.wait();
         setCurrentStep(4);
 
-        onClose();
+        // onClose();
 
         let filter = zkHangmanFactoryContract.filters.GameCreated(
           accountAddress,
@@ -171,7 +172,15 @@ export default function CreateNewGame() {
           filterResults[filterResults.length - 1].args.gameAddress;
 
         let href = "/play/" + newGameAddress;
-        router.push(href);
+
+        let newGameURL
+        if (typeof window !== 'undefined') {
+          newGameURL = `${window.location.hostname}/play/${newGameAddress}`
+        }
+        console.log(`New Game URL: ${newGameURL}`)
+        setGameUrl(newGameURL)
+
+        // router.push(href);
 
       } catch (err) {
         setError(true)
@@ -255,7 +264,7 @@ export default function CreateNewGame() {
             <AlertDialogContent>
               <AlertDialogBody align="center" py={10}>
                 {/* <Text mb={7}> {dialogMessage} </Text> */}
-                <InitStepperV currentStep={currentStep} error={error} errorMsg={errorMsg}></InitStepperV>
+                <InitStepperV currentStep={currentStep} error={error} errorMsg={errorMsg} gameUrl={gameUrl}></InitStepperV>
                 {/* <Spinner
                   thickness="4px"
                   speed="0.65s"
