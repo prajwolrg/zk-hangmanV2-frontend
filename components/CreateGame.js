@@ -64,7 +64,7 @@ yup.addMethod(yup.string, "validEnglishWord", function (errMsg) {
 
 
 let schema = yup.object().shape({
-  playerAddress: yup.string().required().ethereumAddress(),
+  // playerAddress: yup.string().required().ethereumAddress(),
   // word: yup.string().required().min(2).max(25).validEnglishWord(),
   word: yup.string().required().min(2).max(25),
   secret: yup.string().required().min(2).max(25),
@@ -93,7 +93,7 @@ export default function CreateNewGame() {
     setCurrentStep(currentStep + 1);
   };
 
-  const createGame = async ({ playerAddress, word, secret }) => {
+  const createGame = async ({ word, secret }) => {
     setError(false)
     setErrorMsg("")
     setCurrentStep(0)
@@ -143,7 +143,7 @@ export default function CreateNewGame() {
 
       try {
         let tx = await zkHangmanFactoryContract.createGame(
-          playerAddress,
+          // playerAddress,
           INIT_VERIFIER_ADDRESS,
           GUESS_VERIFIER_ADDRESS,
           _a,
@@ -162,7 +162,7 @@ export default function CreateNewGame() {
 
         let filter = zkHangmanFactoryContract.filters.GameCreated(
           accountAddress,
-          playerAddress
+          // playerAddress
         );
         let filterResults = await zkHangmanFactoryContract.queryFilter(
           filter,
@@ -195,7 +195,7 @@ export default function CreateNewGame() {
       <Box bg="white" p={(0, 6, 0, 6)} rounded="md" w={"30vw"}>
         <Formik
           initialValues={{
-            playerAddress: "0xbe9dAc15BE3EBE0A1dB1dae69fc0948e1Bb75226",
+            // playerAddress: "0xbe9dAc15BE3EBE0A1dB1dae69fc0948e1Bb75226",
             word: "apple",
             secret: "apple",
           }}
@@ -207,7 +207,7 @@ export default function CreateNewGame() {
           {({ handleSubmit, errors, touched }) => (
             <form onSubmit={handleSubmit}>
               <VStack spacing={9} align="flex-start">
-                <FormControl
+                {/* <FormControl
                   isInvalid={!!errors.playerAddress && touched.playerAddress}
                 >
                   <FormLabel>Player Address</FormLabel>
@@ -219,7 +219,7 @@ export default function CreateNewGame() {
                     variant="filled"
                   />
                   <FormErrorMessage>{errors.playerAddress}</FormErrorMessage>
-                </FormControl>
+                </FormControl> */}
 
                 <FormControl isInvalid={!!errors.word && touched.word}>
                   <FormLabel>Select a word</FormLabel>
