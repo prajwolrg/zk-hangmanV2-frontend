@@ -9,7 +9,7 @@ const RevealedLetters = ({ totalChars, revealedChars }) => {
         isReadOnly
         // placeholder="hello"
         // isDisabled
-        value={revealedChars.join("")}
+        value={revealedChars.join("").toUpperCase()}
       >
         {[...Array(totalChars)].map((item, index) => (
           <PinInputField
