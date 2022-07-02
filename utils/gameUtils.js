@@ -101,7 +101,7 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 
 		let _parsedGuesses = []
 		for (let i = 0; i < _guesses.length; i++) {
-			let _parsedInt = parseInt(_revealedChars[i]) + 97
+			let _parsedInt = parseInt(_guesses[i]) + 97
 			let _parsedChar = String.fromCharCode(_parsedInt)
 			_parsedGuesses.push(_parsedChar)
 		}
