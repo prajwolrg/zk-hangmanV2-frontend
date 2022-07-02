@@ -1,5 +1,5 @@
 import { Step, Steps, useSteps } from "chakra-ui-steps"
-import { Flex, Button, Heading, Center, VStack, Text, Spinner, HStack } from "@chakra-ui/react"
+import { Flex, Button, Heading, Center, VStack, Text, Spinner, HStack, useClipboard } from "@chakra-ui/react"
 import next from "next";
 import { useEffect, useState } from "react";
 import { CloseIcon } from '@chakra-ui/icons'
@@ -71,6 +71,8 @@ export const InitStepperV = ({ currentStep, error, errorMsg, gameAddress }) => {
 
   const [gameUrl, setGameUrl] = useState()
 
+  const {hasCopied, onCopy} = useClipboard(gameUrl)
+
   // console.log(`Active step: ${activeStep}, Current Step: ${currentStep}, Error: ${error}`)
   if (currentStep > activeStep) {
     nextStep()
@@ -134,9 +136,9 @@ export const InitStepperV = ({ currentStep, error, errorMsg, gameAddress }) => {
             <Button size="sm" onClick={goToGame}>
               Go To Game
             </Button>
-            {/* <Button size="sm" onClick={reset}>
-              Copy Game URL
-            </Button> */}
+            <Button size="sm" onClick={onCopy}>
+            {hasCopied? 'Invitation Link Copied' : 'Copy Invitation Link'}
+            </Button>
           </HStack>
 
           <Heading fontSize="xl" textAlign="center" marginTop={10}>Invite your friend for a challenge!</Heading>
