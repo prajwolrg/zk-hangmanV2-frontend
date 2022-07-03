@@ -37,3 +37,14 @@ export const isValidChar = (char) => {
 	}
 	return true
 }
+
+export const getRandomWord = async () => {
+	const endpoint = 'https://random-word-api.herokuapp.com/word/?lang=en'
+	try {
+		const res = await axios.get(endpoint)
+		// console.log(res.data[0])
+		return res.data[0]
+	} catch (err) {
+		console.log(err)
+	}
+}

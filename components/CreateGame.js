@@ -17,6 +17,9 @@ import {
   AlertDialogBody,
   Spinner,
   Text,
+  InputRightElement,
+  InputGroup,
+  Tooltip,
 } from "@chakra-ui/react";
 
 import * as yup from "yup";
@@ -28,9 +31,10 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 
 import { getInitProofParams } from "../utils/proofUtils";
-import { checkWordValidity, getParsedChars } from "../utils/wordUtils";
+import { checkWordValidity, getParsedChars, getRandomWord } from "../utils/wordUtils";
 import { InitStepper } from "./InitStepper";
 import InitStepperV from "./InitStepperV";
+import { RepeatIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const zkHangmanFactoryAbi = zkHangmanFactory.abi;
 
@@ -77,6 +81,8 @@ export default function CreateNewGame() {
   const [currentStep, setCurrentStep] = useState(0);
   const [gameUrl, setGameUrl] = useState(null)
   const [gameAddress, setGameAddress] = useState(null)
+  const [show, setShow] = useState(false)
+  const [initialWord, setInitialWord] = useState("")
   const {
     ZK_HANGMAN_FACTORY_ADDRESS,
     INIT_VERIFIER_ADDRESS,
@@ -92,6 +98,12 @@ export default function CreateNewGame() {
   const nextStep = () => {
     setCurrentStep(currentStep + 1);
   };
+
+  const getNewRandomWord = async () => {
+    const word = await getRandomWord()
+    console.log(word)
+    setInitialWord(word)
+  }
 
   const createGame = async ({ word, secret }) => {
     setError(false)
@@ -173,7 +185,8 @@ export default function CreateNewGame() {
         let href = "/play/" + newGameAddress;
 
         setGameAddress(newGameAddress)
-        localStorage.setItem(newGameAddress, modSecret)
+        localStorage.setItem(`${newGameAddress}_secret`, modSecret)
+        localStorage.setItem(`${newGameAddress}_word`, word)
         setCurrentStep(4);
 
         // router.push(href);
@@ -196,8 +209,8 @@ export default function CreateNewGame() {
         <Formik
           initialValues={{
             // playerAddress: "0xbe9dAc15BE3EBE0A1dB1dae69fc0948e1Bb75226",
-            word: "apple",
-            secret: "apple",
+            word: "",
+            secret: "",
           }}
           onSubmit={(values) => {
             createGame(values);
@@ -222,26 +235,43 @@ export default function CreateNewGame() {
                 </FormControl> */}
 
                 <FormControl isInvalid={!!errors.word && touched.word}>
-                  <FormLabel>Select a word</FormLabel>
-                  <Field
-                    as={Input}
-                    id="word"
-                    name="word"
-                    type="text"
-                    variant="filled"
-                  />
+                  <FormLabel>Enter a word</FormLabel>
+                  {/* <InputGroup> */}
+                    <Field
+                      as={Input}
+                      id="word"
+                      name="word"
+                      type="text"
+                      variant="filled"
+                    />
+                    {/* <InputRightElement width='3rem'>
+                      <Tooltip label="Click to generate a word randomly">
+                        <Button h='1.75rem' size='sm' onClick={getNewRandomWord}>
+                          <RepeatIcon />
+                        </Button>
+                      </Tooltip>
+                    </InputRightElement> */}
+                  {/* </InputGroup> */}
+
                   <FormErrorMessage>{errors.word}</FormErrorMessage>
                 </FormControl>
 
                 <FormControl isInvalid={!!errors.secret && touched.secret}>
                   <FormLabel>Secret</FormLabel>
-                  <Field
-                    as={Input}
-                    id="secret"
-                    name="secret"
-                    type="text"
-                    variant="filled"
-                  />
+                  {/* <InputGroup> */}
+                    <Field
+                      as={Input}
+                      id="secret"
+                      name="secret"
+                      type="text"
+                      variant="filled"
+                    />
+                    {/* <InputRightElement width='3rem'>
+                      <Button h='1.75rem' size='sm' onClick={() => setShow(!show)}>
+                        {show ? <ViewOffIcon /> : <ViewIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup> */}
                   <FormErrorMessage>{errors.secret}</FormErrorMessage>
                 </FormControl>
 

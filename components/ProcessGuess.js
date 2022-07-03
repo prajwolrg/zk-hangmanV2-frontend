@@ -73,7 +73,7 @@ export default function ProcessGuess({ turn }) {
 
 	useEffect(() => {
 		try {
-			let _secret = localStorage.getItem(gameAddress)
+			let _secret = localStorage.getItem(`${gameAddress}_secret`)
 			// console.log(`Stored secret for ${gameAddress}: ${_secret}`)
 			setSecret(_secret)
 		} catch (err) {
