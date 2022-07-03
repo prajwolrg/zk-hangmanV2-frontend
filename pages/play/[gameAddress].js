@@ -105,7 +105,7 @@ function GamePage() {
       signer
     );
 
-    let guessNumba = guess.trim().toLowerCase().charCodeAt(0) - 97;
+    let guessNumba = guess.trim().toLowerCase().charCodeAt(0) - 96;
 
     console.log(`sending the number ${guessNumba} to the contract`);
     console.log("the guess from this number was: ", guess);

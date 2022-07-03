@@ -15,7 +15,7 @@ export const GuessStepper = ({currentStep}) => {
     initialStep: 0,
   })
 
-  console.log(activeStep, currentStep)
+  // console.log(activeStep, currentStep)
   if (currentStep > activeStep) {
     nextStep()
   }
