@@ -49,9 +49,11 @@ let schema = yup.object().shape({
 });
 
 export default function ExistingGame({ gameAddress }) {
-    const { instance, provider, signer, network, chainId, accountAddress } =
+    const { instance, provider, signer, network, chainId, accountAddress, networkName } =
         useConnection();
     const { isOpen, onOpen, onClose } = useDisclosure();
+
+    // console.log(networkName)
 
     const [currentStep, setCurrentStep] = useState(0);
 

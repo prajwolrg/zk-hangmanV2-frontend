@@ -56,6 +56,7 @@ import {
   HatenaIcon,
 } from 'react-share';
 import { useRouter } from "next/router";
+import { useConnection } from "../context/ConnectionContext";
 
 const steps = [
   { label: "Word", stepDetail: "Validating the word..." },
@@ -68,6 +69,8 @@ export const InitStepperV = ({ currentStep, error, errorMsg, gameAddress }) => {
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
   })
+
+  const {networkName} = useConnection()
 
   const [gameUrl, setGameUrl] = useState()
 
@@ -84,7 +87,7 @@ export const InitStepperV = ({ currentStep, error, errorMsg, gameAddress }) => {
   }
 
   useEffect(()=> {
-    let newGameURL = `${window.location.hostname}/?mode=player&gameAddress=${gameAddress}`
+    let newGameURL = `${window.location.hostname}/?mode=player&network=${networkName}&gameAddress=${gameAddress}`
     setGameUrl(newGameURL)
   }, [gameAddress])
 

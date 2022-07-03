@@ -32,7 +32,6 @@ import { useRouter } from "next/router";
 
 import { getInitProofParams } from "../utils/proofUtils";
 import { checkWordValidity, getParsedChars, getRandomWord } from "../utils/wordUtils";
-import { InitStepper } from "./InitStepper";
 import InitStepperV from "./InitStepperV";
 import { RepeatIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 

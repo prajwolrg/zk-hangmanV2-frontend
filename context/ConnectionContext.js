@@ -13,7 +13,7 @@ export function useUpdateConnection() {
 }
 
 export function ConnectionProvider({children}) {
-	const [currentConnection, setCurrentConnection] = useState({instance: null, provider: null, signer: null, network: null, chainId: null, accountAddress: null, isNetworkSupported: false})
+	const [currentConnection, setCurrentConnection] = useState({instance: null, provider: null, signer: null, network: null, chainId: null, accountAddress: null, isNetworkSupported: false, networkName: null})
 
 	return (
 		<ConnectionContext.Provider value={currentConnection}>

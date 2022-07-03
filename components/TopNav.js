@@ -31,6 +31,7 @@ import {
   useUpdateConnection,
 } from "../context/ConnectionContext";
 import { useContractAddresses, useUpdateContractAddresses } from "../context/ContractContext";
+import { useRouter } from "next/router";
 
 const providerOptions = {};
 let web3Modal;
@@ -48,6 +49,8 @@ export default function TopNav() {
     useConnection();
   const updateConnection = useUpdateConnection();
   const updateContractAddresses = useUpdateContractAddresses();
+
+  const router = useRouter()
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -110,6 +113,8 @@ export default function TopNav() {
       const network = await provider.getNetwork();
       const isSupported = isNetworkSupported(String(network.chainId))
       console.log(isSupported)
+      const networkName = chainIdToNetworkMapping[network.chainId]
+      console.log(networkName)
       updateConnection({
         instance: instance,
         provider: provider,
@@ -117,8 +122,13 @@ export default function TopNav() {
         network: network,
         chainId: network.chainId,
         accountAddress: accounts[0],
-        isNetworkSupported: isSupported
+        isNetworkSupported: isSupported,
+        networkName: networkName
       });
+
+      if (router.query.network) {
+        switchNetwork(router.query.network)
+      }
 
       if (isSupported) {
         updateContractAddresses(
@@ -163,7 +173,7 @@ export default function TopNav() {
     // console.log(SUPPORTED_NETWORKS)
     // console.log(SUPPORTED_NETWORKS.includes(network))
     if (SUPPORTED_NETWORKS.includes(network)) {
-      // console.log('trying to switch to ', network)
+      console.log('trying to switch to ', network)
       try {
         // console.log('trying to switch to chainId', SUPPORTED_NETWORKS_PARAMS[network]['chainId'])
         await provider.provider.request({

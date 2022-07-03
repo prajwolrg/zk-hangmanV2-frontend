@@ -14,7 +14,7 @@ const AlphabetButton = ({ item, index, toDisable, isCorrect, player, gameOver, t
 						"blue" : "gray"
 			}
 
-			disabled={toDisable || !player || gameOver || turn%2==0}
+			disabled={!isSelected && (toDisable || !player || gameOver || turn%2==0)}
 			boxSize={"2.5vw"}
 			onClick={() => {
 				handleClick(item);

@@ -59,8 +59,8 @@ const hardhatNodeParams = {
 export const chainIdToNetworkMapping = {
     // "1": "Ethereum Mainnet",
     // "31337": "Local Hardhat Node",
-    "1666600000": HARMONY_MAINNET,
-    "1666700000": HARMONY_TESTNET,
+    // "1666600000": HARMONY_MAINNET,
+    // "1666700000": HARMONY_TESTNET,
     "1666900000": HARMONY_DEVNET,
 }
 
