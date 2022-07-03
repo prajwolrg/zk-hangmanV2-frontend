@@ -62,14 +62,35 @@ export default function ProcessGuess({ turn }) {
 	const [error, setError] = useState(false)
 	const [errorMsg, setErrorMsg] = useState("")
 
+	const [secret, setSecret] = useState(null)
+
 	const [currentStep, setCurrentStep] = useState(0)
 
 	const router = useRouter();
 	const { gameAddress } = router.query;
 	const gameContract = gameAddress;
 
+	useEffect(() => {
+		try {
+			let _secret = localStorage.getItem(gameAddress)
+			console.log(`Stored secret for ${gameAddress}: ${_secret}`)
+			setSecret(_secret)
+		} catch (err) {
+			console.log(err)
+		}
+	}, [])
 
-	const processGuess = async ({ secret }) => {
+	const processGuessFromFormik = async ({secret}) => {
+		const _secret = ethers.BigNumber.from(ethers.utils.id(secret))
+		processGuess(_secret)
+	}
+
+	const processGuessFromLocalStorage = async () => {
+		const _secret = secret;
+		processGuess(_secret)
+	}
+
+	const processGuess = async (secret) => {
 
 		setError(false)
 		setErrorMsg("")
@@ -77,7 +98,7 @@ export default function ProcessGuess({ turn }) {
 		console.log("secret: ", secret);
 
 		// setDialogMessage("Generating proof...");
-		console.log("Generating proof...");
+		// console.log("Generating proof...");
 		onOpen();
 
 		const zkHangmanContract = new ethers.Contract(
@@ -97,7 +118,7 @@ export default function ProcessGuess({ turn }) {
 
 		let inputObject = {
 			char: BigInt(parseInt(hexLatestGuess._hex)),
-			secret: BigInt(ethers.BigNumber.from(ethers.utils.id(secret)))
+			secret: BigInt(secret)
 		}
 
 		// console.log(inputObject);
@@ -139,40 +160,44 @@ export default function ProcessGuess({ turn }) {
 
 
 	return (
-		<>
-			<Formik
-				initialValues={{
-					secret: "",
-				}}
-				onSubmit={(values) => {
-					processGuess(values)
-				}}
-				validationSchema={schema}
-			>
-				{({ handleSubmit, errors, touched }) => (
-					<form onSubmit={handleSubmit}>
-						<VStack spacing={4} align="flex-start">
+		<> {
+			!secret && (
+				<Formik
+					initialValues={{
+						secret: "",
+					}}
+					onSubmit={(values) => {
+						processGuessFromFormik(values)
+					}}
+					validationSchema={schema}
+				>
+					{({ handleSubmit, errors, touched }) => (
+						<form onSubmit={handleSubmit}>
+							<VStack spacing={4} align="flex-start">
 
-							<FormControl isInvalid={!!errors.secret && touched.secret}>
-								<FormLabel>Secret</FormLabel>
-								<Field
-									as={Input}
-									id="secret"
-									name="secret"
-									type="text"
-									variant="filled"
-								/>
-								<FormErrorMessage>{errors.secret}</FormErrorMessage>
-							</FormControl>
+								<FormControl isInvalid={!!errors.secret && touched.secret}>
+									<FormLabel>Secret</FormLabel>
+									<Field
+										as={Input}
+										id="secret"
+										name="secret"
+										type="text"
+										variant="filled"
+									/>
+									<FormErrorMessage>{errors.secret}</FormErrorMessage>
+								</FormControl>
 
-							<Button type="submit" colorScheme="blue" width="full">
-								Process Guess
-							</Button>
+								<Button type="submit" colorScheme="blue" width="full">
+									Process Guess
+								</Button>
+							</VStack>
+						</form>
+					)}
+				</Formik>
+			)
+		}
 
-						</VStack>
-					</form>
-				)}
-			</Formik>
+		<Button colorScheme={"blue"} onClick={processGuessFromLocalStorage}>Process Guess</Button>
 
 			<AlertDialog isOpen={isOpen} onClose={onClose}>
 				<AlertDialogOverlay>

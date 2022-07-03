@@ -21,7 +21,7 @@ const RevealedLetters = ({ totalChars, revealedChars }) => {
             }}
             ringColor={"purple.500"}
             borderWidth={2}
-            boxSize={"10"}
+            size={"xl"}
             key={index}
           />
         ))}

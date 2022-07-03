@@ -173,6 +173,7 @@ export default function CreateNewGame() {
         let href = "/play/" + newGameAddress;
 
         setGameAddress(newGameAddress)
+        localStorage.setItem(newGameAddress, modSecret)
         setCurrentStep(4);
 
         // router.push(href);
