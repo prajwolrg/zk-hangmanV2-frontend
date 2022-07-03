@@ -35,6 +35,7 @@ import Confetti from "react-confetti";
 
 import AlphabetList from "../../components/AlphabetList";
 import ProcessGuess from "../../components/ProcessGuess";
+import SubmitGuess from "../../components/SubmitGuess";
 import RevealedLetters from "../../components/RevealedLetters";
 import { getGameStatus } from "../../utils/gameUtils";
 import next from "next";
@@ -61,6 +62,8 @@ function GamePage() {
   const [playerAddress, setPlayerAddress] = useState("");
   const [totalChars, setTotalChars] = useState(0);
   const [guesses, setGuesses] = useState([]);
+
+  const [currentAlphabet, setCurrentAlphabet] = useState()
 
   const [zkHangmanContract, setZkHangmanContract] = useState(null);
 
@@ -92,43 +95,9 @@ function GamePage() {
 
   const cancelRef = useRef();
 
-  const handleGuessSubmit = (e) => {
-    console.log(e);
-    console.log(typeof e);
-    submitGuess({ guess: e });
-  };
-
   const router = useRouter();
   const { gameAddress } = router.query;
   const gameContract = gameAddress;
-
-  const submitGuess = async ({ guess }) => {
-    const zkHangmanContract = new ethers.Contract(
-      gameContract,
-      zkHangmanAbi,
-      signer
-    );
-
-    let guessNumba = guess.trim().toLowerCase().charCodeAt(0) - 96;
-
-    console.log(`sending the number ${guessNumba} to the contract`);
-    console.log("the guess from this number was: ", guess);
-
-    onOpen();
-
-    setDialogMessage("Awaiting transaction confirmation...");
-    console.log("Awaiting transaction confirmation...");
-    setCurrentStep(0);
-
-    let tx = await zkHangmanContract.playerGuess(toHex(guessNumba));
-    setCurrentStep(1);
-
-    setDialogMessage("Waiting for transaction to finalize...");
-    console.log("Waiting for transaction to finalize...");
-
-    await tx.wait();
-    setCurrentStep(2);
-  };
 
   const handleNextTurn = async (nextTurn) => {
     console.log(`State turn: ${turn}, Blockchain turn: ${nextTurn}`)
@@ -272,13 +241,18 @@ function GamePage() {
           <AlphabetList
             guesses={guesses}
             revealedKeys={revealedChars}
-            handleSubmit={handleGuessSubmit}
+            handleLetterChange={setCurrentAlphabet}
             player={accountAddress == playerAddress}
             initialLetter={lastValidGuess}
             gameOver={gameOver}
+            turn = {turn}
           />
 
-          {accountAddress && !gameOver && accountAddress == hostAddress && turn % 2 == 0 && (
+          {accountAddress && !gameOver && accountAddress == playerAddress && (
+            <SubmitGuess guess={currentAlphabet} turn={turn} correctGuesses={correctGuesses} playerLives={playerLives}/>
+          )}
+
+          {accountAddress && !gameOver && accountAddress == hostAddress && (
             <ProcessGuess turn={turn} />
           )}
 

@@ -2,7 +2,7 @@ import { Button, Center, Box, Text, VStack, HStack, Tooltip } from "@chakra-ui/r
 import React, { useEffect, useState } from "react";
 import AlphabetButton from "./AlphabetButton";
 
-export default function AlphabetList({ guesses, revealedKeys, handleSubmit, player, initialLetter, gameOver }) {
+export default function AlphabetList({ guesses, revealedKeys, player, turn, initialLetter, gameOver, handleLetterChange }) {
   const alphabet = [
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -26,9 +26,14 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
   const [currentAlphabet, setCurrentAlphabet] = useState(initialLetter);
   const [correctAlphabets, setCorrectAlphabets] = useState([]);
 
+  useEffect(() => {
+    handleLetterChange(currentAlphabet);
+  }, [currentAlphabet])
+
   // console.log(`Player: ${player}`)
 
   const [rightGuesses, setRightGuesses] = useState([]);
+  // console.log(`Turn: ${turn}`)
 
   useEffect(() => {
     let _rightGuesses = [],
@@ -58,7 +63,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
           borderRadius="2vw"
           marginRight={"18vh"}
           marginLeft={"18vh"}
-          // style={{ boxShadow: "4px 3px 2px grey" }}
+        // style={{ boxShadow: "4px 3px 2px grey" }}
         >
           <VStack>
 
@@ -74,13 +79,15 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                         `${item} is already guessed and is correct.` :
                         toDisable && !isSelected ?
                           `${item} is already guessed and is incorrect` :
-                          gameOver ? 
-                            `Game is over!`:
-                            isSelected ? 
-                              `${item} is the chosen alphabet`:
-                              player ?
-                                "Click to choose the alphabet" :
-                                "Only player can make a guess"
+                          gameOver ?
+                            `Game is over!` :
+                            isSelected ?
+                              `${item} is the chosen alphabet` :
+                              player && turn % 2 == 0 ?
+                                `Previous guess is not yet processed` :
+                                player ?
+                                  "Click to choose the alphabet" :
+                                  "Only player can make a guess"
                     }
                     shouldWrapChildren>
 
@@ -88,6 +95,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                       key={item}
                       item={item}
                       toDisable={toDisable}
+                      turn={turn}
                       player={player}
                       gameOver={gameOver}
                       isCorrect={isCorrect}
@@ -112,13 +120,15 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                         `${item} is already guessed and is correct.` :
                         toDisable && !isSelected ?
                           `${item} is already guessed and is incorrect` :
-                          gameOver ? 
-                            `Game is over!`:
-                            isSelected ? 
-                              `${item} is the chosen alphabet`:
-                              player ?
-                                "Click to choose the alphabet" :
-                                "Only player can make a guess"
+                          gameOver ?
+                            `Game is over!` :
+                            isSelected ?
+                              `${item} is the chosen alphabet` :
+                              player && turn % 2 == 0 ?
+                                `Previous guess is not yet processed` :
+                                player ?
+                                  "Click to choose the alphabet" :
+                                  "Only player can make a guess"
                     }
                     shouldWrapChildren>
 
@@ -126,6 +136,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                       key={item}
                       item={item}
                       toDisable={toDisable}
+                      turn={turn}
                       player={player}
                       gameOver={gameOver}
                       isCorrect={isCorrect}
@@ -214,7 +225,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
           </Button>
         </Tooltip> */}
 
-        {
+        {/* {
           player && !gameOver && (
             <Button
               onClick={() => {
@@ -229,7 +240,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
               Submit Guess
             </Button>
           )
-        }
+        } */}
 
       </Center>
     </div>

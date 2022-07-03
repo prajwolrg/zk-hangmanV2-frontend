@@ -98,7 +98,7 @@ export default function CreateNewGame() {
     setErrorMsg("")
     setCurrentStep(0)
 
-    console.log("creating game");
+    // console.log("creating game");
     onOpen();
     console.log(`Trying to create a game`);
 
@@ -111,17 +111,17 @@ export default function CreateNewGame() {
     // console.log("guess verifier address: ", GUESS_VERIFIER_ADDRESS);
 
     if (valid) {
-      console.log("valid");
+      // console.log("valid");
       setCurrentStep(1);
 
-      setDialogMessage(`Generating Proof...`);
+      // setDialogMessage(`Generating Proof...`);
 
       let modSecret = ethers.utils.id(secret);
       modSecret = ethers.BigNumber.from(modSecret);
-      console.log("Secret Hash: ", modSecret);
+      // console.log("Secret Hash: ", modSecret);
       const parsedChars = getParsedChars(res.word);
-      console.log(res.word);
-      console.log(parsedChars);
+      // console.log(res.word);
+      // console.log(parsedChars);
 
       const inputObject = {
         secret: BigInt(modSecret),
@@ -137,7 +137,7 @@ export default function CreateNewGame() {
         signer
       );
 
-      console.log(zkHangmanFactoryContract);
+      // console.log(zkHangmanFactoryContract);
 
       setDialogMessage("Awaiting transaction confirmation...");
 

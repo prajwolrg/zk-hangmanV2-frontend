@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/react";
 
-const AlphabetButton = ({ item, index, toDisable, isCorrect, player, gameOver, isSelected, handleClick }) => {
+const AlphabetButton = ({ item, index, toDisable, isCorrect, player, gameOver, turn, isSelected, handleClick }) => {
 	// console.log(`${key} is correct: ${isCorrect}`)
 	return (
 		<Button
@@ -14,7 +14,7 @@ const AlphabetButton = ({ item, index, toDisable, isCorrect, player, gameOver, i
 						"blue" : "gray"
 			}
 
-			disabled={toDisable || !player || gameOver}
+			disabled={toDisable || !player || gameOver || turn%2==0}
 			boxSize={"2.5vw"}
 			onClick={() => {
 				handleClick(item);

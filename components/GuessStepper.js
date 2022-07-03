@@ -2,6 +2,8 @@ import { Step, Steps, useSteps } from "chakra-ui-steps"
 import { Flex, Button, Heading, Center, VStack, Text, Spinner } from "@chakra-ui/react"
 import next from "next";
 import { useEffect } from "react";
+import { CloseIcon, CheckIcon } from "@chakra-ui/icons";
+
 
 const steps = [
   { label: "Confirmation", stepDetail: "Waiting for the transaction confirmation..." },
@@ -10,7 +12,7 @@ const steps = [
 ];
 
 
-export const GuessStepper = ({currentStep}) => {
+export const GuessStepper = ({ currentStep, error, errorMsg, guess, right, wrong }) => {
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
   })
@@ -20,20 +22,29 @@ export const GuessStepper = ({currentStep}) => {
     nextStep()
   }
 
-  const Contents = ({detail}) => {
+  const Contents = ({ detail }) => {
     return (
-      <Center>
-        <VStack >
-					<Spinner
-						thickness="4px"
-						speed="0.65s"
-						emptyColor="gray.200"
-						color="blue.500"
-						size="xl"
-					/>
-          <Text>{detail}</Text>
-        </VStack>
-      </Center>
+      error ? (
+        <Center>
+          <VStack >
+            <CloseIcon w={6} h={6} color="red" />
+            <Text>{errorMsg}</Text>
+          </VStack >
+        </Center >
+      ) : (
+        <Center>
+          <VStack >
+            <Spinner
+              thickness="4px"
+              speed="0.65s"
+              emptyColor="gray.200"
+              color="blue.500"
+              size="xl"
+            />
+            <Text>{detail}</Text>
+          </VStack >
+        </Center >
+      )
     );
   };
 
@@ -42,19 +53,29 @@ export const GuessStepper = ({currentStep}) => {
       <Steps orientation="vertical" activeStep={activeStep}>
         {steps.map(({ label, stepDetail }, index) => (
           <Step width="100%" label={label} key={label}>
-            <Contents detail={stepDetail} />
+            <Contents detail={stepDetail} error={error} errorMsg={errorMsg} />
           </Step>
         ))}
       </Steps>
 
       {activeStep === steps.length ? (
         <Flex px={4} py={4} width="100%" flexDirection="column">
-          <Heading fontSize="xl" textAlign="center">
-            Woohoo! All steps completed!
-          </Heading>
-          <Button mx="auto" mt={6} size="sm" onClick={reset}>
-            Reset
-          </Button>
+          {right && (
+            <VStack>
+              <CheckIcon w={6} h={6} color="green" />
+              <Heading fontSize="xl" textAlign="center" color={"green"}>
+                {`Your guess '${guess}' is RIGHT`}
+              </Heading>
+            </VStack>
+          )}
+          {wrong && (
+            <VStack>
+              <CloseIcon w={6} h={6} color="red"/>
+              <Heading fontSize="xl" textAlign="center" color="red">
+                {`Your guess '${guess}' is WRONG`}
+              </Heading>
+            </VStack>
+          )}
         </Flex>
       ) : (
         <Flex width="100%" justify="flex-end">

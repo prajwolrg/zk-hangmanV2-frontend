@@ -101,7 +101,7 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 			}
 			_parsedRevealedChars.push(_parsedChar)
 		}
-		console.log(_parsedRevealedChars)
+		// console.log(_parsedRevealedChars)
 
 		let _parsedGuesses = []
 		for (let i = 0; i < _guesses.length; i++) {
@@ -109,7 +109,7 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 			let _parsedChar = String.fromCharCode(_parsedInt)
 			_parsedGuesses.push(_parsedChar)
 		}
-		console.log(_parsedGuesses)
+		// console.log(_parsedGuesses)
 
 		return {
 			_host,

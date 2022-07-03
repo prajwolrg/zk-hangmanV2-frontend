@@ -17,7 +17,8 @@ import {
 	Spinner,
 	Text,
 	HStack,
-	Heading
+	Heading,
+	Tooltip
 } from "@chakra-ui/react";
 import { Formik, Field } from "formik";
 import { getGuessProofParams } from "../utils/proofUtils";
@@ -73,7 +74,7 @@ export default function ProcessGuess({ turn }) {
 	useEffect(() => {
 		try {
 			let _secret = localStorage.getItem(gameAddress)
-			console.log(`Stored secret for ${gameAddress}: ${_secret}`)
+			// console.log(`Stored secret for ${gameAddress}: ${_secret}`)
 			setSecret(_secret)
 		} catch (err) {
 			console.log(err)
@@ -95,7 +96,7 @@ export default function ProcessGuess({ turn }) {
 		setError(false)
 		setErrorMsg("")
 		setCurrentStep(0)
-		console.log("secret: ", secret);
+		// console.log("secret: ", secret);
 
 		// setDialogMessage("Generating proof...");
 		// console.log("Generating proof...");
@@ -110,11 +111,11 @@ export default function ProcessGuess({ turn }) {
 		let hexLatestGuess = await zkHangmanContract.guesses(Math.floor((turn - 1) / 2));
 		let hexSecretHash = await zkHangmanContract.secretHash()
 
-		console.log("turn: ", turn);
-		console.log("index: ", Math.floor((turn - 1) / 2));
-		console.log("hex latest guess: ", hexLatestGuess._hex);
+		// console.log("turn: ", turn);
+		// console.log("index: ", Math.floor((turn - 1) / 2));
+		// console.log("hex latest guess: ", hexLatestGuess._hex);
 
-		console.log(parseInt(hexLatestGuess))
+		// console.log(parseInt(hexLatestGuess))
 
 		let inputObject = {
 			char: BigInt(parseInt(hexLatestGuess._hex)),
@@ -125,19 +126,19 @@ export default function ProcessGuess({ turn }) {
 
 		const { _a, _b, _c, _input } = await getGuessProofParams(inputObject)
 
-		console.log(`Secret Hash Stored: ${BigInt(hexSecretHash)}`)
-		console.log(`Secret Hash Generated: ${BigInt(_input[0])}`)
+		// console.log(`Secret Hash Stored: ${BigInt(hexSecretHash)}`)
+		// console.log(`Secret Hash Generated: ${BigInt(_input[0])}`)
 		if (BigInt(hexSecretHash) == BigInt(_input[0])) {
 			setCurrentStep(1)
-			setDialogMessage("Awaiting transaction confirmation...");
-			console.log("Awaiting transaction confirmation...");
+			// setDialogMessage("Awaiting transaction confirmation...");
+			// console.log("Awaiting transaction confirmation...");
 
 			try {
 				let tx = await zkHangmanContract.processGuess(_a, _b, _c, _input);
 				setCurrentStep(2)
 
 				setDialogMessage("Waiting for transaction to finalize...");
-				console.log("Waiting for transaction to finalize...");
+				// console.log("Waiting for transaction to finalize...");
 
 				console.log(tx);
 
@@ -200,14 +201,23 @@ export default function ProcessGuess({ turn }) {
 
 			{
 				secret && (
+					<Tooltip
+					label = {
+						turn % 2 == 0 ? "": "It is player's turn to submit a guess!" 
+					}
+					shouldWrapChildren
+					>
+
 					<Button
 						colorScheme={"blue"}
 						onClick={processGuessFromLocalStorage}
 						isLoading={!error && currentStep >=0 && currentStep < 3}
 						loadingText={"Processing Guess"}
+						disabled={turn%2==1}
 					>
 						Process Guess
 					</Button>
+					</Tooltip>
 				)
 			}
 
