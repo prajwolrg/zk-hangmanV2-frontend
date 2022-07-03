@@ -64,7 +64,7 @@ export default function ProcessGuess({ turn }) {
 
 	const [secret, setSecret] = useState(null)
 
-	const [currentStep, setCurrentStep] = useState(0)
+	const [currentStep, setCurrentStep] = useState(-1)
 
 	const router = useRouter();
 	const { gameAddress } = router.query;
@@ -80,7 +80,7 @@ export default function ProcessGuess({ turn }) {
 		}
 	}, [])
 
-	const processGuessFromFormik = async ({secret}) => {
+	const processGuessFromFormik = async ({ secret }) => {
 		const _secret = ethers.BigNumber.from(ethers.utils.id(secret))
 		processGuess(_secret)
 	}
@@ -142,6 +142,7 @@ export default function ProcessGuess({ turn }) {
 				console.log(tx);
 
 				let txFinalized = await tx.wait();
+				setCurrentStep(3)
 
 				onClose();
 
@@ -197,9 +198,20 @@ export default function ProcessGuess({ turn }) {
 			)
 		}
 
-		<Button colorScheme={"blue"} onClick={processGuessFromLocalStorage}>Process Guess</Button>
+			{
+				secret && (
+					<Button
+						colorScheme={"blue"}
+						onClick={processGuessFromLocalStorage}
+						isLoading={!error && currentStep >=0 && currentStep < 3}
+						loadingText={"Processing Guess"}
+					>
+						Process Guess
+					</Button>
+				)
+			}
 
-			<AlertDialog isOpen={isOpen} onClose={onClose}>
+			<AlertDialog isOpen={isOpen} onClose={onClose} closeOnOverlayClick={error || currentStep >= 3}>
 				<AlertDialogOverlay>
 					<AlertDialogContent>
 						<AlertDialogBody align="center" py={10}>
