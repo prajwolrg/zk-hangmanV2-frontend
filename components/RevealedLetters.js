@@ -1,6 +1,9 @@
 import { HStack, PinInput, PinInputField } from "@chakra-ui/react";
 
 const RevealedLetters = ({ totalChars, revealedChars }) => {
+  const handleKeyDown = (e) => {
+    console.log(`${e} key pressed`)
+  }
   return (
     <HStack style={{ marginTop: 20, marginBottom: 30 }}>
       <PinInput
@@ -18,7 +21,7 @@ const RevealedLetters = ({ totalChars, revealedChars }) => {
             }}
             ringColor={"purple.500"}
             borderWidth={2}
-            boxSize={"20"}
+            boxSize={"10"}
             key={index}
           />
         ))}

@@ -165,7 +165,7 @@ export default function ProcessGuess({ turn }) {
 								<FormErrorMessage>{errors.secret}</FormErrorMessage>
 							</FormControl>
 
-							<Button type="submit" colorScheme="purple" width="full">
+							<Button type="submit" colorScheme="blue" width="full">
 								Process Guess
 							</Button>
 

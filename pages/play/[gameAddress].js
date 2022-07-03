@@ -218,11 +218,11 @@ function GamePage() {
         // overflow="hidden"
         // height={"95vh"}
         alignItems="center"
-        backgroundColor="whitesmoke"
+        // backgroundColor="whitesmoke"
       >
         <VStack>
           {accountAddress && accountAddress == playerAddress && turn % 2 == 1 && (
-            <Heading marginBottom={10}>Make your guess!</Heading>
+            <Heading marginBottom={10} marginTop={10}>Make your guess!</Heading>
           )}
 
           {accountAddress && accountAddress == hostAddress && turn % 2 == 0 && (

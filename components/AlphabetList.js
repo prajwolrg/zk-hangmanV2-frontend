@@ -50,15 +50,15 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
   return (
     <div style={{ marginTop: 20, marginBottom: 20 }}>
       <Center flexDirection={"column"}>
-        <Text fontWeight={"bold"} marginBottom={5}>
+        {/* <Text fontWeight={"bold"} marginBottom={5}>
           Chosen Alphabet: {currentAlphabet}
-        </Text>
+        </Text> */}
         <Box
-          backgroundColor={"whitesmoke"}
+          // backgroundColor={"whitesmoke"}
           borderRadius="2vw"
           marginRight={"18vh"}
           marginLeft={"18vh"}
-          style={{ boxShadow: "4px 3px 2px grey" }}
+          // style={{ boxShadow: "4px 3px 2px grey" }}
         >
           <VStack>
 
@@ -72,11 +72,13 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                     label={
                       toDisable && isCorrect ?
                         `${item} is already guessed and is correct.` :
-                        toDisable ?
+                        toDisable && !isSelected ?
                           `${item} is already guessed and is incorrect` :
-                          player ?
-                            "Select to choose the alphabet" :
-                            "Only player can make a guess"
+                          isSelected ? 
+                            `${item} is the chosen alphabet`:
+                            player ?
+                              "Click to choose the alphabet" :
+                              "Only player can make a guess"
                     }
                     shouldWrapChildren>
 
@@ -105,11 +107,13 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                     label={
                       toDisable && isCorrect ?
                         `${item} is already guessed and is correct.` :
-                        toDisable ?
+                        toDisable && !isSelected ?
                           `${item} is already guessed and is incorrect` :
-                          player ?
-                            "Select to choose the alphabet" :
-                            "Only player can make a guess"
+                          isSelected ? 
+                            `${item} is the chosen alphabet`:
+                            player ?
+                              "Select to choose the alphabet" :
+                              "Only player can make a guess"
                     }
                     shouldWrapChildren>
 
@@ -211,10 +215,10 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                 setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
                 handleSubmit(currentAlphabet);
               }}
-              colorScheme={"purple"}
+              colorScheme={"blue"}
               // color={"white"}
               // backgroundColor={"#805AD5"}
-              marginTop={5}
+              marginTop={10}
             >
               Submit Guess
             </Button>

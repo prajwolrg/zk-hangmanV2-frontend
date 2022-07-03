@@ -8,10 +8,10 @@ const AlphabetButton = ({ item, index, toDisable, isCorrect, player, isSelected,
 
 			colorScheme={toDisable && isCorrect ?
 				"green" :
-				toDisable ?
+				toDisable && !isSelected ?
 					"red" :
 					isSelected ?
-						"purple" : "blue"
+						"blue" : "gray"
 			}
 
 			disabled={toDisable || !player}
@@ -20,11 +20,11 @@ const AlphabetButton = ({ item, index, toDisable, isCorrect, player, isSelected,
 				handleClick(item);
 				// checkCorrect(item);
 			}}
-			style={{
-				boxShadow: "4px 3px 2px black",
-				margin: "1em",
-			}}
-			color={"white"}
+			// style={{
+			// 	boxShadow: "4px 3px 2px black",
+			// 	margin: "1em",
+			// }}
+			// color={"white"}
 
 		// backgroundColor={
 		// 	isCorrect && toDisable
