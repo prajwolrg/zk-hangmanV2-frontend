@@ -1,6 +1,5 @@
 import { Step, Steps, useSteps } from "chakra-ui-steps"
 import { Flex, Button, Heading, Center, VStack, Text, Spinner, HStack } from "@chakra-ui/react"
-import next from "next";
 import { useEffect, useState } from "react";
 import { CloseIcon } from '@chakra-ui/icons'
 

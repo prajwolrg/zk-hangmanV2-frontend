@@ -38,7 +38,6 @@ import ProcessGuess from "../../components/ProcessGuess";
 import SubmitGuess from "../../components/SubmitGuess";
 import RevealedLetters from "../../components/RevealedLetters";
 import { getGameStatus } from "../../utils/gameUtils";
-import next from "next";
 
 const zkHangmanAbi = zkHangman.abi;
 
