@@ -46,6 +46,7 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 		let {
 			_host,
 			_player,
+			_gameOver,
 			_totalChars,
 			_playerLives,
 			_correctGuesses,
@@ -53,6 +54,8 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 			_revealedChars,
 			_guesses
 		} = _gameInfo
+
+		// console.log(`Game Over: ${_gameOver}`)
 
 		// let _host = await zkHangmanContract.host();
 		// console.log("host:", _host)
@@ -111,6 +114,7 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 		return {
 			_host,
 			_player,
+			_gameOver,
 			_totalChars,
 			_playerLives,
 			_correctGuesses,

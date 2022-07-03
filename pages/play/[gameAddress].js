@@ -23,6 +23,8 @@ import {
   AlertDialogHeader,
 } from "@chakra-ui/react";
 
+import useWindowSize from 'react-use/lib/useWindowSize'
+
 import TopNav from "../../components/TopNav";
 import { useConnection } from "../../context/ConnectionContext";
 import Figure from "../../components/Figure";
@@ -52,6 +54,8 @@ if (typeof window !== "undefined") {
 function GamePage() {
   const { instance, provider, signer, network, chainId, accountAddress } =
     useConnection();
+  const { width, height } = useWindowSize()
+
 
   const [hostAddress, setHostAddress] = useState("");
   const [playerAddress, setPlayerAddress] = useState("");
@@ -164,6 +168,7 @@ function GamePage() {
       const {
         _host,
         _player,
+        _gameOver,
         _totalChars,
         _playerLives,
         _correctGuesses,
@@ -180,6 +185,17 @@ function GamePage() {
       setTurn(_turn);
       setRevealedChars(_revealedChars);
       setGuesses(_guesses);
+      setGameOver(_gameOver)
+
+      if (_gameOver) {
+        if (_playerLives > 0) {
+          console.log("You WIN!")
+          setGameWin(true)
+        } else {
+          console.log("You LOSE!")
+          setGameWin(false)
+        }
+      }
 
       setContractConnected(true);
 
@@ -218,16 +234,33 @@ function GamePage() {
         // overflow="hidden"
         // height={"95vh"}
         alignItems="center"
-        // backgroundColor="whitesmoke"
+      // backgroundColor="whitesmoke"
       >
         <VStack>
-          {accountAddress && accountAddress == playerAddress && turn % 2 == 1 && (
+
+          {accountAddress && !gameOver && accountAddress == playerAddress && turn % 2 == 1 && (
             <Heading marginBottom={10} marginTop={10}>Make your guess!</Heading>
           )}
 
-          {accountAddress && accountAddress == hostAddress && turn % 2 == 0 && (
-            <Heading marginBottom={10}>Process the guess!</Heading>
+          {accountAddress && !gameOver && accountAddress == playerAddress && turn % 2 == 0 && (
+            <Heading marginBottom={10} marginTop={10}>Waiting to reveal guess...</Heading>
           )}
+
+          {accountAddress && !gameOver && accountAddress == hostAddress && turn % 2 == 0 && (
+            <Heading marginBottom={10} marginTop={10}>Process the guess!</Heading>
+          )}
+          {accountAddress && !gameOver && accountAddress == hostAddress && turn % 2 == 1 && (
+            <Heading marginBottom={10} marginTop={10}>Waiting for the guess...</Heading>
+          )}
+
+          {accountAddress && gameOver && (
+            <Heading marginBottom={10} marginTop={10}> {accountAddress == playerAddress ? gameWin ? "Congratulations! You Won!": "Sorry! You Lost!" : "Game is over!" }</Heading>
+          )}
+
+          {accountAddress && gameOver && gameWin && accountAddress == playerAddress && (
+              <Confetti width={width} height={height}/>
+          )}
+
 
           <Figure playerLives={playerLives} />
 
@@ -242,9 +275,10 @@ function GamePage() {
             handleSubmit={handleGuessSubmit}
             player={accountAddress == playerAddress}
             initialLetter={lastValidGuess}
+            gameOver={gameOver}
           />
 
-          {accountAddress && accountAddress == hostAddress && turn % 2 == 0 && (
+          {accountAddress && !gameOver && accountAddress == hostAddress && turn % 2 == 0 && (
             <ProcessGuess turn={turn} />
           )}
 

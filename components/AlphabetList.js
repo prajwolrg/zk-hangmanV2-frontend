@@ -2,7 +2,7 @@ import { Button, Center, Box, Text, VStack, HStack, Tooltip } from "@chakra-ui/r
 import React, { useEffect, useState } from "react";
 import AlphabetButton from "./AlphabetButton";
 
-export default function AlphabetList({ guesses, revealedKeys, handleSubmit, player, initialLetter }) {
+export default function AlphabetList({ guesses, revealedKeys, handleSubmit, player, initialLetter, gameOver }) {
   const alphabet = [
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -74,11 +74,13 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                         `${item} is already guessed and is correct.` :
                         toDisable && !isSelected ?
                           `${item} is already guessed and is incorrect` :
-                          isSelected ? 
-                            `${item} is the chosen alphabet`:
-                            player ?
-                              "Click to choose the alphabet" :
-                              "Only player can make a guess"
+                          gameOver ? 
+                            `Game is over!`:
+                            isSelected ? 
+                              `${item} is the chosen alphabet`:
+                              player ?
+                                "Click to choose the alphabet" :
+                                "Only player can make a guess"
                     }
                     shouldWrapChildren>
 
@@ -87,6 +89,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                       item={item}
                       toDisable={toDisable}
                       player={player}
+                      gameOver={gameOver}
                       isCorrect={isCorrect}
                       isSelected={isSelected}
                       index={index}
@@ -109,11 +112,13 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                         `${item} is already guessed and is correct.` :
                         toDisable && !isSelected ?
                           `${item} is already guessed and is incorrect` :
-                          isSelected ? 
-                            `${item} is the chosen alphabet`:
-                            player ?
-                              "Select to choose the alphabet" :
-                              "Only player can make a guess"
+                          gameOver ? 
+                            `Game is over!`:
+                            isSelected ? 
+                              `${item} is the chosen alphabet`:
+                              player ?
+                                "Click to choose the alphabet" :
+                                "Only player can make a guess"
                     }
                     shouldWrapChildren>
 
@@ -122,6 +127,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
                       item={item}
                       toDisable={toDisable}
                       player={player}
+                      gameOver={gameOver}
                       isCorrect={isCorrect}
                       isSelected={isSelected}
                       index={index}
@@ -209,7 +215,7 @@ export default function AlphabetList({ guesses, revealedKeys, handleSubmit, play
         </Tooltip> */}
 
         {
-          player && (
+          player && !gameOver && (
             <Button
               onClick={() => {
                 setSelectedAlphabets([...selectedAlphabets, currentAlphabet]);
