@@ -90,10 +90,10 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 
 		let _parsedRevealedChars = []
 		for (let i = 0; i < _revealedChars.length; i++) {
-			let _parsedInt = parseInt(_revealedChars[i]) + 97
+			let _parsedInt = parseInt(_revealedChars[i])
 			let _parsedChar = String.fromCharCode(63)
-			if (_parsedInt < 123) {
-				_parsedChar = String.fromCharCode(_parsedInt)
+			if (_parsedInt > 0 && _parsedInt <= 26) {
+				_parsedChar = String.fromCharCode(_parsedInt + 96)
 			}
 			_parsedRevealedChars.push(_parsedChar)
 		}

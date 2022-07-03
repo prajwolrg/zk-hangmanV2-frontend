@@ -10,7 +10,8 @@ const AlphabetButton = ({ item, index, toDisable, isCorrect, player, isSelected,
 				"green" :
 				toDisable ?
 					"red" :
-					"purple"
+					isSelected ?
+						"purple" : "blue"
 			}
 
 			disabled={toDisable || !player}

@@ -18,7 +18,7 @@ export const getParsedChars = (word) => {
 	let i = 0;
 	for (i; i < word.length; i++) {
 		const charAscii = word.charCodeAt(i)
-		const parsedChar = charAscii - 97
+		const parsedChar = charAscii - 96
 		parsedChars.push(BigInt(parsedChar))
 	}
 	for (i; i < 25; i++) {

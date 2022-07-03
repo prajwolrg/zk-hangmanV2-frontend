@@ -150,7 +150,6 @@ export default function CreateNewGame() {
           _b,
           _c,
           _input,
-          word.length
         );
         setCurrentStep(3);
 
