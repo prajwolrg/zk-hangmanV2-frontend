@@ -4,20 +4,29 @@ import ExistingGame from "../components/ExistingGame";
 import CreateNewGame from "../components/CreateGame";
 import { useConnection } from "../context/ConnectionContext";
 import { useRouter } from "next/router";
+import { chainIdToNetworkMapping, SUPPORTED_NETWORKS, SUPPORTED_NETWORKS_PARAMS } from "../utils";
+import { connect } from "formik";
 export default function LandingPage() {
 
   const [selectedMode, setSelectedMode] = useState("Host");
   const [isConnected, setIsConnected] = useState(false);
-  const { accountAddress, isNetworkSupported } = useConnection();
+  const { accountAddress, isNetworkSupported, network } = useConnection();
+
+  const [rightNetwork, setRightNetwork] = useState(false)
   const [gameAddress, setGameAddress] = useState("");
+  const [connectionMsg, setConnectionMsg] = useState("")
 
   const router = useRouter()
 
   useEffect(() => {
     // console.log(`Network support: ${isNetworkSupported}`);
     // console.log(`Selected Mode: ${selectedMode}`)
-    if (accountAddress == null || !isNetworkSupported) {
+    if (accountAddress == null) {
       setIsConnected(false);
+      setConnectionMsg("Please connect the wallet!")
+    } else if (!isNetworkSupported) {
+      setIsConnected(false);
+      setConnectionMsg("Select a supported network!")
     } else {
       setIsConnected(true);
     }
@@ -25,6 +34,7 @@ export default function LandingPage() {
     if (router.query) {
       const mode = router.query.mode
       const gameAddress = router.query.gameAddress
+      const networkName = router.query.network
       if (mode) {
         if (mode == 'player' || mode == 'Player') {
           setSelectedMode('Player')
@@ -32,11 +42,19 @@ export default function LandingPage() {
             setGameAddress(gameAddress)
           }
         }
+      }
 
+      if (networkName) {
+        if (SUPPORTED_NETWORKS.includes(networkName)) {
+          if (networkName != chainIdToNetworkMapping[network.chainId]) {
+            setIsConnected(false)
+            setConnectionMsg(`Switch to ${SUPPORTED_NETWORKS_PARAMS[networkName]['chainName']} to play!`)
+          }
+        }
       }
     }
 
-  }, [accountAddress, isNetworkSupported]);
+  }, [accountAddress, isNetworkSupported, network]);
   return (
     <Flex
       style={{
@@ -109,7 +127,7 @@ export default function LandingPage() {
               alt="noConnection"
             />
             <Text fontWeight="bold" fontSize="1.4vw">
-              Connect Your Wallet and Select Right Network
+              {connectionMsg}
             </Text>
           </Flex>
         ) : selectedMode === "Host" ? (
@@ -120,7 +138,7 @@ export default function LandingPage() {
         ) : selectedMode === "Player" ? (
           <VStack marginTop="5vh">
             <Heading mb="10px"> Join existing game </Heading>
-            <ExistingGame gameAddress={gameAddress}/>
+            <ExistingGame gameAddress={gameAddress} />
           </VStack>
         ) : null}
       </Box>
