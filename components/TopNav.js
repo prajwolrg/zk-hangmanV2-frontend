@@ -47,6 +47,7 @@ export default function TopNav() {
 
   const { instance, provider, signer, network, chainId, accountAddress } =
     useConnection();
+  const connection = useConnection()
   const updateConnection = useUpdateConnection();
   const updateContractAddresses = useUpdateContractAddresses();
 
@@ -58,6 +59,17 @@ export default function TopNav() {
     onOpen: onSelectOpen,
     onClose: onSelectClose,
   } = useDisclosure();
+
+  useEffect(()=> {
+    // console.log('use effect')
+    console.log(router.query)
+    if (router.query && router.query.network && SUPPORTED_NETWORKS.includes(router.query.network)) {
+      let provider = new ethers.providers.JsonRpcProvider( SUPPORTED_NETWORKS_PARAMS[router.query.network].rpcUrls[0])
+      console.log(provider)
+      updateConnection({...connection, provider: provider})
+    }
+
+  }, [router.isReady])
 
   useEffect(() => {
     if (instance?.on) {

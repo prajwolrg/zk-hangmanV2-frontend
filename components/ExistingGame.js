@@ -89,7 +89,7 @@ export default function ExistingGame({ gameAddress }) {
                         setCurrentStep(2);
                         let txFinalized = await tx.wait();
                         setCurrentStep(3);
-                        router.push(`/play/${gameAddress}`);
+                        router.push(`/play/${gameAddress}/?network=${networkName}`);
                     } catch (err) {
                         // console.log(JSON.stringify(err))
                         setError(true)
@@ -97,7 +97,7 @@ export default function ExistingGame({ gameAddress }) {
                         if (err.code == "TRANSACTION_REPLACED" && err.cancelled == false) {
                             setError(false)
                             setCurrentStep(3);
-                            router.push(`/play/${gameAddress}`);
+                            router.push(`/play/${gameAddress}/?network=${networkName}`);
                         }
                     }
                 }
@@ -105,7 +105,7 @@ export default function ExistingGame({ gameAddress }) {
                 // console.log("Continue the game!")
                 // router.push(`/play/${gameAddress}`)
                 setCurrentStep(3);
-                router.push(`/play/${gameAddress}`);
+                router.push(`/play/${gameAddress}/?network=${networkName}`);
             } else {
                 setError(true);
                 setErrorMsg("Someone else has already joined!");

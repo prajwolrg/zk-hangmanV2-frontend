@@ -44,7 +44,7 @@ export default function LandingPage() {
         }
       }
 
-      if (networkName) {
+      if (networkName && network) {
         if (SUPPORTED_NETWORKS.includes(networkName)) {
           if (networkName != chainIdToNetworkMapping[network.chainId]) {
             setIsConnected(false)

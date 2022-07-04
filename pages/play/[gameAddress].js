@@ -110,6 +110,8 @@ function GamePage() {
   };
 
   useEffect(() => {
+    if (provider) {getContractData()}
+
     if (!router.isReady) return;
 
     if (web3Modal.cachedProvider) {
@@ -131,11 +133,11 @@ function GamePage() {
         zkHangmanContract.off("NextTurn", handleNextTurn);
       }
     };
-  }, [router.isReady, signer]);
+  }, [router.isReady, signer, provider]);
 
   const getContractData = async () => {
-    if (accountAddress) {
-      const gameStatus = await getGameStatus(gameContract, signer)
+    if (provider) {
+      const gameStatus = await getGameStatus(gameContract, provider)
       // console.log(gameStatus)
       const {
         _host,
@@ -289,7 +291,7 @@ function GamePage() {
 
 
           {accountAddress && gameOver && accountAddress == hostAddress && !allRevealed && (
-            <Reveal revealedChars={revealedChars}/>
+            <Reveal revealedChars={revealedChars} />
           )}
 
         </VStack>
