@@ -55,3 +55,6 @@ The following graphic shows the structure of the zero knowledge elements used in
 1. If the player has made a guess, the host needs to process the guess. 
 ![ProcessGuess](assets/process_guess.png)
 
+### Game Win
+1. If player guesses all the alphabets correctly, player wins and the host loses. Alternatively, if the player cannot guess all the alphabets, host wins and the player loses.
+![PlayerWin](assets/player_win.png)
