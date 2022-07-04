@@ -49,9 +49,9 @@ The following graphic shows the structure of the zero knowledge elements used in
 ![GuessImage](assets/submit_guess.png)
 
 2. Wait for the host to process the guess to reveal.
-![RightReveal](assets/right_guess)
+![RightReveal](assets/right_guess.png)
 
 ### Playing the game - Host
 1. If the player has made a guess, the host needs to process the guess. 
-![ProcessGuess](assets/process_guess)
+![ProcessGuess](assets/process_guess.png)
 
