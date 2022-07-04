@@ -33,22 +33,25 @@ The following graphic shows the structure of the zero knowledge elements used in
 
 ### Creating a game
 1. Connect the wallet and select the right network. 
-> Currently support only for the Harmony devnet.
+> Currently support only for the Harmony devnet and Harmony mainnet.
 
-![CreateNewGameImage](assets/2.png)
+![CreateNewGameImage](assets/create_game.png)
 
-2. Fill the appropriate values and Click Create Game. Metamask extension must pop out. Confirm the transaction and wait for it to finalize.
-![WaitingConfirmationImage](assets/3.png)
+2. Choose an appropriate word for the player and Click Create Game. Metamask extension must pop out. Confirm the transaction and wait for it to finalize.
+![WaitingConfirmationImage](assets/game_created.png)
 
 ### Joining the game
-1. Connect the wallet and select the right network. 
-2. On the Player tab, enter the game address and click Join Game.
-![JoinGameImage](assets/4.png)
+1. Directly copy and paste the Invitation Link and connect wallet to the right network to join the game.
+![JoinGameImage](assets/join_game.png)
 
 ### Playing the game - Player
-1. Type your guess letter and press enter
-![GuessImage](assets/5.png)
+1. Select an alphabet to guess and make a guess
+![GuessImage](assets/submit_guess.png)
+
+2. Wait for the host to process the guess to reveal.
+![RightReveal](assets/right_guess)
 
 ### Playing the game - Host
-1. Use the secret created during the game creation to process the guess.
+1. If the player has made a guess, the host needs to process the guess. 
+![ProcessGuess](assets/process_guess)
 
