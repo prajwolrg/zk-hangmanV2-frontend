@@ -108,9 +108,12 @@ export default function SubmitGuess({ guess, turn, playerLives, correctGuesses }
 			setCurrentStep(2)
 
 		} catch (err) {
-			console.log(err)
 			setError(true)
-			setErrorMsg("User denied transaction signature")
+			setErrorMsg(err.message)
+			if (err.code == "TRANSACTION_REPLACED" && err.cancelled == false) {
+				setError(false)
+				setCurrentStep(2);
+			}
 		}
 	}
 

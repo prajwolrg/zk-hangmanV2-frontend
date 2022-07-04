@@ -139,6 +139,7 @@ export default function CreateNewGame() {
         char: parsedChars,
       };
       const { _a, _b, _c, _input } = await getInitProofParams(inputObject);
+
       setCurrentStep(2);
 
       // e.preventDefault();
@@ -191,9 +192,33 @@ export default function CreateNewGame() {
         // router.push(href);
 
       } catch (err) {
+        console.log(JSON.stringify(err))
         setError(true)
-        console.log(err)
-        setErrorMsg("User denied transaction signature!")
+        setErrorMsg(err.message)
+        if (err.code == 4001) {
+          console.log("User denied transaction signature")
+        }
+        if (err.code == "TRANSACTION_REPLACED" && err.cancelled == false) {
+          setError(false)
+          let filter = zkHangmanFactoryContract.filters.GameCreated(
+            accountAddress,
+            // playerAddress
+          );
+          let filterResults = await zkHangmanFactoryContract.queryFilter(
+            filter,
+            -1000
+          );
+          let newGameAddress =
+            filterResults[filterResults.length - 1].args.gameAddress;
+
+          let href = "/play/" + newGameAddress;
+
+          setGameAddress(newGameAddress)
+          localStorage.setItem(`${newGameAddress}_secret`, modSecret)
+          localStorage.setItem(`${newGameAddress}_word`, word)
+          setCurrentStep(4);
+
+        }
       }
     }
     else {
@@ -236,14 +261,14 @@ export default function CreateNewGame() {
                 <FormControl isInvalid={!!errors.word && touched.word}>
                   <FormLabel>Enter a word</FormLabel>
                   {/* <InputGroup> */}
-                    <Field
-                      as={Input}
-                      id="word"
-                      name="word"
-                      type="text"
-                      variant="filled"
-                    />
-                    {/* <InputRightElement width='3rem'>
+                  <Field
+                    as={Input}
+                    id="word"
+                    name="word"
+                    type="text"
+                    variant="filled"
+                  />
+                  {/* <InputRightElement width='3rem'>
                       <Tooltip label="Click to generate a word randomly">
                         <Button h='1.75rem' size='sm' onClick={getNewRandomWord}>
                           <RepeatIcon />
@@ -258,14 +283,14 @@ export default function CreateNewGame() {
                 <FormControl isInvalid={!!errors.secret && touched.secret}>
                   <FormLabel>Secret</FormLabel>
                   {/* <InputGroup> */}
-                    <Field
-                      as={Input}
-                      id="secret"
-                      name="secret"
-                      type="text"
-                      variant="filled"
-                    />
-                    {/* <InputRightElement width='3rem'>
+                  <Field
+                    as={Input}
+                    id="secret"
+                    name="secret"
+                    type="text"
+                    variant="filled"
+                  />
+                  {/* <InputRightElement width='3rem'>
                       <Button h='1.75rem' size='sm' onClick={() => setShow(!show)}>
                         {show ? <ViewOffIcon /> : <ViewIcon />}
                       </Button>

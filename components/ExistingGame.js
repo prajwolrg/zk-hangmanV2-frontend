@@ -84,11 +84,22 @@ export default function ExistingGame({ gameAddress }) {
                     setError(true);
                     setErrorMsg("Host cannot join as player!");
                 } else {
-                    let tx = await zkHangmanContract.joinGame();
-                    setCurrentStep(2);
-                    let txFinalized = await tx.wait();
-                    setCurrentStep(3);
-                    router.push(`/play/${gameAddress}`);
+                    try {
+                        let tx = await zkHangmanContract.joinGame();
+                        setCurrentStep(2);
+                        let txFinalized = await tx.wait();
+                        setCurrentStep(3);
+                        router.push(`/play/${gameAddress}`);
+                    } catch (err) {
+                        // console.log(JSON.stringify(err))
+                        setError(true)
+                        setErrorMsg(err.message)
+                        if (err.code == "TRANSACTION_REPLACED" && err.cancelled == false) {
+                            setError(false)
+                            setCurrentStep(3);
+                            router.push(`/play/${gameAddress}`);
+                        }
+                    }
                 }
             } else if (player == accountAddress) {
                 // console.log("Continue the game!")

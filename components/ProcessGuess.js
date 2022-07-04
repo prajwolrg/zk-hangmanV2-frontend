@@ -146,12 +146,16 @@ export default function ProcessGuess({ turn }) {
 				setCurrentStep(3)
 
 				onClose();
+				// console.log(txFinalized);
 
-				console.log(txFinalized);
 			} catch (err) {
 				setError(true)
-				console.log(err)
-				setErrorMsg("User denied transaction signature")
+				setErrorMsg(err.message)
+				if (err.code == "TRANSACTION_REPLACED" && err.cancelled == false) {
+					setError(false)
+					setCurrentStep(3);
+					onClose()
+				}
 			}
 		}
 		else {
@@ -202,21 +206,21 @@ export default function ProcessGuess({ turn }) {
 			{
 				secret && (
 					<Tooltip
-					label = {
-						turn % 2 == 0 ? "": "It is player's turn to submit a guess!" 
-					}
-					shouldWrapChildren
+						label={
+							turn % 2 == 0 ? "" : "It is player's turn to submit a guess!"
+						}
+						shouldWrapChildren
 					>
 
-					<Button
-						colorScheme={"blue"}
-						onClick={processGuessFromLocalStorage}
-						isLoading={!error && currentStep >=0 && currentStep < 3}
-						loadingText={"Processing Guess"}
-						disabled={turn%2==1}
-					>
-						Process Guess
-					</Button>
+						<Button
+							colorScheme={"blue"}
+							onClick={processGuessFromLocalStorage}
+							isLoading={!error && currentStep >= 0 && currentStep < 3}
+							loadingText={"Processing Guess"}
+							disabled={turn % 2 == 1}
+						>
+							Process Guess
+						</Button>
 					</Tooltip>
 				)
 			}
