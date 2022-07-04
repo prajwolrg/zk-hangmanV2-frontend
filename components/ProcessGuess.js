@@ -18,7 +18,8 @@ import {
 	Text,
 	HStack,
 	Heading,
-	Tooltip
+	Tooltip,
+	useToast
 } from "@chakra-ui/react";
 import { Formik, Field } from "formik";
 import { getGuessProofParams } from "../utils/proofUtils";
@@ -55,10 +56,14 @@ if (typeof window !== 'undefined') {
 
 export default function ProcessGuess({ turn }) {
 
+	const toast = useToast()
+
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
 	const [dialogMessage, setDialogMessage] = useState('');
 	const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
+
+	const [showToast, setShowToast] = useState(true)
 
 	const [error, setError] = useState(false)
 	const [errorMsg, setErrorMsg] = useState("")
@@ -202,6 +207,18 @@ export default function ProcessGuess({ turn }) {
 				</Formik>
 			)
 		}
+
+
+
+			{/* {secret && turn % 2 == 0 && currentStep == 3 || currentStep == -1 && showToast && toast({
+				title: 'Guess recieved',
+				description: "Player has made a guess.",
+				status: 'success',
+				duration: 30000,
+				isClosable: true,
+			} && setShowToast(false))
+			} */}
+
 
 			{
 				secret && (

@@ -1,5 +1,5 @@
 import { Step, Steps, useSteps } from "chakra-ui-steps"
-import { Flex, Button, Heading, Center, VStack, Text, Spinner } from "@chakra-ui/react"
+import { Flex, Button, Heading, Center, VStack, Text, Spinner, useToast } from "@chakra-ui/react"
 import { useEffect } from "react";
 import { CloseIcon, CheckIcon } from "@chakra-ui/icons";
 
@@ -15,6 +15,8 @@ export const GuessStepper = ({ currentStep, error, errorMsg, guess, right, wrong
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
   })
+
+  const toast = useToast()
 
   // console.log(activeStep, currentStep)
   if (currentStep > activeStep) {
@@ -66,14 +68,28 @@ export const GuessStepper = ({ currentStep, error, errorMsg, guess, right, wrong
                 {`Your guess '${guess}' is RIGHT`}
               </Heading>
             </VStack>
+            // toast({
+            //   title: 'Guess Processed',
+            //   description: `Your guess ${guess} is right`,
+            //   status: 'success',
+            //   duration: 30000,
+            //   isClosable: true,
+            // })
           )}
           {wrong && (
             <VStack>
-              <CloseIcon w={6} h={6} color="red"/>
+              <CloseIcon w={6} h={6} color="red" />
               <Heading fontSize="xl" textAlign="center" color="red">
                 {`Your guess '${guess}' is WRONG`}
               </Heading>
             </VStack>
+            // toast({
+            //   title: 'Guess Processed',
+            //   description: `Your guess ${guess} is wrong`,
+            //   status: 'error',
+            //   duration: 30000,
+            //   isClosable: true,
+            // })
           )}
         </Flex>
       ) : (
