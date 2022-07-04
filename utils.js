@@ -81,7 +81,7 @@ const devInitVerifier = "0xf5f2Ef303e2c2082681D661A4fb9628035A66533"
 const devGuessVerifier = "0x3635c17146D00d8D32DDEc4E3021aA1b3C5EC03b"
 
 // harmony mainnet contract addresses
-const mainZkHangmanFactory = "0x761C9b442bb71133484d024Ae54261c054d44904";
+const mainZkHangmanFactory = "0xF6655e56490f99510054790d69dD2533B8924920";
 const mainInitVerifier = "0xa5b2960a459B2b2fa3d03DE9974629EB0ab38D63";
 const mainGuessVerifier = "0x64F114F56AFAa72D3Aa75AB835Bf3033ee280a75";
 
