@@ -33,7 +33,7 @@ import { useRouter } from "next/router";
 import { getInitProofParams } from "../utils/proofUtils";
 import { checkWordValidity, getParsedChars, getRandomWord } from "../utils/wordUtils";
 import InitStepperV from "./InitStepperV";
-import { RepeatIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { InfoIcon, InfoOutlineIcon, RepeatIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const zkHangmanFactoryAbi = zkHangmanFactory.abi;
 
@@ -70,7 +70,7 @@ let schema = yup.object().shape({
   // playerAddress: yup.string().required().ethereumAddress(),
   // word: yup.string().required().min(2).max(25).validEnglishWord(),
   word: yup.string().required().min(2).max(25),
-  secret: yup.string().required().min(2).max(25),
+  // secret: yup.string().required().min(2).max(25),
 });
 
 export default function CreateNewGame() {
@@ -81,6 +81,7 @@ export default function CreateNewGame() {
   const [gameUrl, setGameUrl] = useState(null)
   const [gameAddress, setGameAddress] = useState(null)
   const [show, setShow] = useState(false)
+  const [randomSecret, setRandomSecret] = useState("")
   const [initialWord, setInitialWord] = useState("")
   const {
     ZK_HANGMAN_FACTORY_ADDRESS,
@@ -104,16 +105,33 @@ export default function CreateNewGame() {
     setInitialWord(word)
   }
 
+  const getRandomSecret = () => {
+    var chars = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var passwordLength = 20;
+    var secret = "";
+
+    for (var i = 0; i <= passwordLength; i++) {
+      var randomNumber = Math.floor(Math.random() * chars.length);
+      secret += chars.substring(randomNumber, randomNumber + 1);
+    }
+
+    console.log(secret)
+    return secret
+  }
+
   const createGame = async ({ word, secret }) => {
     setError(false)
     setErrorMsg("")
     setCurrentStep(0)
 
+    if (!secret) {
+      console.log('Generating random secret')
+      secret = getRandomSecret()
+    }
+
     // console.log("creating game");
     onOpen();
-    console.log(`Trying to create a game`);
-
-    setDialogMessage(`Trying to validate word`);
+    console.log(`Trying to create a game with: ${word} and ${secret}`);
 
     const [valid, res] = await checkWordValidity(word);
 
@@ -234,7 +252,7 @@ export default function CreateNewGame() {
           initialValues={{
             // playerAddress: "0xbe9dAc15BE3EBE0A1dB1dae69fc0948e1Bb75226",
             word: "",
-            secret: "",
+            // secret: "",
           }}
           onSubmit={(values) => {
             createGame(values);
@@ -274,30 +292,54 @@ export default function CreateNewGame() {
                           <RepeatIcon />
                         </Button>
                       </Tooltip>
-                    </InputRightElement> */}
-                  {/* </InputGroup> */}
+                    </InputRightElement>
+                   </InputGroup> */}
+
+                  <InputRightElement width='1rem'>
+                    <Tooltip label="This is the word player needs to guess to win.">
+                      <InfoOutlineIcon />
+                    </Tooltip>
+                  </InputRightElement>
+
 
                   <FormErrorMessage>{errors.word}</FormErrorMessage>
                 </FormControl>
 
-                <FormControl isInvalid={!!errors.secret && touched.secret}>
+                {/* <FormControl isInvalid={!!errors.secret && touched.secret}>
                   <FormLabel>Secret</FormLabel>
-                  {/* <InputGroup> */}
-                  <Field
-                    as={Input}
-                    id="secret"
-                    name="secret"
-                    type="text"
-                    variant="filled"
-                  />
-                  {/* <InputRightElement width='3rem'>
+                  <InputGroup>
+                    <Field
+                      as={Input}
+                      id="secret"
+                      name="secret"
+                      type="text"
+                      variant="filled"
+                    /> */}
+                    {/* <InputRightElement width='3rem'>
                       <Button h='1.75rem' size='sm' onClick={() => setShow(!show)}>
                         {show ? <ViewOffIcon /> : <ViewIcon />}
                       </Button>
                     </InputRightElement>
                   </InputGroup> */}
+
+                    {/* <InputRightElement width='3rem'>
+                      <Tooltip label="Click to generate a random secret">
+                        <Button h='1.75rem' size='sm' onClick={getRandomSecret}>
+                          <RepeatIcon />
+                        </Button>
+                      </Tooltip>
+                    </InputRightElement>
+                  </InputGroup>
+
+                  <InputRightElement width='1rem'>
+                    <Tooltip label="Secret is used to hide the letters. It can be anything. Since it is stored in the local storage, you don't have to remember it.">
+                      <InfoOutlineIcon />
+                    </Tooltip>
+                  </InputRightElement>
+
                   <FormErrorMessage>{errors.secret}</FormErrorMessage>
-                </FormControl>
+                </FormControl> */}
+
 
                 <Button type="submit" colorScheme="purple" width="full">
                   Create Game
