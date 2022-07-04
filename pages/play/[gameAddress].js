@@ -21,6 +21,7 @@ import {
   PinInputField,
   AlertDialogFooter,
   AlertDialogHeader,
+  useToast,
 } from "@chakra-ui/react";
 
 import useWindowSize from 'react-use/lib/useWindowSize'
@@ -38,6 +39,7 @@ import ProcessGuess from "../../components/ProcessGuess";
 import SubmitGuess from "../../components/SubmitGuess";
 import RevealedLetters from "../../components/RevealedLetters";
 import { getGameStatus } from "../../utils/gameUtils";
+import Reveal from "../../components/Reveal";
 
 const zkHangmanAbi = zkHangman.abi;
 
@@ -56,6 +58,7 @@ function GamePage() {
     useConnection();
   const { width, height } = useWindowSize()
 
+  const toast = useToast()
 
   const [hostAddress, setHostAddress] = useState("");
   const [playerAddress, setPlayerAddress] = useState("");
@@ -75,6 +78,7 @@ function GamePage() {
   const [turn, setTurn] = useState(0);
 
   const [contractConnected, setContractConnected] = useState(false);
+  const [allRevealed, setAllRevealed] = useState(false)
 
   const [revealedChars, setRevealedChars] = useState([]);
   const [guess, setGuess] = useState("");
@@ -132,7 +136,7 @@ function GamePage() {
   const getContractData = async () => {
     if (accountAddress) {
       const gameStatus = await getGameStatus(gameContract, signer)
-      console.log(gameStatus)
+      // console.log(gameStatus)
       const {
         _host,
         _player,
@@ -143,7 +147,9 @@ function GamePage() {
         _turn,
         _revealedChars,
         _guesses,
+        _allRevealed
       } = gameStatus;
+
 
       setHostAddress(_host);
       setPlayerAddress(_player);
@@ -151,6 +157,7 @@ function GamePage() {
       setPlayerLives(_playerLives);
       setCorrectGuesses(_correctGuesses);
       setTurn(_turn);
+      setAllRevealed(_allRevealed)
       setRevealedChars(_revealedChars);
       setGuesses(_guesses);
       setGameOver(_gameOver)
@@ -170,7 +177,7 @@ function GamePage() {
       if (_turn % 2 == 0) {
         if (_guesses.length > 0) {
           const lastGuess = _guesses[_guesses.length - 1].toUpperCase()
-          console.log(`Last guess was: ${lastGuess}`)
+          // console.log(`Last guess was: ${lastGuess}`)
           setLastValidGuess(lastGuess);
         }
       }
@@ -179,6 +186,7 @@ function GamePage() {
         setLastValidGuess("");
         onClose()
       }
+
     }
   };
 
@@ -222,11 +230,25 @@ function GamePage() {
           )}
 
           {accountAddress && gameOver && (
-            <Heading marginBottom={10} marginTop={10}> {accountAddress == playerAddress ? gameWin ? "Congratulations! You Won!": "Sorry! You Lost!" : "Game is over!" }</Heading>
+            <Heading marginBottom={10} marginTop={10}> {
+              accountAddress == playerAddress ?
+                gameWin ?
+                  "Congratulations! You Won!" :
+                  "Sorry! You Lost!" :
+                accountAddress == hostAddress ?
+                  gameWin ? "Sorry! You Lost!" :
+                    "Congratulations! You Won!" :
+                  "Game Over"
+            }
+            </Heading>
           )}
 
           {accountAddress && gameOver && gameWin && accountAddress == playerAddress && (
-              <Confetti width={width} height={height}/>
+            <Confetti width={width} height={height} />
+          )}
+
+          {accountAddress && gameOver && !gameWin && accountAddress == hostAddress && (
+            <Confetti width={width} height={height} />
           )}
 
 
@@ -244,15 +266,30 @@ function GamePage() {
             player={accountAddress == playerAddress}
             initialLetter={lastValidGuess}
             gameOver={gameOver}
-            turn = {turn}
+            turn={turn}
           />
 
           {accountAddress && !gameOver && accountAddress == playerAddress && (
-            <SubmitGuess guess={currentAlphabet} turn={turn} correctGuesses={correctGuesses} playerLives={playerLives}/>
+            <SubmitGuess guess={currentAlphabet} turn={turn} correctGuesses={correctGuesses} playerLives={playerLives} />
           )}
 
           {accountAddress && !gameOver && accountAddress == hostAddress && (
             <ProcessGuess turn={turn} />
+          )}
+
+          {/* {
+            toast({
+              title: 'Account created.',
+              description: "We've created your account for you.",
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+            })
+          } */}
+
+
+          {accountAddress && gameOver && accountAddress == hostAddress && !allRevealed && (
+            <Reveal revealedChars={revealedChars}/>
           )}
 
         </VStack>

@@ -94,7 +94,7 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 		let _parsedRevealedChars = []
 		for (let i = 0; i < _revealedChars.length; i++) {
 			let _parsedInt = parseInt(_revealedChars[i])
-			console.log(_parsedInt)
+			// console.log(_parsedInt)
 			let _parsedChar = String.fromCharCode(63)
 			if (_parsedInt >= 1 && _parsedInt <= 26) {
 				_parsedChar = String.fromCharCode(_parsedInt + 96)
@@ -111,6 +111,16 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 		}
 		// console.log(_parsedGuesses)
 
+		let _allRevealed = true;
+		// console.log(_allRevealed)
+		for (let i=0; i < _revealedChars.length; i++) {
+			let _parsedInt = parseInt(_revealedChars[i])
+			if (_parsedInt < 1 || _parsedInt > 26 ) {
+				_allRevealed = false
+			}
+		}
+		console.log(_allRevealed)
+
 		return {
 			_host,
 			_player,
@@ -118,6 +128,7 @@ export const getGameStatus = async (gameContractAddress, signer) => {
 			_totalChars,
 			_playerLives,
 			_correctGuesses,
+			_allRevealed,
 			_turn,
 			_revealedChars: _parsedRevealedChars,
 			_guesses: _parsedGuesses

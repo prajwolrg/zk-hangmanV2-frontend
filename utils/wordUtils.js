@@ -13,6 +13,12 @@ export const checkWordValidity = async (word) => {
 	}
 }
 
+export const getParsedChar = (letter) => {
+	const charAscii = letter.charCodeAt(0)
+	const parsedChar = charAscii - 96
+	return parsedChar
+}
+
 export const getParsedChars = (word) => {
 	const parsedChars = []
 	let i = 0;
