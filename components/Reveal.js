@@ -30,19 +30,19 @@ const Reveal = ({ revealedChars }) => {
 			const gameAddress = router.query.gameAddress
 			if (gameAddress) {
 				setGameAddress(gameAddress)
+				try {
+					let _word = localStorage.getItem(`${gameAddress}_word`)
+					let _secret = localStorage.getItem(`${gameAddress}_secret`)
+					console.log(_word)
+					console.log(_secret)
+					setWord(_word)
+					setSecret(_secret)
+				} catch (err) {
+					console.error(err)
+				}
 			}
 		}
 
-		try {
-			let _word = localStorage.getItem(`${gameAddress}_word`)
-			let _secret = localStorage.getItem(`${gameAddress}_secret`)
-			console.log(_word)
-			console.log(_secret)
-			setWord(_word)
-			setSecret(_secret)
-		} catch (err) {
-			console.error(err)
-		}
 	}, [])
 
 	const getLettersToReveal = (revealedChars) => {
@@ -65,9 +65,9 @@ const Reveal = ({ revealedChars }) => {
 			char: BigInt(getParsedChar(char)),
 		};
 
-		const {_a, _b, _c, _input} = await getGuessProofParams(inputObject)
+		const { _a, _b, _c, _input } = await getGuessProofParams(inputObject)
 
-		return {_a, _b, _c, _input}
+		return { _a, _b, _c, _input }
 	}
 
 	const revealLetters = async () => {
@@ -83,8 +83,8 @@ const Reveal = ({ revealedChars }) => {
 			setCurrentStep(0)
 			for (let i = 0; i < chars.length; i++) {
 				setCurrentLetter(chars[i].toUpperCase())
-				const {_a, _b, _c, _input} = await generateProof(chars[i])
-				proofs.push({_a, _b, _c, _input})
+				const { _a, _b, _c, _input } = await generateProof(chars[i])
+				proofs.push({ _a, _b, _c, _input })
 			}
 			setCurrentStep(1)
 
@@ -109,7 +109,11 @@ const Reveal = ({ revealedChars }) => {
 
 	return (
 		<>
-		<Button onClick={revealLetters}>Reveal Letters</Button>
+			{
+				word && secret && (
+					<Button onClick={revealLetters}>Reveal Letters</Button>
+				)
+			}
 
 			<AlertDialog isOpen={isOpen} onClose={onClose} closeOnOverlayClick={error || currentStep >= 1}>
 				<AlertDialogOverlay>

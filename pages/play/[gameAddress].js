@@ -110,7 +110,7 @@ function GamePage() {
   };
 
   useEffect(() => {
-    if (provider) {getContractData()}
+    if (provider) { getContractData() }
 
     if (!router.isReady) return;
 
@@ -134,6 +134,10 @@ function GamePage() {
       }
     };
   }, [router.isReady, signer, provider]);
+
+  const goToHome = () => {
+    router.push('/')
+  }
 
   const getContractData = async () => {
     if (provider) {
@@ -271,8 +275,8 @@ function GamePage() {
             turn={turn}
           />
 
-          {accountAddress && !gameOver && accountAddress == playerAddress && (
-            <SubmitGuess guess={currentAlphabet} turn={turn} correctGuesses={correctGuesses} playerLives={playerLives} />
+          {accountAddress && accountAddress == playerAddress && (
+            <SubmitGuess guess={currentAlphabet} turn={turn} correctGuesses={correctGuesses} playerLives={playerLives} gameOver={gameOver} />
           )}
 
           {accountAddress && !gameOver && accountAddress == hostAddress && (
@@ -293,6 +297,11 @@ function GamePage() {
           {accountAddress && gameOver && accountAddress == hostAddress && !allRevealed && (
             <Reveal revealedChars={revealedChars} />
           )}
+
+          {accountAddress && gameOver  && (
+            <Button onClick={goToHome}> Go To Home Page</Button>
+          )}
+
 
         </VStack>
       </Center>

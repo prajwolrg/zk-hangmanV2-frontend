@@ -40,7 +40,7 @@ let schema = yup.object().shape({
 	guess: yup.string().required().length(1),
 });
 
-export default function SubmitGuess({ guess, turn, playerLives, correctGuesses }) {
+export default function SubmitGuess({ guess, turn, playerLives, correctGuesses, gameOver }) {
 
 	const [dialogMessage, setDialogMessage] = useState();
 	const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
@@ -119,20 +119,24 @@ export default function SubmitGuess({ guess, turn, playerLives, correctGuesses }
 
 	return (
 		<>
-			<Tooltip
-				label={turn % 2 == 0 ? "It is host's turn to process the guess" : guess.length < 1 ? "Select a letter to make a guess" : ""}
-				shouldWrapChildren>
-				<Button
-					colorScheme="blue"
-					onClick={submitGuess}
-					isLoading={!error && currentStep >= 0 && currentStep < 2}
-					loadingText={"Submitting Guess"}
-					disabled={guess.length < 1 || turn % 2 == 0}
-				>
-					Submit Guess
-				</Button>
-			</Tooltip>
+			{
+				!gameOver && (
+					<Tooltip
+						label={turn % 2 == 0 ? "It is host's turn to process the guess" : guess.length < 1 ? "Select a letter to make a guess" : ""}
+						shouldWrapChildren>
+						<Button
+							colorScheme="blue"
+							onClick={submitGuess}
+							isLoading={!error && currentStep >= 0 && currentStep < 2}
+							loadingText={"Submitting Guess"}
+							disabled={guess.length < 1 || turn % 2 == 0}
+						>
+							Submit Guess
+						</Button>
+					</Tooltip>
 
+				)
+			}
 			<AlertDialog isOpen={isOpen} onClose={onClose} closeOnOverlayClick={error || currentStep >= 2}>
 				<AlertDialogOverlay>
 					<AlertDialogContent>

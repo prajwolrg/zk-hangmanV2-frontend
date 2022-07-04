@@ -19,7 +19,9 @@ import {
 	HStack,
 	Heading,
 	Tooltip,
-	useToast
+	useToast,
+	AlertDialogHeader,
+	AlertDialogFooter
 } from "@chakra-ui/react";
 import { Formik, Field } from "formik";
 import { getGuessProofParams } from "../utils/proofUtils";
@@ -29,7 +31,7 @@ import { ethers, wordlists } from "ethers";
 import { useContractAddresses } from "../context/ContractContext";
 import zkHangmanFactory from "../abis/zkHangmanFactory.json";
 import { useConnection } from "../context/ConnectionContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { toHex } from "../utils";
 
@@ -57,6 +59,8 @@ if (typeof window !== 'undefined') {
 export default function ProcessGuess({ turn }) {
 
 	const toast = useToast()
+	const cancelRef = useRef()
+
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { isOpen: isSelectOpen, onOpen: onSelectOpen, onClose: onSelectClose } = useDisclosure();
@@ -64,6 +68,7 @@ export default function ProcessGuess({ turn }) {
 	const { instance, provider, signer, network, chainId, accountAddress } = useConnection()
 
 	const [showToast, setShowToast] = useState(true)
+	const [alertOpen, setAlertOpen] = useState(true)
 
 	const [error, setError] = useState(false)
 	const [errorMsg, setErrorMsg] = useState("")
@@ -85,6 +90,13 @@ export default function ProcessGuess({ turn }) {
 			console.log(err)
 		}
 	}, [])
+
+	useEffect(() => {
+		if (turn % 2 == 0) {
+			onOpen()
+		}
+
+	}, [turn])
 
 	const processGuessFromFormik = async ({ secret }) => {
 		const _secret = ethers.BigNumber.from(ethers.utils.id(secret))
@@ -152,6 +164,7 @@ export default function ProcessGuess({ turn }) {
 
 				onClose();
 				// console.log(txFinalized);
+				setCurrentStep(-1)
 
 			} catch (err) {
 				setError(true)
@@ -160,6 +173,7 @@ export default function ProcessGuess({ turn }) {
 					setError(false)
 					setCurrentStep(3);
 					onClose()
+					setCurrentStep(-1)
 				}
 			}
 		}
@@ -209,17 +223,6 @@ export default function ProcessGuess({ turn }) {
 		}
 
 
-
-			{/* {secret && turn % 2 == 0 && currentStep == 3 || currentStep == -1 && showToast && toast({
-				title: 'Guess recieved',
-				description: "Player has made a guess.",
-				status: 'success',
-				duration: 30000,
-				isClosable: true,
-			} && setShowToast(false))
-			} */}
-
-
 			{
 				secret && (
 					<Tooltip
@@ -242,11 +245,20 @@ export default function ProcessGuess({ turn }) {
 				)
 			}
 
-			<AlertDialog isOpen={isOpen} onClose={onClose} closeOnOverlayClick={error || currentStep >= 3}>
+			<AlertDialog isOpen={isOpen} onClose={onClose} closeOnOverlayClick={error || currentStep >= 3 || currentStep < 0} >
 				<AlertDialogOverlay>
 					<AlertDialogContent>
 						<AlertDialogBody align="center" py={10}>
-							<GuessProcessStepper currentStep={currentStep} error={error} errorMsg={errorMsg} />
+
+							{
+								currentStep < 0 ?
+									<AlertDialogHeader fontSize="lg" fontWeight="bold">
+										Player has made a guess. Process it!
+									</AlertDialogHeader>
+									:
+									<GuessProcessStepper currentStep={currentStep} error={error} errorMsg={errorMsg} />
+							}
+
 							{/* <Text mb={7}> {dialogMessage} </Text>
 							<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" /> */}
 						</AlertDialogBody>

@@ -2,6 +2,7 @@ import { Step, Steps, useSteps } from "chakra-ui-steps"
 import { Flex, Button, Heading, Center, VStack, Text, Spinner } from "@chakra-ui/react"
 import { useEffect } from "react";
 import { CloseIcon } from "@chakra-ui/icons";
+import { useRouter } from "next/router";
 
 const steps = [
   { label: "Proof", stepDetail: "Generating proof to process the letter: " },
@@ -14,6 +15,11 @@ export const RevealStepper = ({currentStep, currentLetter, error, errorMsg}) => 
   const { nextStep, prevStep, reset, activeStep } = useSteps({
     initialStep: 0,
   })
+
+  const router = useRouter()
+  const goToHome = () => {
+    router.push('/')
+  }
 
   // console.log(activeStep, currentStep)
   if (currentStep > activeStep) {
@@ -59,10 +65,10 @@ export const RevealStepper = ({currentStep, currentLetter, error, errorMsg}) => 
       {activeStep === steps.length ? (
         <Flex px={4} py={4} width="100%" flexDirection="column">
           <Heading fontSize="xl" textAlign="center">
-            Woohoo! All steps completed!
+            Congratulations Again!
           </Heading>
-          <Button mx="auto" mt={6} size="sm" onClick={reset}>
-            Reset
+          <Button mx="auto" mt={6} size="sm" onClick={goToHome}>
+            Go To Home
           </Button>
         </Flex>
       ) : (
